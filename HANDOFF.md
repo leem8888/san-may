@@ -82,7 +82,7 @@ Thứ tự đã chọn: **M1 backend (Phase 4 + lõi Phase 5) → M2 world (Phas
 
 - Chưa thử trên điện thoại thật (iOS/Android), chưa nghe âm thanh trên loa, chưa test tải 20 trình duyệt thật, chưa triển khai Internet — đừng báo là đã làm.
 - Lọc từ cơ bản; không có trang quản trị để xem báo cáo (dữ liệu nằm trong bảng `reports`).
-- Đi bằng chạm là đi thẳng + trượt theo vật cản, chưa có tìm đường.
+- Click/chạm đã có A* (`systems/Pathfinder.js`): lưới 16px, dự phòng 8px cho lối hẹp, kiểm tra bán kính thật, rút gọn đường, đi tới vật tương tác trong tầm. `InputManager` giữ các điểm rẽ, `Player` giới hạn bước để không vượt điểm; WASD/joystick huỷ tự đi. Test đi vòng cây, qua khe hẹp, đích bị chặn và di chuyển thực tới mọi cổng/vật của 8 khu + vườn riêng nằm trong `tests/pathfinding.test.mjs`.
 - Vật trang trí trong vườn không chặn đường đi (chỉ trang trí).
 - Mất token mà chưa lưu mã khôi phục là mất danh tính khách; chưa có tài khoản/liên kết đăng nhập.
 - Thời tiết tự động tính theo đồng hồ máy khách; máy lệch giờ nhiều có thể thấy khác người khác.

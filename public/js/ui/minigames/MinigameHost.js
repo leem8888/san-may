@@ -23,8 +23,18 @@ export class MinigameHost {
     $('#minigameTools').replaceChildren(); $('#minigame').hidden = false;
     this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
     const tools = (...nodes) => $('#minigameTools').replaceChildren(...nodes);
+    $('#minigameStatus').setAttribute('aria-live', 'polite');
     const status = text => { $('#minigameStatus').textContent = text; };
-    this.active = new GameClass({ canvas: this.canvas, tools, status, el, api: this.api, audio: this.audio, done: data => this.complete(data) });
+    this.active = new GameClass({ canvas: this.canvas, tools, status, el, api: this.api, audio: this.audio, done: async data => {
+      if (object.action === 'sand') { this.close(); toast('Đã cập nhật vườn cát theo bản vẽ của bạn.'); }
+      await this.complete(data);
+    },
+      initialSand: this.game.scene.sandStrokes,
+      applySand: async strokes => {
+        await this.net.request('sand:apply', { objectId: object.id, strokes });
+        this.game.scene.setSand?.(strokes);
+      },
+    });
     this.last = performance.now();
     const frame = now => { if (!this.active) return; const dt = Math.min(.05, (now - this.last) / 1000); this.last = now; this.active.update(dt); this.active.render(); this.raf = requestAnimationFrame(frame); };
     this.raf = requestAnimationFrame(frame);

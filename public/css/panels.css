@@ -25,17 +25,27 @@
 .wish-card .meta .more{margin-left:auto;background:transparent;border:0}
 .wish-card time{font-size:10px;color:#7a6a50;margin-left:6px}
 .empty{font-size:12px;color:#d0d9c9}
+.shop-item{padding:14px 0;border-bottom:1px solid var(--line)}
+.shop-item p{font-size:12px;line-height:1.6;color:var(--muted);margin:6px 0 10px}
+.shop-item button{min-height:44px;width:100%}
 #worldMap{width:100%;height:auto;margin-top:8px}
-#worldMap .node rect{fill:#183330;stroke:#d9b77e66;stroke-width:1}
-#worldMap .node.visited rect{fill:#2a4a3e}
-#worldMap .node.here rect{fill:#d9b77e;stroke:#f6e3b3}
-#worldMap .node text{fill:#f2ebd8;font:11px system-ui;text-anchor:middle}
-#worldMap .node.here text{fill:#21352b;font-weight:700}
-#worldMap line{stroke:#d9b77e55;stroke-width:2;stroke-dasharray:4 4}
+#worldMap .node .map-card{fill:#183330;stroke:#d9b77e66;stroke-width:1}
+#worldMap .node.visited .map-card{fill:#2a4a3e}
+#worldMap .node.here .map-card{fill:#d9b77e;stroke:#f6e3b3;stroke-width:2}
+#worldMap .node text{fill:#f2ebd8;font:12px system-ui;text-anchor:middle}
+#worldMap .node.here .map-name{fill:#21352b;font-weight:700}
+#worldMap .node .map-here{fill:#f6dfa2;font-size:10px;paint-order:stroke;stroke:#102625;stroke-width:4px;stroke-linejoin:round}
+#worldMap .map-compass{fill:#c4cfbd;font:10px system-ui}
+#worldMap > line{stroke:#d9b77eaa;stroke-width:2}
 dialog{width:min(480px,92vw);border:1px solid #bca07177;border-radius:18px;background:#18332f;color:var(--text);padding:24px;box-shadow:0 20px 80px #00171388}
 dialog::backdrop{background:#061c2177;backdrop-filter:blur(3px)}
 dialog p{font-size:14px;line-height:1.9;color:#d2d9c8;white-space:pre-line}
 .dialogue-foot{display:flex;align-items:center;gap:12px}
+.dialogue-speaker{display:flex;align-items:center;gap:16px;margin:8px 0 12px}
+#dialoguePortrait{width:112px;height:112px;flex:none;border:1px solid #d9b77e44;border-radius:20px;background:linear-gradient(145deg,#355044,#172f2a)}
+#dialogueGesture{font-size:11px;color:var(--muted);line-height:1.5}
+.dialogue-speaker h2{font-size:23px}
+@media(max-width:480px){#dialoguePortrait{width:88px;height:88px}.dialogue-speaker{gap:12px}.dialogue-speaker h2{font-size:20px}}
 .dialogue-foot small{font-size:11px;color:#a9b8a4;flex:none}
 .dialogue-foot .primary{margin:6px 0}
 .panel.wide{width:400px}

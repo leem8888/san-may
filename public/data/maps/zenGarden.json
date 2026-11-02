@@ -27,9 +27,6 @@
     {"x":246,"y":286,"w":528,"h":328}
   ],
   "props": [
-    {"type":"rock","x":380,"y":428,"size":0.8,"solid":false},
-    {"type":"rock","x":600,"y":500,"size":1.1,"solid":false},
-    {"type":"rock","x":520,"y":366,"size":0.5,"solid":false},
     {"type":"bonsai","x":1060,"y":330},
     {"type":"bonsai","x":1160,"y":330},
     {"type":"bonsai","x":1260,"y":330},
@@ -41,10 +38,10 @@
     {"type":"bamboo","x":160,"y":260},
     {"type":"bamboo","x":1460,"y":1060},
     {"type":"bush","x":680,"y":1000,"flowers":"#e6a0ad"},
-    {"type":"lotusPot","x":1410,"y":760},
-    {"type":"bench","x":1200,"y":520}
+    {"type":"lotusPot","x":1410,"y":760}
   ],
   "objects": [
+    {"id":"zenBench","type":"bench","x":1200,"y":520,"label":"Ngồi nghỉ trên ghế đá","action":"sit","radius":100,"hitW":64,"hitH":45},
     {"id":"gardenGate","type":"gardenGate","x":230,"y":900,"label":"Vào vườn riêng","action":"garden","radius":100},
     {"id":"sand","type":"rake","x":510,"y":650,"label":"Vẽ vườn cát","action":"sand","radius":110},
     {"id":"zen1","type":"cushion","x":1130,"y":860,"label":"Ngồi thiền","action":"meditate","radius":80},

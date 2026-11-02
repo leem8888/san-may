@@ -1,0 +1,55 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { startServer, guest, connect, ask, nextEvent, delay } from './helpers.mjs';
+import { OFFERING_SECONDS } from '../public/js/shared/shop.js';
+
+test('shop purchases are atomic and idempotent; daily points and inventories belong to each guest', async t => {
+  const s = await startServer(); t.after(s.close);
+  const a = guest(s.game), b = guest(s.game), shop = s.game.ctx.repos.shop;
+  const day = '2026-11-02';
+  assert.equal(shop.state(a.id, day).points, 100);
+  assert.equal(shop.state(a.id, day).canClaim, false);
+  assert.equal(shop.purchase(a.id, 'fruit', 'order-001', day).points, 80);
+  assert.equal(shop.purchase(a.id, 'fruit', 'order-001', day).points, 80);
+  assert.equal(shop.state(a.id, day).inventory.fruit, 1);
+  assert.throws(() => shop.purchase(a.id, 'incense', 'order-001', day));
+  for (let i = 0; i < 4; i++) shop.purchase(a.id, 'fruit', `fruit-${i}`, day);
+  assert.equal(shop.state(a.id, day).points, 0);
+  assert.throws(() => shop.purchase(a.id, 'fruit', 'too-much', day));
+  assert.equal(shop.state(a.id, day).inventory.fruit, 5);
+  assert.equal(shop.state(b.id, day).points, 100);
+  assert.deepEqual(shop.state(b.id, day).inventory, {});
+  assert.equal(shop.claim(a.id, '2026-11-03').points, 30);
+  assert.throws(() => shop.claim(a.id, '2026-11-03'));
+  assert.throws(() => shop.purchase(a.id, 'constructor', 'bad-item', day));
+});
+
+test('buy at the gate and offer in the hall: proximity, stock, room sync and expiry', async t => {
+  const s = await startServer(); t.after(s.close);
+  const a = guest(s.game), b = guest(s.game), c = guest(s.game);
+  const repo = s.game.ctx.repos.players;
+  repo.saveLocation(a.id, 'gate', 440, 930);
+  repo.saveLocation(b.id, 'mainHall', 900, 600); repo.saveLocation(c.id, 'mainHall', 900, 600);
+  let sa = await connect(s.base, a.token);
+  const sb = await connect(s.base, b.token), sc = await connect(s.base, c.token);
+  t.after(() => { sa.close(); sb.close(); sc.close(); });
+  await ask(sa, 'room:join', { room: 'SHOP-1' }); await ask(sb, 'room:join', { room: 'SHOP-1' }); await ask(sc, 'room:join', { room: 'SHOP-2' });
+  assert.equal((await ask(sa, 'shop:open', { objectId: 'offeringStall' })).shop.points, 100);
+  assert.ok((await ask(sb, 'shop:buy', { objectId: 'offeringStall', sku: 'fruit', requestId: 'far-away-01' })).error);
+  const bought = await ask(sa, 'shop:buy', { objectId: 'offeringStall', sku: 'fruit', requestId: 'buy-fruit-01' });
+  assert.equal(bought.shop.points, 80); assert.equal(bought.shop.inventory.fruit, 1);
+  assert.ok((await ask(sa, 'shop:offer', { objectId: 'offeringStand', sku: 'fruit' })).error);
+  sa.close(); await delay(30);
+  repo.saveLocation(a.id, 'mainHall', 900, 560);
+  sa = await connect(s.base, a.token); await ask(sa, 'room:join', { room: 'SHOP-1' });
+  assert.equal((await ask(sa, 'shop:open', { objectId: 'offeringStand' })).shop.inventory.fruit, 1);
+  assert.ok((await ask(sa, 'shop:offer', { objectId: 'offeringStand', sku: 'flowers' })).error);
+  const shared = nextEvent(sb, 'offering:update');
+  const offered = await ask(sa, 'shop:offer', { objectId: 'offeringStand', sku: 'fruit' });
+  assert.equal(offered.ok, true); assert.equal(offered.shop.inventory.fruit, 0);
+  assert.equal((await shared).offerings[0].sku, 'fruit');
+  assert.ok((await ask(sa, 'shop:offer', { objectId: 'offeringStand', sku: 'fruit' })).error);
+  const restored = await ask(sb, 'room:join', { room: 'SHOP-1' }); assert.equal(restored.scene.offerings.length, 1);
+  assert.equal((await ask(sc, 'room:join', { room: 'SHOP-2' })).scene.offerings.length, 0);
+  assert.equal(s.game.ctx.repos.shop.offerings('SHOP-1', offered.offering.at + OFFERING_SECONDS * 1000 + 1).length, 0);
+});

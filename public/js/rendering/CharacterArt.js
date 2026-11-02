@@ -1,3 +1,4 @@
+import { drawNovice, drawAbbot } from './MonkArt.js';
 // Procedural character art: realistic-leaning proportions (head ≈ 1/6.5 of height), shaded clothing,
 // elbows, hands, shoes and a simple face. Origin is the point between the feet; up is negative y.
 const SKIN = '#e9c39c', SKIN_SHADE = '#d2a37b', SHOE = '#3a3129', INK = '#3a2f28';
@@ -62,6 +63,8 @@ function hat(c, headY) {
 }
 
 export function drawCharacter(c, state, frame, dir, look) {
+  if (look.characterStyle === 'child') return drawNovice(c, state, frame, dir);
+  if (look.characterStyle === 'abbot') return drawAbbot(c, state, frame, dir);
   const t = frame / 8, walk = state === 'walk', swing = walk ? Math.sin(t * TAU) : 0;
   const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', w = side ? .8 : 1;
   const bow = state === 'bow' ? Math.sin(t * Math.PI) : 0, breathe = Math.sin(t * TAU) * (state === 'meditate' ? .9 : .35);
@@ -74,8 +77,8 @@ export function drawCharacter(c, state, frame, dir, look) {
   c.translate(0, walk ? -Math.abs(swing) * 1.3 : 0);
 
   const hip = sit ? -25 : meditate ? -8 : -34;
-  const shoulder = (sit ? -46 : meditate ? -29 : -55) - breathe * .6 + bow * 15;
-  const headY = shoulder - 11 + bow * 9;
+  const shoulder = (sit ? -46 : meditate ? -29 : -55) - breathe * .6 + bow * (back ? -2 : 15);
+  const headY = shoulder - 11 + bow * (back ? -3 : 9);
 
   backHair(c, look, headY, shoulder, back);
 
@@ -125,8 +128,12 @@ export function drawCharacter(c, state, frame, dir, look) {
   if (state === 'bell') { const pull = Math.sin(t * Math.PI); hl = [-4, shoulder - 6 + pull * 8]; hr = [4, shoulder - 6 + pull * 8]; }
   if (state === 'interact') hr = [14, shoulder + 5];
   const sleeve = cloth(c, outfit, -16, 16);
-  limb(c, sl, hl, sleeve, 5, joined || meditate ? 3 : -2); limb(c, sr, hr, sleeve, 5, joined || meditate ? -3 : 2);
-  if (!back || state === 'wave') { ellipse(c, ...hl, 2.4, 2.4, SKIN); ellipse(c, ...hr, 2.4, 2.4, SKIN); }
+  // Outline sleeves before filling them so arms do not merge into the torso.
+  limb(c, sl, hl, dark, 6.7, joined || meditate ? -3 : -2); limb(c, sr, hr, dark, 6.7, joined || meditate ? 3 : 2);
+  limb(c, sl, hl, sleeve, 4.8, joined || meditate ? -3 : -2); limb(c, sr, hr, sleeve, 4.8, joined || meditate ? 3 : 2);
+  for (const hand of [hl, hr]) {
+    ellipse(c, ...hand, 3, 3, SKIN_SHADE); ellipse(c, hand[0] - .4, hand[1] - .5, 2.4, 2.5, SKIN);
+  }
   if (joined && !back) ellipse(c, 0, shoulder + 7, 2.2, 4, SKIN);
   if (state === 'bead' && !back) for (let i = 0; i < 9; i++) { const a = i / 9 * TAU + t * TAU; ellipse(c, Math.cos(a) * 5, shoulder + 12 + Math.sin(a) * 4, 1.2, 1.2, i === frame % 9 ? '#ffdf96' : '#875235'); }
 

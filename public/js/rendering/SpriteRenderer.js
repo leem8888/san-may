@@ -2,7 +2,8 @@ import { DURATIONS, DEFAULT_APPEARANCE, CHAT_SECONDS } from '../shared/rules.js'
 import { drawCharacter } from './CharacterArt.js';
 export function ellipse(c, x, y, rx, ry, color) { c.fillStyle = color; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); c.fill(); }
 export function polygon(c, points, color, stroke) { c.beginPath(); points.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = color; c.fill(); if (stroke) { c.strokeStyle = stroke; c.stroke(); } }
-const FRAMES = 8, CELL_W = 64, CELL_H = 96;
+export const SPRITE_FRAME = { width: 96, height: 128, paddingX: 16, paddingY: 24, footY: 104 };
+const FRAMES = 8, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
 
 const STATES = Object.keys(DURATIONS), DIRS = ['down', 'left', 'right', 'up'];
 export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.characterStyle || 'adult'].join('|');
@@ -17,7 +18,10 @@ export class SpriteRenderer {
     if (strip) { this.cache.delete(key); this.cache.set(key, strip); return strip; }
     strip = document.createElement('canvas'); strip.width = CELL_W * FRAMES; strip.height = CELL_H;
     const c = strip.getContext('2d');
-    for (let f = 0; f < FRAMES; f++) { c.save(); c.translate(f * CELL_W, 0); drawCharacter(c, state, f, dir, look); c.restore(); }
+    for (let f = 0; f < FRAMES; f++) {
+      c.save(); c.beginPath(); c.rect(f * CELL_W, 0, CELL_W, CELL_H); c.clip();
+      c.translate(f * CELL_W + SPRITE_FRAME.paddingX, SPRITE_FRAME.paddingY); drawCharacter(c, state, f, dir, look); c.restore();
+    }
     this.cache.set(key, strip);
     if (this.cache.size > this.limit) this.cache.delete(this.cache.keys().next().value);
     return strip;
@@ -29,12 +33,12 @@ export class SpriteRenderer {
   draw(c, p) {
     const { state, index } = this.frame(p), look = p.appearance || DEFAULT_APPEARANCE;
     const scale = p.renderScale || 1;
-    c.drawImage(this.strip(look, state, DIRS.includes(p.direction) ? p.direction : 'down'), index * CELL_W, 0, CELL_W, CELL_H, p.x - CELL_W * scale / 2, p.y - 80 * scale, CELL_W * scale, CELL_H * scale);
+    c.drawImage(this.strip(look, state, DIRS.includes(p.direction) ? p.direction : 'down'), index * CELL_W, 0, CELL_W, CELL_H, p.x - CELL_W * scale / 2, p.y - FOOT_Y * scale, CELL_W * scale, CELL_H * scale);
   }
   // Labels are drawn after the lighting pass so names stay readable at night.
   label(c, p, self = false) {
     if (!p.name) return;
-    const top = p.y - (p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1);
+    const top = p.y - (p.appearance?.characterStyle === 'abbot' ? 111 : p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1);
     c.textAlign = 'center'; c.font = '12px system-ui';
     const width = c.measureText(p.name).width + 18;
     c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, 20, 8); c.fill();

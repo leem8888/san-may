@@ -2,6 +2,8 @@ const MARGIN = { left: 50, top: 70, right: 50, bottom: 50 };
 const R = (x, y, w, h) => ({ x, y, w, h }), E = (x, y, rx, ry) => ({ shape: 'ellipse', x, y, rx, ry });
 // Footprints of solid props, shared by client and server so both agree on what blocks movement.
 export const PROP_COLLIDERS = {
+  offeringStall: o => R(o.x - 88, o.y - 35, 176, 40),
+  offeringStand: o => R(o.x - 56, o.y - 28, 112, 30),
   tree: (o, s) => E(o.x + 1, o.y - 4, 24 * s, 12 * s), pine: (o, s) => E(o.x, o.y - 2, 14 * s, 8 * s), bamboo: o => E(o.x, o.y - 4, 36, 12),
   bush: o => E(o.x, o.y - 8, 30, 10), rock: (o, s) => E(o.x, o.y - 6, 26 * s, 10 * s), bench: o => R(o.x - 60, o.y - 14, 120, 22),
   board: o => R(o.x - 40, o.y - 25, 80, 25), sign: o => R(o.x - 10, o.y - 12, 20, 14), bell: o => R(o.x - 45, o.y - 60, 90, 65),

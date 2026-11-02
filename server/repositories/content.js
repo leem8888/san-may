@@ -1,6 +1,8 @@
 // Player-generated public content: wishes, reactions, lanterns and moderation reports.
 export function createContentRepo(db) {
   const s = {
+    roomSand: db.prepare('SELECT strokes FROM room_sand WHERE room = ?'),
+    saveRoomSand: db.prepare('INSERT INTO room_sand (room, strokes, updated_at) VALUES (?, ?, ?) ON CONFLICT(room) DO UPDATE SET strokes = excluded.strokes, updated_at = excluded.updated_at'),
     insertWish: db.prepare('INSERT INTO wishes (id, room, player_id, name, text, visibility, created_at) VALUES (@id, @room, @playerId, @name, @text, @visibility, @createdAt)'),
     wish: db.prepare('SELECT * FROM wishes WHERE id = ?'),
     // Public wishes of the room plus the viewer's own private ones, newest first, minus blocked authors.
@@ -36,6 +38,8 @@ export function createContentRepo(db) {
   }
 
   return {
+    roomSand: room => { const row = s.roomSand.get(room); return row ? JSON.parse(row.strokes) : null; },
+    saveRoomSand: (room, strokes) => s.saveRoomSand.run(room, JSON.stringify(strokes), Date.now()),
     insertWish: wish => s.insertWish.run(wish),
     wish: id => s.wish.get(id),
     wishes({ room, viewer, before = Number.MAX_SAFE_INTEGER, limit = 20 }) {

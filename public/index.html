@@ -213,15 +213,30 @@
     <div class="breath" aria-hidden="true"><span id="breathRing"></span></div>
     <p id="breathText">Hít vào…</p>
     <strong id="meditationClock">00:00</strong>
-    <div class="row"><button id="meditationSound">Nhạc: bật</button><button id="endMeditation">Kết thúc</button></div>
+      <p class="hint">Muốn đứng dậy sớm, hãy bấm Kết thúc thiền.</p>
+      <div class="row"><button id="meditationSound">Nhạc: bật</button><button id="endMeditation">Kết thúc thiền</button></div>
   </section>
 
   <dialog id="dialogue">
     <div class="panel-head"><span class="eyebrow" id="dialogueName"></span><button class="close" id="dialogueClose" aria-label="Đóng hội thoại">×</button></div>
-    <h2 id="dialogueTitle"></h2>
+    <div class="dialogue-speaker">
+      <canvas id="dialoguePortrait" width="240" height="240" role="img" hidden></canvas>
+      <div><h2 id="dialogueTitle"></h2><small id="dialogueGesture" hidden></small></div>
+    </div>
     <p id="dialogueText"></p>
     <div class="dialogue-foot"><small id="dialoguePage"></small><button class="primary" id="dialogueNext">Tiếp tục →</button></div>
   </dialog>
+
+  <section id="shopPanel" class="panel" hidden aria-labelledby="shopTitle">
+    <button class="close" data-close aria-label="Đóng">×</button>
+    <span class="eyebrow">MỘT CHÚT LÒNG THÀNH</span>
+    <h2 id="shopTitle">Quầy hương & mâm lễ</h2>
+    <p class="hint">Dùng điểm trong game. Bạn có 100 điểm ban đầu và có thể ghé quầy nhận thêm 30 điểm mỗi ngày.</p>
+    <p id="shopBalance" aria-live="polite"></p>
+    <button id="shopClaim" type="button" class="ghost">Nhận điểm hôm nay</button>
+    <div id="shopList"></div>
+    <p id="shopMessage" class="hint" aria-live="polite">Mua tại cổng, mang vào bàn dâng lễ trong Chánh Điện. Lễ hiển thị 10 phút.</p>
+  </section>
 
   <section id="catPanel" class="panel" hidden aria-labelledby="catTitle">
     <button class="close" data-close aria-label="Đóng">×</button>

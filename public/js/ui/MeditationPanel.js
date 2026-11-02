@@ -28,6 +28,7 @@ export class MeditationPanel {
   begin(session) {
     this.session = session;
     this.game.input.clear(); this.game.player.setState('meditate'); this.game.camera.setFocus(1.16);
+    this.game.pauseInput(true); this.game.approach = null; this.game.tapMarker = null;
     document.body.classList.add('meditating'); $('#meditation').hidden = false; this.soundLabel();
     this.audio.setMeditationMusic(this.music);
     clearInterval(this.timer); this.timer = setInterval(() => this.tick(), 250); this.tick();
@@ -53,6 +54,7 @@ export class MeditationPanel {
     document.body.classList.remove('meditating'); $('#meditation').hidden = true;
     this.game.camera.setFocus(1); this.audio.setMeditationMusic(false);
     if (this.game.player.state === 'meditate') this.game.player.setState('idle');
+    this.game.pauseInput(false);
   }
   result(r) {
     this.close();
@@ -60,6 +62,6 @@ export class MeditationPanel {
     toast(`Đã thiền ${spoken(r.actualSeconds)}${r.completed ? ' — trọn vẹn' : ''}${r.shared ? ', cùng bạn đồng tu' : ''}. Thời gian đã được lưu.`, 5000);
     if (r.progress) this.celebrate({ achievements: r.achievements, quests: r.quests, progress: r.progress });
   }
-  // Walking away cancels the session; the server also notices the movement.
-  playerState(state, previous) { if (previous === 'meditate' && state !== 'meditate' && this.session) this.finish(); }
+  // Only the finish button or the session timer may end meditation.
+  playerState(state, previous) { if (previous === 'meditate' && state !== 'meditate' && this.session) this.game.player.setState('meditate'); }
 }

@@ -1,6 +1,7 @@
 // Rules shared by browser and server so validation never drifts from gameplay.
 export const SPEED = 180;
 export const PLAYER_RADIUS = 14;
+export const bowDirection = (sceneId, state, direction) => sceneId === 'mainHall' && state === 'bow' ? 'up' : direction;
 export const DURATIONS = { idle: Infinity, walk: Infinity, bow: 2.4, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, sit: Infinity, wave: 1.3 };
 export const ACTIONS = Object.keys(DURATIONS);
 export const ROUND = 108;

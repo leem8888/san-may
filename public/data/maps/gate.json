@@ -54,6 +54,7 @@
     {"type":"flowerBed","x":1040,"y":880,"color":"#e88fa0"}
   ],
   "objects": [
+    {"id":"offeringStall","type":"offeringStall","x":440,"y":880,"label":"Mua hương & mâm lễ","action":"shop","radius":140,"hitW":98,"hitH":145},
     {"id":"guide","type":"sign","x":560,"y":740,"text":"Hướng dẫn","label":"Đọc bảng hướng dẫn","action":"dialogue","dialogue":"guide","radius":100},
     {"id":"novice","type":"npc","x":920,"y":720,"name":"An · Chú tiểu","appearance":{"hairStyle":"shaved","hairColor":"#2b2823","outfitStyle":"robe","outfitColor":"#c9935a","accessory":"beads"},"gestures":["pray","wave"],"label":"Trò chuyện với An","action":"dialogue","dialogue":"novice","radius":100}
   ]

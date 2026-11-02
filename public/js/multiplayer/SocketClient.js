@@ -1,7 +1,7 @@
 import { RemotePlayer } from './RemotePlayer.js';
 import { Clock, RENDER_DELAY } from './Interpolation.js';
 
-const FORWARDED = ['bell:ring', 'wish:new', 'wish:reaction', 'wish:hidden', 'lantern:new', 'lantern:hidden', 'progress:events', 'meditation:ended', 'player:correct', 'player:emote', 'session:replaced', 'garden:update', 'chat:message', 'incense:new'];
+const FORWARDED = ['bell:ring', 'wish:new', 'wish:reaction', 'wish:hidden', 'lantern:new', 'lantern:hidden', 'progress:events', 'meditation:ended', 'player:correct', 'player:emote', 'session:replaced', 'garden:update', 'chat:message', 'incense:new', 'sand:update', 'offering:update'];
 const SEND_INTERVAL = 80; // ~12 position updates per second while moving, nothing while still
 
 // `connect` is the socket.io `io` factory (injected so Node tests can pass socket.io-client).
@@ -26,7 +26,11 @@ export class SocketClient {
     socket.on('room:online', data => handle('online', data.online));
     socket.on('player:join', data => { if (data.sceneId === this.sceneId && data.id !== this.selfId) this.remotes.set(data.id, new RemotePlayer(data, this.clock.now())); });
     socket.on('player:leave', data => this.remotes.delete(data.id));
-    socket.on('player:action', data => this.remotes.get(data.id)?.action(data.action));
+    socket.on('player:action', data => {
+      const remote = this.remotes.get(data.id);
+      if (remote && ['up', 'down', 'left', 'right'].includes(data.direction)) remote.direction = data.direction;
+      remote?.action(data.action);
+    });
     socket.on('player:update', data => { const remote = this.remotes.get(data.id); if (remote) Object.assign(remote, { name: data.name, appearance: data.appearance }); handle('playerUpdate', data); });
     for (const event of FORWARDED) socket.on(event, data => handle(event, data));
   }
@@ -35,7 +39,7 @@ export class SocketClient {
     return new Promise((resolve, reject) => {
       if (!this.connected) return reject(Error('Chưa kết nối máy chủ. Hãy đợi kết nối lại.'));
       this.socket.timeout(timeout).emit(event, data, (error, response) => {
-        if (error) return reject(Error('Máy chủ không phản hồi kịp. Hãy thử lại.'));
+        if (error) return reject(Object.assign(Error('Máy chủ không phản hồi kịp. Hãy thử lại.'), { code: 'SOCKET_TIMEOUT' }));
         if (response?.error) return reject(Object.assign(Error(response.error), { data: response }));
         resolve(response);
       });

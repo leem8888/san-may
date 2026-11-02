@@ -1,4 +1,7 @@
+import { drawTempleGate } from './GateArt.js';
 import { drawBellBody, drawNoticeBoard, hallOrnaments } from './TempleDetails.js';
+import { drawMeditationCushion } from './CushionArt.js';
+import { drawOfferingStall, drawOfferingStand } from './OfferingArt.js';
 import { drawBamboo } from './BambooArt.js';
 import { drawTree } from './TreeArt.js';
 import { drawStandingLantern, drawStoneLantern, drawHangingLantern } from './LanternArt.js';
@@ -20,6 +23,8 @@ function roof(c, cx, y, w, h, color = '#2b4541', trim = '#cfad6e') {
 }
 
 export const PROPS = {
+  offeringStall: drawOfferingStall,
+  offeringStand: drawOfferingStand,
   cat: drawCat,
   tree: drawTree,
   pine(c, o, env) { drawTree(c, o, env, true); },
@@ -82,7 +87,10 @@ export const PROPS = {
     box(c, x - 18, y - 70, 36, 18, '#a4834e', 3); for (let i = -1; i <= 1; i++) line(c, x + i * 6, y - 70, x + i * 7, y - 100, '#9b4b32', 1.5);
     for (const dx of [-45, 45]) { ellipse(c, x + dx, y - 58, 16, 6, '#c8a46a'); for (let i = 0; i < 4; i++) ellipse(c, x + dx - 7 + i * 5, y - 63 - (i % 2) * 3, 4, 4, ['#e0a14a', '#c2453a', '#e8c65a', '#8fae5a'][i]); }
   },
-  cushion(c, o, env) { shadow(c, o.x, o.y + 4, 24, 7, env); ellipse(c, o.x, o.y, 22, 10, o.color || '#a5523e'); ellipse(c, o.x, o.y - 3, 18, 7, '#c06a52'); },
+  cushion(c, o, env) {
+    if (o.action === 'meditate') return drawMeditationCushion(c, o);
+    shadow(c, o.x, o.y + 4, 24, 7, env); ellipse(c, o.x, o.y, 22, 10, o.color || '#a5523e'); ellipse(c, o.x, o.y - 3, 18, 7, '#c06a52');
+  },
   bookshelf(c, o, env) { const { x, y } = o, w = o.w || 150; shadow(c, x, y, w / 2, 9, env); box(c, x - w / 2, y - 150, w, 150, '#5a3d2a', 4); for (let r = 0; r < 4; r++) { box(c, x - w / 2 + 6, y - 144 + r * 36, w - 12, 30, '#3a2a1e', 2); for (let b = 0, bx = x - w / 2 + 9; bx < x + w / 2 - 14; b++) { const bw = 7 + (b * 37 + r * 11) % 7; box(c, bx, y - 140 + r * 36 + (b % 3), bw, 26 - (b % 3), ['#8f4a3a', '#5e7a5a', '#b38f55', '#46607a', '#7b5b8a', '#c7b48a'][(b + r) % 6], 1); bx += bw + 1; } } box(c, x - w / 2 - 4, y - 154, w + 8, 8, '#7a5438', 3); },
   desk(c, o, env) { const { x, y } = o; shadow(c, x, y, 70, 12, env); box(c, x - 64, y - 34, 10, 34, '#5a3d2a'); box(c, x + 54, y - 34, 10, 34, '#5a3d2a'); box(c, x - 72, y - 46, 144, 16, '#7d5638', 4); box(c, x - 30, y - 52, 60, 8, '#efe3c4', 1); line(c, x, y - 52, x, y - 44, '#b9a67a', 1); ellipse(c, x + 46, y - 50, 7, 4, '#3b3b32'); if (o.lamp) { box(c, x - 56, y - 74, 4, 26, '#6b6048'); ellipse(c, x - 54, y - 78, 9, 11, '#e8bd70'); } },
   teaTable(c, o, env) { const { x, y } = o; shadow(c, x, y, 54, 12, env); box(c, x - 46, y - 22, 92, 22, '#5e3f2b', 6); box(c, x - 52, y - 30, 104, 10, '#7f5638', 5); ellipse(c, x - 14, y - 38, 12, 9, '#6e8a7b'); box(c, x - 4, y - 44, 12, 3, '#6e8a7b'); for (const dx of [16, 30]) ellipse(c, x + dx, y - 33, 5, 4, '#e9e1cf'); },
@@ -119,19 +127,7 @@ export const PROPS = {
     for (const x of [570, 1224]) { box(c, x, 416, 20, 58, '#a5a180'); box(c, x - 5, 413, 30, 9, '#d1c59b'); ellipse(c, x + 10, 407, 18, 9, '#778b67'); }
     c.restore();
   },
-  gate(c, o, env) {
-    const { x, y } = o; shadow(c, x, y + 6, 330, 30, env);
-    for (const side of [-1, 1]) {
-      const sx = x + side * 200;
-      box(c, sx - 70, y - 150, 140, 150, '#b7ad90'); box(c, sx - 40, y - 112, 80, 112, '#3a332b', 40); box(c, sx - 34, y - 106, 68, 106, '#2b2620', 34);
-      roof(c, sx, y - 222, 170, 74, '#2b4541', '#cfad6e');
-      for (const px of [sx - 70, sx + 62]) box(c, px, y - 150, 8, 150, '#8e4f3c');
-    }
-    box(c, x - 120, y - 210, 240, 210, '#c2b897'); box(c, x - 74, y - 168, 148, 168, '#2a2520', 70);
-    for (const px of [x - 120, x + 108]) { box(c, px, y - 210, 12, 210, '#9b3f32'); box(c, px - 3, y - 14, 18, 14, '#c5a36d', 2); }
-    box(c, x - 64, y - 236, 128, 30, '#283d32', 4); c.font = '15px Georgia'; c.textAlign = 'center'; c.fillStyle = '#e5ce96'; c.fillText(o.title || 'TAM QUAN', x, y - 215);
-    roof(c, x, y - 312, 300, 82); roof(c, x, y - 380, 200, 70); ellipse(c, x, y - 392, 6, 14, '#d9b77e');
-  },
+  gate(c, o, env) { drawTempleGate(c, o, env, roof); },
   mo(c, o, env) { const { x, y } = o; shadow(c, x, y, 34, 8, env); ellipse(c, x - 12, y - 6, 20, 8, '#7a3e30'); ellipse(c, x - 12, y - 14, 16, 11, '#a0643a'); ellipse(c, x - 16, y - 16, 5, 3, '#5a3020'); line(c, x - 2, y - 26, x + 6, y - 38, '#8a6a46', 3); ellipse(c, x + 16, y - 6, 14, 6, '#5a3020'); ellipse(c, x + 16, y - 12, 12, 8, '#c4a256'); ellipse(c, x + 16, y - 14, 8, 3, '#7d6232'); },
   broom(c, o, env) { const { x, y } = o; shadow(c, x, y, 30, 7, env); for (let i = 0; i < 9; i++) ellipse(c, x - 22 + (i * 13) % 34, y - 4 - (i % 3) * 3, 5, 2.5, ['#c6b278', '#b98d55', '#d7c48e'][i % 3]); line(c, x + 14, y - 2, x + 2, y - 70, '#8a6a46', 3); polygon(c, [[x + 8, y - 4], [x + 24, y - 4], [x + 18, y - 26], [x + 12, y - 26]], '#c9b07a', '#a08650'); },
   // Bronze incense burner on a low stand; the sticks themselves are drawn by MainHallScene from live state.

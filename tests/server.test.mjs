@@ -235,7 +235,7 @@ test('Migrations are idempotent and quest periods roll over at local midnight', 
   try {
     openDatabase(file).close();
     const db = openDatabase(file);
-    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').pluck().all(), [1]);
+    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').pluck().all(), [1, 2, 3]);
     assert.equal(db.prepare('SELECT COUNT(*) FROM quests').pluck().get(), 9);
     db.close();
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }

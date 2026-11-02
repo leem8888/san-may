@@ -1,11 +1,14 @@
 import { Scene } from './Scene.js';
 import { INCENSE_SECONDS } from '../shared/rules.js';
 import { ellipse } from '../rendering/SpriteRenderer.js';
+import { drawOffering } from '../rendering/OfferingArt.js';
+import { OFFERING_SECONDS } from '../shared/shop.js';
 
 // Incense lit by players stands in the censer and slowly burns down; smoke rises from the altar burner and
 // from every lit stick. Sticks come from the server snapshot and live `incense:new` events.
 export class MainHallScene extends Scene {
   constructor(map) { super(map); this.sticks = []; this.censer = this.objects.find(o => o.action === 'incense'); }
+  setOfferings(list, serverNow) { this.offerings = (list || []).map(o => ({ ...o, born: this.time - (serverNow - o.at) / 1000 })); }
   setIncense(list, serverNow) { this.sticks = []; for (const s of list) this.addIncense(s, serverNow); }
   addIncense(stick, serverNow = Date.now()) { this.sticks.push({ ...stick, born: this.time - (serverNow - stick.at) / 1000 }); }
   liveSticks() { this.sticks = this.sticks.filter(s => this.time - s.born < INCENSE_SECONDS); return this.sticks.slice(-9); }
@@ -15,6 +18,16 @@ export class MainHallScene extends Scene {
   }
   entities(c, env) {
     const list = super.entities(c, env);
+    const stand = this.objects.find(o => o.action === 'offering');
+    if (stand) {
+      this.offerings = (this.offerings || []).filter(o => this.time - o.born < OFFERING_SECONDS);
+      list.push({ y: stand.y + .2, x: stand.x, vy: stand.y, draw: () => {
+        this.offerings.slice(0, 6).forEach((o, i) => {
+          c.save(); c.translate(stand.x + (i % 3 - 1) * 32, stand.y - 30 - Math.floor(i / 3) * 13); c.scale(.65, .65);
+          drawOffering(c, 0, 0, o.sku, env.time, env.reduced); c.restore();
+        });
+      } });
+    }
     if (this.censer) list.push({ y: this.censer.y + .5, x: this.censer.x, vy: this.censer.y, draw: () => {
       for (const tip of this.stickTips()) {
         c.strokeStyle = '#a3543c'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(this.censer.x + tip.lean * .3, this.censer.y - 28); c.lineTo(tip.x + tip.lean, tip.y); c.stroke();

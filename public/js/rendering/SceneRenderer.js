@@ -1,5 +1,6 @@
 import { SpriteRenderer, polygon } from './SpriteRenderer.js';
 import { LightingSystem } from './LightingSystem.js';
+import { bowDirection } from '../shared/rules.js';
 
 export const QUALITY = { low: { dpr: 1, particles: 70 }, medium: { dpr: 1.5, particles: 180 }, high: { dpr: 2, particles: 360 } };
 
@@ -44,8 +45,11 @@ export class SceneRenderer {
     const people = game.entered ? [player] : [];
     for (const remote of game.remotes) if (!game.blocked.has(remote.id) && cam.visible(remote.x, remote.y)) people.push(remote);
     // Seated players are shown on the bench seat instead of where they stand.
-    const views = people.map(p => { const seat = p.state === 'sit' && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, direction: 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
-    for (const v of views) list.push({ y: v.y, draw: () => this.sprites.draw(c, v) });
+    const views = people.map(p => { const seat = ['sit', 'meditate'].includes(p.state) && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, direction: 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
+    for (const v of views) {
+      v.direction = bowDirection(scene.id, v.state, v.direction);
+      list.push({ y: v.y, draw: () => this.sprites.draw(c, v) });
+    }
     list.sort((a, b) => a.y - b.y);
     for (const item of list) item.draw();
     game.particles.draw(c, false, cam);
@@ -58,6 +62,12 @@ export class SceneRenderer {
     c.save(); cam.apply(c);
     this.lighting.lights(c, scene.dynamicLights ? [...scene.lights, ...scene.dynamicLights()] : scene.lights, cam, env, scene.indoor, env.time);
     for (const portal of scene.map.portals || []) this.portal(c, portal, player, env.time);
+    if (game.input.target && game.input.path?.length > 1) {
+      c.save(); c.strokeStyle = '#ffe4a34d'; c.lineWidth = 1.5; c.setLineDash([3, 6]);
+      c.beginPath(); c.moveTo(player.x, player.y);
+      for (const point of game.input.path) c.lineTo(point.x, point.y);
+      c.stroke(); c.restore();
+    }
     const marker = game.tapMarker;
     if (marker) {
       const age = game.time - marker.started, moving = Boolean(game.input.target);

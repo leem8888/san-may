@@ -9,6 +9,8 @@ import { ParticleSystem } from '../public/js/rendering/ParticleSystem.js';
 import { lanternPosition } from '../public/js/scenes/LotusLakeScene.js';
 import { loadWorld } from '../server/services/world.js';
 import { fileURLToPath } from 'node:url';
+import { MAP_LAYOUT } from '../public/js/ui/MapLayout.js';
+import { Scene } from '../public/js/scenes/Scene.js';
 
 test('server rejects old altar positions and uses the full player radius', () => {
   const world = loadWorld(fileURLToPath(new URL('../public/data/maps/', import.meta.url)));
@@ -23,6 +25,27 @@ const load = id => JSON.parse(fs.readFileSync(new URL(`../public/data/maps/${id}
 const maps = Object.fromEntries(SCENE_IDS.map(id => [id, load(id)]));
 const garden = load('garden');
 const dialogues = JSON.parse(fs.readFileSync(new URL('../public/data/dialogues.json', import.meta.url), 'utf8'));
+test('zen garden bench is interactive and meditation uses the nearest cushion', () => {
+  const scene = new Scene(maps.zenGarden);
+  const bench = scene.objects.find(o => o.id === 'zenBench');
+  assert.equal(bench.action, 'sit');
+  assert.equal(scene.interactions.at(bench.x, bench.y - 10), bench);
+  const visitor = { x: bench.x, y: bench.y + 35, state: 'sit' };
+  scene.interactions.update(visitor);
+  assert.equal(scene.interactions.nearest, bench);
+  assert.deepEqual(scene.seatFor(visitor), { x: bench.x + 26, y: bench.y + 11 });
+  const cushion = scene.objects.find(o => o.id === 'zen1');
+  assert.deepEqual(scene.seatFor({ x: cushion.x, y: cushion.y + 34, state: 'meditate' }), { x: cushion.x, y: cushion.y - 4 });
+  assert.equal(scene.seatFor({ ...visitor, state: 'meditate' }), null, 'meditation never snaps onto a bench');
+});
+test('overview map connections match every actual portal direction', () => {
+  const directions = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+  for (const map of Object.values(maps)) for (const portal of map.portals) {
+    const a = MAP_LAYOUT[map.id], b = MAP_LAYOUT[portal.to];
+    assert.ok(a && b, `${map.id} and ${portal.to} appear on the overview`);
+    assert.deepEqual([Math.sign(b[0] - a[0]), Math.sign(b[1] - a[1])], directions[portal.dir], `${map.id}/${portal.id} points ${portal.dir}`);
+  }
+});
 const inside = (r, x, y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
 
 // Flood fill on a 10px grid with the real player radius: what a player can actually walk to.

@@ -7,6 +7,8 @@ import { SceneRenderer, QUALITY } from '../rendering/SceneRenderer.js';
 import { ParticleSystem } from '../rendering/ParticleSystem.js';
 import { DayNightSystem } from '../systems/DayNightSystem.js';
 import { WeatherSystem } from '../systems/WeatherSystem.js';
+import { bowDirection } from '../shared/rules.js';
+import { Pathfinder } from '../systems/Pathfinder.js';
 
 export class Game {
   constructor(canvas, assets, joystick, onAction, onTick, options = {}) {
@@ -15,6 +17,7 @@ export class Game {
     this.camera = new Camera(first.map); this.renderer = new SceneRenderer(canvas, this.camera);
     this.input = new InputManager(canvas, this.camera, joystick, onAction);
     this.input.onPoint = point => this.tap(point);
+    this.input.onManual = () => { this.approach = null; this.tapMarker = null; };
     this.dayNight = new DayNightSystem(options.time); this.weather = new WeatherSystem(options.room, options.weather);
     this.particles = new ParticleSystem(); this.reduced = false; this.entered = false; this.locked = false;
     this.time = 0; this.remotes = []; this.blocked = new Set(); this.approach = null; this.onApproach = () => {};
@@ -28,7 +31,7 @@ export class Game {
   get world() { return this.scene.map; }
   get interactions() { return this.scene.interactions; }
   enter(name) { this.player.name = name; this.entered = true; this.input.active = true; }
-  pauseInput(paused) { this.input.active = this.entered && !paused; this.input.clear(); }
+  pauseInput(paused) { this.input.active = this.entered && !paused && this.player.state !== 'meditate'; this.input.clear(); if (paused) this.approach = null; }
   // A full-screen overlay (mini-game) suspends the world loop so only one RAF loop is ever running.
   suspend(suspended) { this.suspended = suspended; this.pauseInput(suspended); if (suspended) this.loop.stop(); else if (!document.hidden) this.loop.start(); }
   setQuality(quality) { if (!QUALITY[quality]) return; this.renderer.quality = quality; this.particles.setCap(QUALITY[quality].particles); this.resize(); }
@@ -40,15 +43,24 @@ export class Game {
   }
   // Tapping an interactive object walks to it; the interaction fires on arrival.
   tap(point) {
-    if (this.pointHandler?.(point)) return true;
-    this.tapMarker = { x: point.x, y: point.y, started: this.time, blocked: this.scene.collision.blocked(point.x, point.y) };
+    if (this.player.state === 'meditate') return true;
+    if (this.pointHandler?.(point)) { this.input.cancelPath(); this.approach = null; return true; }
     const o = this.interactions.at(point.x, point.y);
-    if (!o) { this.approach = null; return false; }
-    this.approach = o; this.input.target = { x: o.x, y: o.y + 34 };
+    this.navigationRetries = 0; this.navigate(point, o);
     return true;
   }
+  navigate(point, object = null) {
+    const finder = this.scene.navigation ||= new Pathfinder(this.scene.collision);
+    const destination = object ? { x: object.x, y: object.y } : point;
+    const path = finder.findPath(this.player, destination, object ? { range: object.radius * .68 } : {});
+    this.input.cancelPath(); this.blockedFor = 0;
+    this.approach = path === null ? null : object;
+    const marker = path?.at(-1) || destination;
+    this.tapMarker = { x: marker.x, y: marker.y, started: this.time, blocked: path === null };
+    if (path !== null) this.input.setPath(path);
+  }
   view() { const w = this.camera.width / this.camera.zoom, h = this.camera.height / this.camera.zoom; return { left: this.camera.x - w / 2, top: this.camera.y - h / 2, width: w, height: h }; }
-  environment(dt) { return { time: this.time, dt, wind: this.weather.wind, reduced: this.reduced, bells: this.scene.bells, fortuneShake: Math.min(1, this.fortuneShake || 0), ...this.dayNight.sample() }; }
+  environment(dt) { return { time: this.time, dt, wind: this.weather.wind, reduced: this.reduced, visitor: this.entered ? this.player : null, bells: this.scene.bells, fortuneShake: Math.min(1, this.fortuneShake || 0), ...this.dayNight.sample() }; }
   spawnWeather(dt, view) {
     if (this.scene.indoor || this.reduced) return;
     const q = { low: .3, medium: .6, high: 1 }[this.renderer.quality], { levels, wind } = this.weather;
@@ -59,10 +71,16 @@ export class Game {
   update(dt, onTick) {
     this.time += dt; this.scenes.update(dt);
     const p = this.player, scene = this.scene, oldX = p.x, oldY = p.y;
+    if (p.state === 'meditate') { this.input.clear(); this.approach = null; this.tapMarker = null; }
+    p.direction = bowDirection(scene.id, p.state, p.direction);
     const vector = this.scenes.busy || this.locked ? { x: 0, y: 0 } : this.input.vector(p);
     p.update(dt, vector, scene.collision);
-    if (this.input.target && Math.hypot(p.x - oldX, p.y - oldY) < .01 && dt > 0) { this.input.target = null; if (this.approach && Math.hypot(this.approach.x - p.x, this.approach.y - p.y) > this.approach.radius) this.approach = null; }
-    if (this.approach && Math.hypot(this.approach.x - p.x, this.approach.y - p.y) < this.approach.radius * .75) { const o = this.approach; this.approach = null; this.input.target = null; this.onApproach(o); }
+    this.blockedFor = this.input.target && Math.hypot(p.x - oldX, p.y - oldY) < .01 ? (this.blockedFor || 0) + dt : 0;
+    if (this.blockedFor > .25) {
+      if ((this.navigationRetries || 0) < 1) { this.navigationRetries = 1; this.navigate(this.input.target, this.approach); }
+      else { this.input.cancelPath(); this.approach = null; if (this.tapMarker) this.tapMarker.blocked = true; }
+    }
+    if (this.approach && Math.hypot(this.approach.x - p.x, this.approach.y - p.y) < this.approach.radius * .75) { const o = this.approach; this.approach = null; this.input.cancelPath(); this.onApproach(o); }
     this.camera.update(p, dt);
     this.weather.update(dt);
     if (this.fortuneShake > 0) this.fortuneShake -= dt;

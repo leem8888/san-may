@@ -6,10 +6,12 @@ export class Player {
   act(state) { if (!(state in DURATIONS) || !['idle', 'walk'].includes(this.state)) return false; this.setState(state); return true; }
   place(x, y, direction = this.direction) { this.x = x; this.y = y; this.direction = direction; }
   update(dt, vector, collision) {
+    if (this.state === 'meditate') vector = { x: 0, y: 0 };
     const length = Math.hypot(vector.x, vector.y);
     if (length > .05) {
       this.setState('walk'); this.direction = Math.abs(vector.x) > Math.abs(vector.y) ? (vector.x > 0 ? 'right' : 'left') : (vector.y > 0 ? 'down' : 'up');
-      collision.move(this, vector.x / Math.max(1, length) * SPEED * dt, vector.y / Math.max(1, length) * SPEED * dt);
+      const distance = Math.min(SPEED * dt, Number.isFinite(vector.maxDistance) ? Math.max(0, vector.maxDistance) : Infinity);
+      collision.move(this, vector.x / Math.max(1, length) * distance, vector.y / Math.max(1, length) * distance);
     } else if (this.state === 'walk') this.setState('idle');
     this.elapsed += dt;
     if (this.elapsed >= DURATIONS[this.state]) {

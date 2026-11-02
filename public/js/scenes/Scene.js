@@ -24,10 +24,18 @@ export class Scene {
     this.fish = this.water.flatMap(w => Array.from({ length: w.fish }, (_, i) => ({ w, phase: random() * 6.28, speed: .08 + random() * .1, color: ['#ddaa71', '#e7e2d3', '#c77f5a', '#b9bc99'][i % 4], r: .35 + random() * .5 })));
   }
   enter() { this.ground ||= buildGround(this.map); }
-  release() { this.ground = null; }
+  release() { this.ground = null; this.navigation = null; }
   // Someone sitting next to a bench is drawn on its seat (left or right half, facing out). Their logical,
   // server-checked position stays in front of the bench; every client derives the same seat from it.
   seatFor(p) {
+    if (p.state === 'meditate') {
+      let cushion = null, best = 80;
+      for (const o of this.objects) if (o.type === 'cushion' && o.action === 'meditate') {
+        const d = Math.hypot(o.x - p.x, o.y - p.y);
+        if (d < best) { cushion = o; best = d; }
+      }
+      return cushion ? { x: cushion.x, y: cushion.y - 4 } : null;
+    }
     let bench = null, best = 120;
     for (const o of this.objects) if (o.type === 'bench' && o.action === 'sit') { const d = Math.hypot(o.x - p.x, o.y - p.y); if (d < best) { bench = o; best = d; } }
     return bench && { x: bench.x + (p.x < bench.x ? -26 : 26), y: bench.y + 11 };

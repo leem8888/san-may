@@ -6,7 +6,7 @@ import { TIME_MODES } from './systems/DayNightSystem.js';
 import { WEATHER_MODES } from './systems/WeatherSystem.js';
 import { Api } from './multiplayer/Api.js';
 import { SocketClient } from './multiplayer/SocketClient.js';
-import { ROUND, EMOTES, COOLDOWNS, CHAT_SECONDS } from './shared/rules.js';
+import { ROUND, EMOTES, COOLDOWNS, CHAT_SECONDS, bowDirection } from './shared/rules.js';
 import { emoteBubble } from './rendering/SpriteRenderer.js';
 import { $, el, store, toast } from './ui/dom.js';
 import { Panels } from './ui/Panels.js';
@@ -27,6 +27,7 @@ import { ProgressPanels } from './ui/ProgressPanels.js';
 import { SocialPanel } from './ui/SocialPanel.js';
 import { FortunePanel } from './ui/FortunePanel.js';
 import { HallChant } from './systems/HallChant.js';
+import { ShopPanel } from './ui/ShopPanel.js';
 
 const params = new URLSearchParams(location.search);
 // ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
@@ -43,6 +44,7 @@ const panels = new Panels(), creator = new CharacterCreator();
 const blocked = new Set();
 let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
 const chant = new HallChant(audio);
+let shop;
 chant.detectRecording();
 
 const STATE_TEXT = { idle: 'Một khoảng lặng giữa ngày', walk: 'Dạo bước thong thả', bow: 'Đang cúi lạy…', bead: 'Đang lần một hạt…', pray: 'Chắp tay · an lành', sit: 'Đang ngồi nghỉ', bell: 'Tiếng chuông ngân', wave: 'Vẫy chào bạn bè', meditate: 'Đang thiền', interact: 'Đang chạm khẽ' };
@@ -52,7 +54,7 @@ function setProgress(next) {
   progress = next; game.player.bows = next.bowsRound; game.player.beads = next.beadsRound;
   for (const [type, value] of [['bow', next.bowsRound], ['bead', next.beadsRound]]) { $(`#${type}Count`).textContent = `${value} / ${ROUND}`; $(`#${type}Progress`).value = value; }
   $('#restart').hidden = next.bowsRound < ROUND && next.beadsRound < ROUND;
-  if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress.scenesVisited);
+  if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress.scenesVisited, game.player);
 }
 function celebrate(events) {
   const messages = [...(events.achievements || []).map(a => `Thành tựu mới · ${a.title}${a.rewardName ? ` · nhận ${a.rewardName}` : ''}`), ...(events.quests || []).map(q => `Hoàn thành nhiệm vụ · ${q.title}`)];
@@ -77,9 +79,11 @@ function applyScene(self, snapshot, announce = true) {
   game.scene.setLanterns?.(snapshot.lanterns || [], now);
   game.scene.setIncense?.(snapshot.incense || [], now);
   game.scene.setGarden?.(snapshot.garden, net.selfId);
+  game.scene.setSand?.(snapshot.sand);
+  game.scene.setOfferings?.(snapshot.offerings, now);
   gardens?.refresh();
   if (changed || announce) showAreaTitle(game.scene.map);
-  if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress?.scenesVisited);
+  if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress?.scenesVisited, game.player);
 }
 
 const net = new SocketClient(io, {
@@ -94,7 +98,7 @@ const net = new SocketClient(io, {
   'meditation:ended'(result) { meditation.result(result); },
   error(error) { toast(error.message); },
   unauthorized() { api.setToken(''); toast('Phiên khách không còn hợp lệ. Đang tải lại…'); setTimeout(() => location.reload(), 1500); },
-  'player:correct'(data) { if (data.sceneId === game.scene.id) game.player.place(data.x, data.y); },
+  'player:correct'(data) { if (data.sceneId === game.scene.id) game.player.place(data.x, data.y, data.direction); },
   'chat:message'(data) {
     const target = data.id === net.selfId ? game.player : net.remotes.get(data.id);
     if (!target || blocked.has(data.id)) return;
@@ -117,14 +121,17 @@ const net = new SocketClient(io, {
   'lantern:new'(lantern) { game.scene.addLantern?.(lantern, net.clock.now()); },
   'lantern:hidden'(data) { game.scene.removeLantern?.(data.id); },
   'incense:new'(stick) { if (stick.sceneId === game.scene.id) game.scene.addIncense?.(stick, net.clock.now()); },
+  'sand:update'(data) { if (data.sceneId === game.scene.id) game.scene.setSand?.(data.strokes); },
+  'offering:update'(data) { if (data.sceneId === game.scene.id) game.scene.setOfferings?.(data.offerings, net.clock.now()); },
   'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
   'progress:events'(events) { if (events.progress) setProgress(events.progress); celebrate(events); },
   'session:replaced'() { entered = false; net.stop(); game.pauseInput(true); toast('Bạn vừa mở Sân Mây ở tab khác. Tab này đã tạm dừng; tải lại để tiếp tục tại đây.', 8000); $('#connection').textContent = 'Đang mở ở tab khác'; },
 });
 
 function act(state) {
-  if (!entered) return;
-  game.input.target = null; game.approach = null;
+  if (!entered || game.player.state === 'meditate') return;
+  game.player.direction = bowDirection(game.scene.id, state, game.player.direction);
+  game.input.cancelPath(); game.approach = null;
   if ((state === 'bow' && game.player.bows >= ROUND) || (state === 'bead' && game.player.beads >= ROUND)) return toast('Bạn đã hoàn thành vòng này. Chọn “Vòng mới” để bắt đầu lại.');
   if (!game.player.act(state)) toast('Hãy hoàn tất hành động hoặc di chuyển để hủy.');
 }
@@ -137,9 +144,11 @@ async function ringBell(o) {
 }
 function interact(o = game.interactions.nearest) {
   if (!entered) return;
+  if (game.player.state === 'meditate') return;
   if (!o) return toast('Hãy đến gần một người, một vật hoặc chạm vào nó để tương tác.');
   game.input.clear();
   switch (o.action) {
+    case 'shop': case 'offering': return shop.open(o);
     case 'cat': selectedCat = o; return panels.open('catPanel');
     case 'dialogue': return dialogue.open(o.dialogue).catch(error => toast(error.message));
     case 'wishes': return panels.open('wishPanel');
@@ -206,6 +215,7 @@ function emote(name) {
   if (!net.connected) game.player.emote = { emote: name, age: 0 };
 }
 function keyAction(key) {
+  if (game.player.state === 'meditate') return;
   if (minigames?.open) return;
   if (key === 'escape') { if (!panels.close()) { $('#emotes').hidden = true; } game.pauseInput(false); }
   if (key === 'e') interact();
@@ -220,7 +230,7 @@ function tick(dt) {
   net.update(dt); game.remotes = [...net.remotes.values()];
   if (game.player.emote && (game.player.emote.age += dt) > 2.6) game.player.emote = null;
   if (game.player.chat && (game.player.chat.age += dt) > CHAT_SECONDS) game.player.chat = null;
-  if (entered && !game.scenes.busy) {
+  if (entered && !game.scenes.busy && game.player.state !== 'meditate') {
     net.sendMove(game.player);
     const portal = game.scene.portalAt(game.player.x, game.player.y);
     if (!portal) blockedPortal = null; else if (portal.id !== blockedPortal) usePortal(portal);
@@ -303,12 +313,13 @@ async function boot() {
     wishes = new WishPanel({ api, net, room, getMe: () => me, blocked, onBlock: block });
     mapPanel = new MapPanel(assets.get('maps'));
     const shared = { net, game, api, audio, panels, celebrate };
+    shop = new ShopPanel(shared);
     gardens = new GardenPanel({ ...shared, getMe: () => me, applyScene });
     new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render() });
     new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
     fortunes = new FortunePanel({ ...shared, fortunes: assets.get('fortunes') });
     meditation = new MeditationPanel(shared); lanterns = new LanternPanel(shared); stories = new StoriesPanel(shared); minigames = new MinigameHost(shared);
-    panels.on('mapPanel', () => mapPanel.render(game.scene.id, progress?.scenesVisited));
+    panels.on('mapPanel', () => mapPanel.render(game.scene.id, progress?.scenesVisited, game.player));
     panels.on('wishPanel', () => wishes.load());
     setupSettings(); setupEmotes();
     creator.setup(me.appearance, me.items);

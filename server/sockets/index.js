@@ -1,4 +1,7 @@
 import crypto from 'node:crypto';
+import { attachShop } from './shop.js';
+import { bowDirection } from '../../public/js/shared/rules.js';
+import { validSandStrokes } from '../../public/js/shared/sand.js';
 import { ACTIONS, COOLDOWNS, DURATIONS, EMOTES, GARDEN, INCENSE_SECONDS, ITEMS, LANTERN_STYLES, LIMITS, MEDITATION_MINUTES, REACTIONS, ROUND, SCENE_IDS, SPEED } from '../../public/js/shared/rules.js';
 import { cleanText, isObject, number, oneOf, roomCode } from '../validators/index.js';
 import { isOffensive, RateLimiter } from '../services/moderation.js';
@@ -33,6 +36,9 @@ const ACTIVITY_TEXT = {
  *   incense:light {objectId}               → {ok, stick}; broadcast incense:new; sticks burn INCENSE_SECONDS (memory only)
  *   chat:send {text}                       → {ok}; broadcast chat:message {id, name, text, at} to the same area (not stored)
  *   activity:complete {objectId, title?, tea?} → {ok}; journal entry for sand/sweep/tea/stories/chant, proximity + 20 s rate limit
+ *   sand:apply {objectId, strokes}          → {ok}; saves room sand and broadcasts sand:update {sceneId, strokes}
+ *   shop:open {objectId}, shop:claim {objectId}, shop:buy {objectId, sku, requestId} → {ok, shop}
+ *   shop:offer {objectId, sku}              → {ok, shop, offering}; broadcasts offering:update {sceneId, offerings}
  * Server → client: room:state {sceneId, t, full, players[]}, room:online, player:join, player:leave,
  *   player:update, player:correct, progress:events, meditation:ended, session:replaced.
  */
@@ -70,6 +76,8 @@ export function attachSockets(io, ctx) {
   }
   const snapshot = p => ({
     sceneId: p.sceneId,
+    offerings: p.sceneId === 'mainHall' ? repos.shop.offerings(p.room) : [],
+    sand: p.sceneId === 'zenGarden' ? repos.content.roomSand(p.room) : null,
     players: rooms.inScene(p.room, p.sceneId).filter(other => other !== p).map(other => publicPlayer(other)),
     bells: bellsFor(p),
     lanterns: hasLanterns(p.sceneId) ? repos.content.lanterns(p.room, Date.now() - LANTERN_LIFETIME) : [],
@@ -117,10 +125,18 @@ export function attachSockets(io, ctx) {
     const playerId = socket.data.playerId;
     const limiter = new RateLimiter(40, 30);
     let self = null, dropped = 0;
+    attachShop(socket, ctx, () => self);
 
     socket.on('error', () => {});
-    socket.use(([event], next) => {
-      if (limiter.take('all')) return next();
+    socket.use(([event, ...args], next) => {
+      if (limiter.take('all')) {
+        if (self?.meditation && !['room:join', 'room:leave', 'player:move', 'player:action', 'player:emote', 'chat:send', 'meditation:start', 'meditation:finish'].includes(event)) {
+          const ack = args.at(-1);
+          if (typeof ack === 'function') ack({ error: 'Bạn đang thiền. Hãy bấm Kết thúc thiền trước khi làm việc khác.' });
+          return;
+        }
+        return next();
+      }
       if (++dropped > 120) socket.disconnect(true);
       next(new Error(`rate limited: ${event}`));
     });
@@ -201,6 +217,11 @@ export function attachSockets(io, ctx) {
     socket.on('player:move', data => {
       const p = self;
       if (!p || !isObject(data) || data.sceneId !== p.sceneId) return;
+      if (p.meditation) {
+        p.lastMoveAt = Date.now();
+        if (data.x !== p.x || data.y !== p.y || data.direction !== p.direction) socket.emit('player:correct', { sceneId: p.sceneId, x: p.x, y: p.y, direction: p.direction });
+        return;
+      }
       // A map update can put an old saved position inside a new obstacle.
       // Recover on the server so clients are never corrected back into that obstacle.
       if (!world.walkable(p.sceneId, p.x, p.y)) {
@@ -224,16 +245,18 @@ export function attachSockets(io, ctx) {
         if (p.meditation) { const result = finishMeditation(p, now); if (result) socket.emit('meditation:ended', result); }
         if (p.state !== 'walk') { p.state = 'walk'; p.actionAt = now; }
       } else if (data.state === 'idle' && p.state === 'walk') { p.state = 'idle'; p.actionAt = now; }
+      p.direction = bowDirection(p.sceneId, p.state, p.direction);
       p.dirty = true;
     });
 
     socket.on('player:action', data => {
       const p = self, action = oneOf(data?.action, ACTIONS);
       if (!p || !action || ['walk', 'meditate', 'bell'].includes(action)) return;
+      if (p.meditation) return;
       const now = Date.now();
-      if (p.meditation) { const result = finishMeditation(p, now); if (result) socket.emit('meditation:ended', result); }
       Object.assign(p, { state: action, actionAt: now, moved: false, dirty: true });
-      socket.to(scene(p)).emit('player:action', { id: p.id, action, at: now });
+      p.direction = bowDirection(p.sceneId, action, p.direction);
+      socket.to(scene(p)).emit('player:action', { id: p.id, action, at: now, direction: p.direction });
     });
 
     socket.on('player:emote', data => {
@@ -369,6 +392,19 @@ export function attachSockets(io, ctx) {
       p.activities.set(o.action, now);
       progression.journal(p.id, ACTIVITY_TEXT[o.action](data), now);
       ack({ ok: true, progress: notify(socket, progression.record(p.id, [[`activity:${o.action}`, 1]], now)) });
+    });
+
+    socket.on('sand:apply', (data, ack) => {
+      ack = reply(ack);
+      const p = self, o = p && world.object(p.sceneId, data?.objectId);
+      if (!o || o.action !== 'sand' || p.sceneId !== 'zenGarden') return ack({ error: 'Hãy đến vườn cát để vẽ.' });
+      if (Math.hypot(p.x - o.x, p.y - o.y) > o.radius + 60) return ack({ error: 'Hãy đến gần vườn cát.' });
+      if (!validSandStrokes(data?.strokes)) return ack({ error: 'Nét vẽ không hợp lệ hoặc quá nhiều điểm.' });
+      if (Date.now() - (p.lastSandAt || 0) < 2000) return ack({ error: 'Chờ một chút trước khi đổi vườn cát nhé.' });
+      p.lastSandAt = Date.now();
+      repos.content.saveRoomSand(p.room, data.strokes);
+      io.to(scene(p)).emit('sand:update', { sceneId: p.sceneId, strokes: data.strokes });
+      ack({ ok: true });
     });
 
     socket.on('player:portal', (data, ack) => {

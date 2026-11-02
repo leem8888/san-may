@@ -10,6 +10,7 @@ export class NPC {
     this.appearance = { ...DEFAULT_APPEARANCE, ...o.appearance }; this.gestures = o.gestures || ['pray']; this.next = 4 + Math.random() * 6;
     this.renderScale = o.id === 'novice' ? .76 : 1;
     if (o.id === 'novice') this.appearance.characterStyle = 'child';
+    if (o.id === 'abbot') this.appearance.characterStyle = 'abbot';
     this.lines = o.ambientLines || NPC_LINES[o.id] || [];
     this.nextChat = 8 + Math.random() * 18;
     this.lastLine = -1;

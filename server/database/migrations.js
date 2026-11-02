@@ -180,4 +180,45 @@ export const MIGRATIONS = [
       CREATE INDEX journal_player_time ON journal_entries (player_id, created_at);
     `,
   },
+  {
+    version: 2,
+    name: 'shared room sand garden',
+    up: `CREATE TABLE room_sand (
+      room TEXT PRIMARY KEY,
+      strokes TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    );`,
+  },
+  {
+    version: 3,
+    name: 'temple stall and offerings',
+    up: `
+      CREATE TABLE shop_wallets (
+        player_id TEXT PRIMARY KEY REFERENCES players(id) ON DELETE CASCADE,
+        points INTEGER NOT NULL DEFAULT 100 CHECK(points >= 0),
+        claimed_day TEXT NOT NULL
+      );
+      CREATE TABLE shop_inventory (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        sku TEXT NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 0 CHECK(quantity >= 0),
+        PRIMARY KEY(player_id, sku)
+      );
+      CREATE TABLE shop_orders (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        request_id TEXT NOT NULL,
+        sku TEXT NOT NULL,
+        PRIMARY KEY(player_id, request_id)
+      );
+      CREATE TABLE temple_offerings (
+        id TEXT PRIMARY KEY,
+        room TEXT NOT NULL,
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        sku TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX temple_offerings_room_time ON temple_offerings(room, created_at);
+    `,
+  },
 ];
