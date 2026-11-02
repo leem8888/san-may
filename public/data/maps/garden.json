@@ -1,0 +1,38 @@
+{
+  "id": "garden",
+  "name": "Vườn riêng",
+  "subtitle": "Một góc nhỏ để vun trồng",
+  "width": 1200,
+  "height": 900,
+  "seed": 81,
+  "ambient": "garden",
+  "ground": {
+    "base": "#2f4c3c",
+    "layers": [
+      {"type":"noise","count":3600,"colors":["#385443","#314e40","#496044","#233e36"]},
+      {"type":"scatter","kind":"grass","x":40,"y":60,"w":1120,"h":800,"count":220,"colors":["#4f7352","#5b7d58","#3f6449"]},
+      {"type":"rect","x":180,"y":192,"w":840,"h":556,"color":"#7d735a","r":16},
+      {"type":"rect","x":192,"y":204,"w":816,"h":532,"color":"#3f5c41","r":12},
+      {"type":"scatter","kind":"grass","x":200,"y":212,"w":800,"h":516,"count":160,"colors":["#5b7d58","#6a8a5e"]},
+      {"type":"dirt","points":[[600,900],[600,748]],"width":72,"color":"#7a705a","edge":"#8a8068"},
+      {"type":"scatter","x":60,"y":780,"w":420,"h":90,"count":40,"colors":["#e6a0ad","#d7b794","#e6c46e"],"size":3},
+      {"type":"scatter","x":720,"y":780,"w":420,"h":90,"count":40,"colors":["#e6a0ad","#d7b794","#e6c46e"],"size":3}
+    ]
+  },
+  "plot": {"x":210,"y":250,"w":780,"h":470},
+  "spawns": {"default":[600,780]},
+  "portals": [
+    {"id":"toZen","x":540,"y":812,"w":120,"h":40,"to":"zenGarden","spawn":"fromGarden","label":"Về Vườn Thiền","dir":"down"}
+  ],
+  "obstacles": [],
+  "props": [
+    {"type":"fence","x":180,"y":186,"w":840,"solid":false},
+    {"type":"bamboo","x":110,"y":230},
+    {"type":"bamboo","x":1090,"y":230},
+    {"type":"pine","x":100,"y":700},
+    {"type":"pine","x":1100,"y":700},
+    {"type":"stoneLantern","x":480,"y":800},
+    {"type":"stoneLantern","x":720,"y":800}
+  ],
+  "objects": []
+}

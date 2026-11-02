@@ -1,0 +1,51 @@
+{
+  "id": "lotusLake",
+  "name": "Hồ Sen",
+  "subtitle": "Nước lặng, sen thơm, đèn trôi",
+  "width": 1800,
+  "height": 1300,
+  "seed": 41,
+  "ambient": "water",
+  "ground": {
+    "base": "#2b4a3e",
+    "layers": [
+      {"type":"noise","count":5000,"colors":["#385443","#314e40","#496044","#233e36"]},
+      {"type":"scatter","kind":"grass","x":60,"y":80,"w":1680,"h":1160,"count":260,"colors":["#4f7352","#5b7d58","#3f6449"]},
+      {"type":"scatter","x":80,"y":900,"w":360,"h":340,"count":50,"colors":["#e6a0ad","#d7b794"],"size":3},
+      {"type":"scatter","x":1380,"y":900,"w":360,"h":340,"count":50,"colors":["#e6a0ad","#d7b794"],"size":3},
+      {"type":"path","points":[[1540,640],[1532,701],[1509,761],[1470,817],[1418,869],[1353,916],[1276,956],[1191,987],[1098,1011],[1000,1025],[900,1030],[800,1025],[702,1011],[609,987],[524,956],[447,916],[382,869],[330,817],[291,761],[268,701],[260,640],[268,579],[291,519],[330,463],[382,411],[447,364],[524,324],[609,293],[702,269],[800,255],[900,250],[1000,255],[1098,269],[1191,293],[1276,324],[1353,364],[1418,411],[1470,463],[1509,519],[1532,579],[1540,640]],"size":22,"spacing":34},
+      {"type":"dirt","points":[[0,630],[270,640]],"width":60,"color":"#6f6650","edge":"#7d735a"},
+      {"type":"dirt","points":[[900,60],[900,250]],"width":60,"color":"#6f6650","edge":"#7d735a"},
+      {"type":"water","shape":"ellipse","x":900,"y":640,"rx":560,"ry":320,"lotus":46,"fish":6}
+    ]
+  },
+  "spawns": {"default":[900,1120],"fromCourtyard":[170,640],"fromBell":[900,190]},
+  "portals": [
+    {"id":"toCourtyard","x":56,"y":560,"w":60,"h":140,"to":"courtyard","spawn":"fromLake","label":"Về Sân Chùa","dir":"left"},
+    {"id":"toBell","x":840,"y":70,"w":120,"h":50,"to":"bellTower","spawn":"fromLake","label":"Lên Tháp Chuông","dir":"up"}
+  ],
+  "obstacles": [
+    {"shape":"ellipse","x":900,"y":640,"rx":545,"ry":300}
+  ],
+  "props": [
+    {"type":"dock","x":900,"y":1012,"w":110,"h":122,"solid":false,"sortY":0},
+    {"type":"tree","x":250,"y":300,"size":1.1,"blossom":true},
+    {"type":"tree","x":1560,"y":290,"size":1.2},
+    {"type":"tree","x":1600,"y":1080},
+    {"type":"tree","x":210,"y":1070,"size":1.1,"blossom":true},
+    {"type":"lamp","x":560,"y":1050},
+    {"type":"lamp","x":1240,"y":1050},
+    {"type":"lamp","x":320,"y":830},
+    {"type":"lamp","x":1480,"y":830},
+    {"type":"lamp","x":320,"y":450},
+    {"type":"lamp","x":1480,"y":450},
+    {"type":"stoneLantern","x":790,"y":1060},
+    {"type":"stoneLantern","x":1010,"y":1060},
+    {"type":"bench","x":1350,"y":1140},
+    {"type":"bush","x":600,"y":1180,"flowers":"#f0d27a"},
+    {"type":"rock","x":1500,"y":640}
+  ],
+  "objects": [
+    {"id":"lanternDock","type":"zone","x":900,"y":975,"label":"Thả hoa đăng","action":"lantern","radius":90}
+  ]
+}

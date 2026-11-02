@@ -1,0 +1,53 @@
+{
+  "id": "mainHall",
+  "name": "Chánh Điện",
+  "subtitle": "Ánh vàng và hương trầm",
+  "width": 1400,
+  "height": 1000,
+  "seed": 21,
+  "indoor": true,
+  "zoom": 0.82,
+  "ambient": "hall",
+  "margin": {"left":70,"right":70},
+  "ground": {
+    "base": "#24170f",
+    "void": "#140d09",
+    "layers": [
+      {"type":"planks","x":60,"y":240,"w":1280,"h":710},
+      {"type":"rect","x":560,"y":240,"w":280,"h":130,"color":"#4a2c20","r":6},
+      {"type":"carpet","x":620,"y":440,"w":160,"h":500,"color":"#7d2a24"},
+      {"type":"rect","x":630,"y":948,"w":140,"h":52,"color":"#e8c98a"}
+    ]
+  },
+  "spawns": {"default":[700,820],"fromCourtyard":[700,850]},
+  "portals": [
+    {"id":"toCourtyard","x":630,"y":896,"w":140,"h":60,"to":"courtyard","spawn":"fromMainHall","label":"Ra Sân Chùa","dir":"down"}
+  ],
+  "obstacles": [
+    {"x":0,"y":0,"w":1400,"h":262}
+  ],
+  "lights": [
+    [700,640,300,"255,200,130"]
+  ],
+  "props": [
+    {"type":"hallBack","x":60,"y":252,"w":1280,"big":true,"solid":false,"sortY":0},
+    {"type":"statue","x":700,"y":345,"big":true},
+    {"type":"altar","x":700,"y":425},
+    {"type":"pillar","x":260,"y":480,"height":210},
+    {"type":"pillar","x":1140,"y":480,"height":210},
+    {"type":"pillar","x":260,"y":790,"height":210},
+    {"type":"pillar","x":1140,"y":790,"height":210},
+    {"type":"cushion","x":620,"y":560},
+    {"type":"cushion","x":700,"y":560},
+    {"type":"cushion","x":780,"y":560},
+    {"type":"cushion","x":620,"y":650},
+    {"type":"cushion","x":780,"y":650},
+    {"type":"lotusPot","x":470,"y":420},
+    {"type":"lotusPot","x":930,"y":420}
+  ],
+  "objects": [
+    {"id":"bowCushion","type":"cushion","x":700,"y":650,"color":"#b8603f","label":"Lạy Phật tại bồ đoàn","action":"bow","radius":90},
+    {"id":"beadSpot","type":"cushion","x":440,"y":640,"color":"#7d5b3a","label":"Lần chuỗi","action":"bead","radius":80},
+    {"id":"chant","type":"mo","x":980,"y":560,"label":"Nghe tụng kinh","action":"chant","radius":100}
+  ]
+}

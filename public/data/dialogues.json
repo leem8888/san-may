@@ -1,0 +1,76 @@
+{
+  "novice": {
+    "name": "AN · CHÚ TIỂU",
+    "title": "Chào bạn ghé chùa.",
+    "pages": [
+      "Chào bạn, mình là An. Mời bạn đi chậm lại một chút — ở đây không có gì phải vội.",
+      "Đi bằng WASD, phím mũi tên, cần điều khiển, hoặc chạm vào chỗ muốn đến. Chạm vào một vật hay một người để đi tới rồi tương tác; trên bàn phím thì nhấn E.",
+      "Phím 1 để lạy, 2 để lần chuỗi, 3 để chắp tay, 4 để vẫy chào. Di chuyển sẽ hủy hành động đang làm; một lần lạy chỉ được tính khi trọn vẹn.",
+      "Qua cổng là Sân Chùa, nơi mọi người hay gặp nhau. Từ sân, phía bắc là Chánh Điện, phía tây là Vườn Thiền, phía đông là Hồ Sen. Tháp Chuông ở sau hồ, Rừng Trúc và Thư Viện ở sau vườn.",
+      "Nhấn M để xem bản đồ. Mỗi ngày có vài việc nhỏ như thiền năm phút hay gửi một lời chúc — xem trong Nhiệm vụ. Làm hay không cũng được, chùa vẫn ở đây chờ bạn."
+    ]
+  },
+  "guide": {
+    "name": "BẢNG HƯỚNG DẪN",
+    "title": "Sân Mây — tám khu vực",
+    "pages": [
+      "Cổng Tam Quan → Sân Chùa. Từ Sân Chùa: Chánh Điện (bắc), Vườn Thiền (tây), Hồ Sen (đông).",
+      "Hồ Sen → Tháp Chuông (bắc). Vườn Thiền → Rừng Trúc (bắc) → Thư Viện (đông).",
+      "Xin giữ yên lặng trong Chánh Điện và Thư Viện. Lời chúc công khai được mọi người trong phòng nhìn thấy; hãy viết điều lành. Bạn có thể báo cáo hoặc ẩn nội dung không phù hợp."
+    ]
+  },
+  "gardener": {
+    "name": "BÁC TÂM · NGƯỜI GIỮ VƯỜN",
+    "title": "Vườn cần người chậm rãi.",
+    "pages": [
+      "Chào cháu. Bác giữ khu vườn này đã lâu, chẳng nhớ bao nhiêu mùa lá rụng nữa.",
+      "Cát kia cháu cứ cào thử. Đường cào không cần thẳng, chỉ cần mỗi lần kéo là một lần thở. Xong thì xóa đi, cào lại — cát không giữ gì, người cũng nhẹ đi.",
+      "Ngồi lên bồ đoàn trên sàn gỗ nếu cháu muốn thiền. Chọn thời gian rồi cứ để đồng hồ lo phần đếm.",
+      "Mỗi người có một khu vườn nhỏ của riêng mình. Gieo một cây, nhớ thì tưới; quên vài hôm cũng không sao, cây không trách đâu.",
+      "Ngày trước có cậu học trò hỏi bác sao không trồng loại cây lớn nhanh. Bác bảo: cây lớn nhanh thì bóng mát đến nhanh, còn cây lớn chậm thì dạy mình biết đợi. Vườn này cần cả hai."
+    ]
+  },
+  "librarian": {
+    "name": "THẦY TỊNH · NGƯỜI GIỮ THƯ VIỆN",
+    "title": "Mời con ngồi.",
+    "pages": [
+      "Mô Phật. Thư viện này nhỏ thôi, nhưng mỗi trang đều đã có người đọc chậm trước con.",
+      "Ở bàn đọc giữa phòng có vài câu chuyện ngắn và lời kinh được diễn ý. Mỗi bài đều ghi nguồn; con đọc một bài thôi cũng đủ, miễn là đọc cho trọn.",
+      "Đọc xong, con thử hỏi lòng mình một câu: điều này nhắc mình nhìn lại chỗ nào? Không cần trả lời ngay.",
+      "Góc bên kia có ấm trà. Pha một chén cho mình — biết đợi nước sôi cũng là một cách tập."
+    ]
+  },
+  "bell-verse": {
+    "name": "BIA ĐÁ · KỆ THỈNH CHUÔNG",
+    "title": "Nguyện thử chung thanh siêu pháp giới",
+    "pages": [
+      "Nguyện thử chung thanh siêu pháp giới,\nThiết vi u ám tất giai văn.\nVăn trần thanh tịnh chứng viên thông,\nNhất thiết chúng sinh thành chánh giác.",
+      "Diễn ý: Nguyện tiếng chuông này vượt khắp cõi; những nơi tối tăm nhất cũng đều nghe thấy. Nghe mà lòng lắng trong, thấu suốt; nguyện cho mọi loài đều được giác ngộ.",
+      "Nguồn: kệ thỉnh chuông cổ truyền trong nghi thức tụng niệm Phật giáo Bắc tông (bản Hán Việt phổ biến). Phần diễn ý do Sân Mây biên soạn."
+    ]
+  },
+  "bamboo-stele": {
+    "name": "BIA ĐÁ BÊN SUỐI",
+    "title": "Mấy dòng khắc mờ",
+    "pages": [
+      "Gió qua trúc, trúc không giữ gió.\nNước qua đá, đá chẳng níu dòng.\nNgười qua đây, xin để lại một hơi thở nhẹ.",
+      "Dưới chân bia có rêu xanh và một viên sỏi ai đó đặt lên. Bạn đặt thêm một viên, rồi đi tiếp."
+    ]
+  },
+  "bamboo-shrine": {
+    "name": "MIẾU NHỎ",
+    "title": "Một nén nhang cho đất",
+    "pages": [
+      "Miếu nhỏ nằm khuất dưới tán trúc. Người xưa dựng miếu ở những nơi như thế để nhắc nhau biết ơn đất đã cho cây mọc, nước đã cho người uống.",
+      "Ngọn đèn trong miếu không bao giờ tắt — có lẽ vì người đi ngang ai cũng thêm vào một chút dầu."
+    ]
+  },
+  "bamboo-tree": {
+    "name": "CÂY CỔ THỤ",
+    "title": "Cây đã đứng đây rất lâu",
+    "pages": [
+      "Thân cây xù xì, rễ trồi lên như những ngón tay ôm lấy đất. Rừng trúc mọc quanh nó, lớp này thay lớp khác.",
+      "Bạn đặt tay lên vỏ cây. Mát, và chậm. Có những thứ lớn lên không cần ai nhìn thấy."
+    ]
+  }
+}

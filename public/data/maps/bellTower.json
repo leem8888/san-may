@@ -1,0 +1,41 @@
+{
+  "id": "bellTower",
+  "name": "Tháp Chuông",
+  "subtitle": "Một tiếng chuông ngân xa",
+  "width": 1400,
+  "height": 1100,
+  "seed": 51,
+  "ambient": "wind",
+  "ground": {
+    "base": "#2c473d",
+    "layers": [
+      {"type":"noise","count":5000,"colors":["#385443","#314e40","#496044","#233e36"]},
+      {"type":"scatter","kind":"grass","x":60,"y":80,"w":1280,"h":960,"count":200,"colors":["#4f7352","#5b7d58","#3f6449"]},
+      {"type":"scatter","x":80,"y":300,"w":280,"h":600,"count":50,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
+      {"type":"scatter","x":1040,"y":300,"w":280,"h":600,"count":50,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
+      {"type":"tiles","x":380,"y":330,"w":640,"h":560,"border":"#8a8061"},
+      {"type":"tiles","x":620,"y":890,"w":160,"h":210,"tile":[66,42],"colors":["#a0977b","#978e73"],"grout":"#8f866b"}
+    ]
+  },
+  "spawns": {"default":[700,880],"fromLake":[700,940]},
+  "portals": [
+    {"id":"toLake","x":620,"y":1000,"w":160,"h":50,"to":"lotusLake","spawn":"fromBell","label":"Xuống Hồ Sen","dir":"down"}
+  ],
+  "obstacles": [],
+  "props": [
+    {"type":"stoneLantern","x":450,"y":870},
+    {"type":"stoneLantern","x":950,"y":870},
+    {"type":"pine","x":200,"y":320,"size":1.2},
+    {"type":"pine","x":1200,"y":320,"size":1.2},
+    {"type":"pine","x":180,"y":820},
+    {"type":"pine","x":1220,"y":820},
+    {"type":"bush","x":330,"y":600},
+    {"type":"bush","x":1070,"y":600,"flowers":"#e6a0ad"},
+    {"type":"lamp","x":420,"y":360},
+    {"type":"lamp","x":980,"y":360}
+  ],
+  "objects": [
+    {"id":"bigBell","type":"bigBell","x":700,"y":580,"big":true,"label":"Thỉnh đại hồng chung","action":"bell","cooldown":"bigBell","radius":120,"hitW":150,"hitH":330},
+    {"id":"verse","type":"stele","x":1010,"y":460,"label":"Đọc bài kệ thỉnh chuông","action":"dialogue","dialogue":"bell-verse","radius":90}
+  ]
+}
