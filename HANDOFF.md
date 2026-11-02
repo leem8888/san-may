@@ -70,6 +70,24 @@ Thứ tự đã chọn: **M1 backend (Phase 4 + lõi Phase 5) → M2 world (Phas
 - **Sư Tâm Hòa tụng kinh** (`systems/HallChant.js`): mỗi `CHANT_CYCLE_SECONDS` = 180 giây theo đồng hồ server (ai ở Chánh Điện cũng nghe cùng lúc), tụng 3 lần câu niệm truyền thống "Nam mô Bổn Sư Thích Ca Mâu Ni Phật" bằng giọng tổng hợp (`AudioManager.voice`, giai điệu ngũ cung tự soạn) + mõ + chuông; lời hiện thành bong bóng trên đầu sư. **Không dùng bài hát/bản thu có bản quyền.** Nếu người vận hành có bản thu được phép dùng, đặt ở `public/assets/audio/chanh-dien.mp3`; `GET /api/media` báo có file thì client phát file đó thay giọng tổng hợp.
 - `npm test` 27/27 (thêm test thắp hương + lịch tụng). Browser: chờ đúng chu kỳ, sư tụng có lời trên đầu và thông báo; thắp hương có nén hương + khói; menu biểu cảm hiện đủ 5 icon; console 0 lỗi. **Giọng tụng tổng hợp chưa được nghe thử bằng tai** — có thể cần chỉnh âm sắc/âm lượng.
 
+## Parse 2 (SÂN MÂY 2.0) — kế hoạch và nhật ký
+
+Đề bài: `IMPLEMENTATION_Parse2.md` (5 prompt). Master Prompt gốc đã chuyển sang `IMPLEMENTATION_Parse1.md`; `IMPLEMENTATION_PROGRESS.md` giờ là **bản tổng quan dự án**, file này là nhật ký kỹ thuật.
+
+Baseline lúc bắt đầu Parse 2 (sau 2 commit của chủ dự án `f7ba422`, `a079e97`: Pathfinder A*, cửa hàng điểm + mâm lễ, cát dùng chung theo phòng, mèo vàng, chân dung NPC, migration v2–v3): `npm run check` 111 file, `npm test` 49/49.
+
+Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + test + cập nhật tài liệu):
+1. **Nền**: migration v4 + `WorldStateManager` (scope personal / room / shared, version, expires_at, delta qua Socket.IO, snapshot cho người vào sau) — Prompt 3 §2, §8, §9.
+2. **StoryEngine + DialogueEngine phía server** (đồ thị hội thoại theo dữ liệu: điều kiện theo cờ/chương/giờ/thời tiết/mức quen biết, hiệu ứng do server áp dụng; mỗi người có phiên hội thoại riêng), NPC memory/relationship — Prompt 1 §4–7.
+3. **Lịch sinh hoạt NPC**: vị trí là hàm thuần của đồng hồ server (chu kỳ "giờ sinh hoạt chùa"), đi bằng Pathfinder, client và server tính giống nhau; NPC không biến mất khi đang hội thoại — Prompt 1 §3.
+4. **3 câu chuyện**: An (4 chương), Bác Lâm (3), Thầy Minh (3). Đổi tên: người giữ vườn → Bác Lâm, thủ thư → Thầy Minh, trụ trì → Thầy Viên Giác (tránh trùng "Minh").
+5. **CooperativeSessionManager** + bàn trà hai người, thiền chung, cùng thỉnh chuông, vườn chung, câu đố hợp tác — Prompt 2.
+6. **Thế giới phản ứng + 2 chuỗi lâu dài** (vườn hồi sinh 5 giai đoạn, ánh sáng Chánh Điện) — Prompt 3.
+7. **JourneyDirector** "Ánh sáng trong Chánh điện" + telemetry riêng tư — Prompt 4.
+8. **Chánh Điện nâng cao** — Prompt 5.
+
+Trạng thái: **mới hoàn tất bước chuẩn bị tài liệu; chưa có code Parse 2.**
+
 ## Đọc trước khi sửa
 
 1. `README.md` (chạy, kiến trúc) rồi các mục M1–M5 ở trên.
