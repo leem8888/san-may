@@ -135,6 +135,14 @@ export const PROPS = {
   },
   mo(c, o, env) { const { x, y } = o; shadow(c, x, y, 34, 8, env); ellipse(c, x - 12, y - 6, 20, 8, '#7a3e30'); ellipse(c, x - 12, y - 14, 16, 11, '#a0643a'); ellipse(c, x - 16, y - 16, 5, 3, '#5a3020'); line(c, x - 2, y - 26, x + 6, y - 38, '#8a6a46', 3); ellipse(c, x + 16, y - 6, 14, 6, '#5a3020'); ellipse(c, x + 16, y - 12, 12, 8, '#c4a256'); ellipse(c, x + 16, y - 14, 8, 3, '#7d6232'); },
   broom(c, o, env) { const { x, y } = o; shadow(c, x, y, 30, 7, env); for (let i = 0; i < 9; i++) ellipse(c, x - 22 + (i * 13) % 34, y - 4 - (i % 3) * 3, 5, 2.5, ['#c6b278', '#b98d55', '#d7c48e'][i % 3]); line(c, x + 14, y - 2, x + 2, y - 70, '#8a6a46', 3); polygon(c, [[x + 8, y - 4], [x + 24, y - 4], [x + 18, y - 26], [x + 12, y - 26]], '#c9b07a', '#a08650'); },
+  // Bronze incense burner on a low stand; the sticks themselves are drawn by MainHallScene from live state.
+  censer(c, o, env) {
+    const { x, y } = o; shadow(c, x, y, 34, 8, env);
+    box(c, x - 26, y - 12, 52, 12, '#5a2a22', 3);
+    for (const dx of [-14, 14]) line(c, x + dx, y - 12, x + dx * 1.2, y - 4, '#7a6236', 3);
+    ellipse(c, x, y - 22, 22, 10, '#8a6e38'); ellipse(c, x, y - 27, 20, 6, '#b08f4a'); ellipse(c, x, y - 28, 16, 4, '#d8c9a2');
+    for (const dx of [-20, 20]) { c.strokeStyle = '#8a6e38'; c.lineWidth = 2; c.beginPath(); c.arc(x + dx, y - 26, 4, Math.PI * .5, Math.PI * 1.5, dx > 0); c.stroke(); }
+  },
   // Small table with a bamboo fortune tube; it rattles while someone draws a stick (env.shake > 0).
   fortune(c, o, env) {
     const { x, y } = o, shake = env.fortuneShake > 0 && !env.reduced ? Math.sin(env.time * 40) * .12 * env.fortuneShake : 0;

@@ -391,3 +391,35 @@ test('Main hall: fortune drawing is journaled only at the tube, and the abbot te
   const fortunes = read('fortunes').items;
   assert.equal(fortunes.length, 12); assert.ok(fortunes.every(f => f.verse.split('\n').length === 4 && f.meaning));
 });
+
+test('Incense is lit at the censer, shared with the hall, rate limited; the monk chants on a shared 3-minute clock', async t => {
+  const s = await startServer(); t.after(s.close);
+  const [a, b, c] = ['An', 'Bình', 'Chi'].map(name => guest(s.game, name));
+  const repo = s.game.ctx.repos.players;
+  repo.saveLocation(a.id, 'mainHall', 700, 560); repo.saveLocation(b.id, 'mainHall', 700, 850); repo.saveLocation(c.id, 'mainHall', 900, 850);
+  const [sa, sb] = await Promise.all([a, b].map(g => connect(s.base, g.token)));
+  t.after(() => [sa, sb].forEach(socket => socket.close()));
+  for (const socket of [sa, sb]) await ask(socket, 'room:join', { room: 'INCENSE' });
+  assert.match((await ask(sb, 'incense:light', { objectId: 'censer' })).error, /gần lư hương/);
+  assert.match((await ask(sa, 'incense:light', { objectId: 'fortune' })).error, /Không tìm thấy/);
+  const seen = nextEvent(sb, 'incense:new');
+  const lit = await ask(sa, 'incense:light', { objectId: 'censer' });
+  assert.equal(lit.ok, true); assert.equal((await seen).playerId, a.id);
+  assert.match((await ask(sa, 'incense:light', { objectId: 'censer' })).error, /vẫn đang cháy/);
+  const sc = await connect(s.base, c.token); t.after(() => sc.close());
+  assert.deepEqual((await ask(sc, 'room:join', { room: 'INCENSE' })).scene.incense.map(x => x.id), [lit.stick.id], 'late joiners see burning incense');
+  assert.ok((await s.http('GET', '/api/journal', undefined, a.token)).data.entries.some(e => e.text === 'Thắp một nén hương ở Chánh Điện.'));
+
+  const { HallChant, CHANT, CHANT_LINE } = await import('../public/js/systems/HallChant.js');
+  const played = [];
+  const fakeAudio = { running: true, muted: false, context: { currentTime: 100 }, voice: () => played.push('voice'), woodfish: () => played.push('fish'), bowl: () => played.push('bowl'), templeBell: () => played.push('bell') };
+  const chant = new HallChant(fakeAudio), cycleStart = 180 * 1000 * 9000;
+  assert.ok(CHANT.length < 180, 'the chant fits inside the 3-minute cycle');
+  assert.equal(chant.update(cycleStart + 1000, false), null, 'nothing outside the hall');
+  assert.equal(chant.update(cycleStart + (CHANT.lines[0][0] + 1) * 1000, true), CHANT_LINE, 'the line is shown while chanting');
+  assert.ok(played.includes('voice') && played.includes('fish'));
+  assert.equal(chant.update(cycleStart + (CHANT.length + 5) * 1000, true), null, 'silent for the rest of the cycle');
+  const count = played.length;
+  chant.update(cycleStart + (CHANT.length + 6) * 1000, true);
+  assert.equal(played.length, count, 'no notes after the chant ends');
+});

@@ -62,10 +62,18 @@ Thứ tự đã chọn: **M1 backend (Phase 4 + lõi Phase 5) → M2 world (Phas
 - **Âm lượng Chánh Điện**: mõ và chuông gõ to gấp đôi; nhạc nền (pad) tự phát nhẹ khi ở trong Chánh Điện (`hallMusic`).
 - `AssetLoader` nạp thêm `stories.json`, `fortunes.json`. `npm test` 26/26. Browser: nghe chuyện thầy trụ trì (truyện ngẫu nhiên + nguồn), chạm ống xăm → đi tới → rút quẻ; thông báo chuông chùa tự xuất hiện. **Âm thanh mới vẫn chưa được nghe thử bằng tai.**
 
+### Bổ sung — nhân vật mới, ghế đá, thắp hương, sư tụng kinh
+- **Nhân vật** vẽ lại trong `rendering/CharacterArt.js` (`drawCharacter`): tỉ lệ người thật hơn (đầu ≈ 1/6,5 chiều cao), cổ, vai, khuỷu tay, bàn tay, đùi/cẳng, giày, áo đổ bóng, mặt có mắt/mày/miệng, nhìn nghiêng/sau lưng. `SpriteRenderer` chỉ còn cache dải frame và vẽ nhãn.
+- **Ngồi ghế đá**: `Scene.seatFor(p)` chọn nửa ghế gần nhất; `SceneRenderer` vẽ người đang `sit` lên mặt ghế, quay mặt ra ngoài. Vị trí thật (server kiểm tra) vẫn ở trước ghế; mọi máy tự tính cùng chỗ ngồi.
+- **Menu biểu cảm**: icon vẽ ở vị trí chưa "bay lên" nên không còn bị cắt nửa.
+- **Thắp hương**: lư hương `censer` trước ban thờ; `incense:light` (server kiểm tra khoảng cách, 1 phút/người, lưu trong bộ nhớ theo phòng/khu, cháy `INCENSE_SECONDS` = 10 phút, mất khi server khởi động lại hoặc phòng trống), `incense:new` cho cả khu, snapshot cho người vào sau; `MainHallScene` vẽ nén hương ngắn dần, đầu đỏ, khói; ghi nhật ký.
+- **Sư Tâm Hòa tụng kinh** (`systems/HallChant.js`): mỗi `CHANT_CYCLE_SECONDS` = 180 giây theo đồng hồ server (ai ở Chánh Điện cũng nghe cùng lúc), tụng 3 lần câu niệm truyền thống "Nam mô Bổn Sư Thích Ca Mâu Ni Phật" bằng giọng tổng hợp (`AudioManager.voice`, giai điệu ngũ cung tự soạn) + mõ + chuông; lời hiện thành bong bóng trên đầu sư. **Không dùng bài hát/bản thu có bản quyền.** Nếu người vận hành có bản thu được phép dùng, đặt ở `public/assets/audio/chanh-dien.mp3`; `GET /api/media` báo có file thì client phát file đó thay giọng tổng hợp.
+- `npm test` 27/27 (thêm test thắp hương + lịch tụng). Browser: chờ đúng chu kỳ, sư tụng có lời trên đầu và thông báo; thắp hương có nén hương + khói; menu biểu cảm hiện đủ 5 icon; console 0 lỗi. **Giọng tụng tổng hợp chưa được nghe thử bằng tai** — có thể cần chỉnh âm sắc/âm lượng.
+
 ## Đọc trước khi sửa
 
 1. `README.md` (chạy, kiến trúc) rồi các mục M1–M5 ở trên.
-2. `npm install`, `npm run check`, `npm test` để xác nhận baseline (26/26).
+2. `npm install`, `npm run check`, `npm test` để xác nhận baseline (27/27).
 3. `npm start`, mở `http://localhost:43127/?room=MAY-01`. Thử nhiều người: cửa sổ ẩn danh hoặc `&slot=2`. QA chụp hình: `&debug=1`.
 4. Bản đồ JSON trong `public/data/maps/` là nguồn chính (script sinh ban đầu không nằm trong repo). Sau khi sửa bản đồ, chạy `npm test` — `tests/world.test.mjs` sẽ báo nếu cổng/vật không còn đi tới được.
 5. Thêm migration mới thì nối vào cuối `server/database/migrations.js`, không sửa migration cũ.

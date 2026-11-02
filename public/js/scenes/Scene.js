@@ -24,6 +24,13 @@ export class Scene {
   }
   enter() { this.ground ||= buildGround(this.map); }
   release() { this.ground = null; }
+  // Someone sitting next to a bench is drawn on its seat (left or right half, facing out). Their logical,
+  // server-checked position stays in front of the bench; every client derives the same seat from it.
+  seatFor(p) {
+    let bench = null, best = 120;
+    for (const o of this.objects) if (o.type === 'bench' && o.action === 'sit') { const d = Math.hypot(o.x - p.x, o.y - p.y); if (d < best) { bench = o; best = d; } }
+    return bench && { x: bench.x + (p.x < bench.x ? -26 : 26), y: bench.y + 11 };
+  }
   portalAt(x, y) { return (this.map.portals || []).find(p => insideRect(p, x, y)) || null; }
   update(dt, game) { this.time += dt; for (const npc of this.npcs) npc.update(dt, game.player); }
   // Hook: particles that belong to this place (smoke, motes, fireflies).

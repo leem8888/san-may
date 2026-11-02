@@ -17,7 +17,7 @@ export class RoomManager {
   constructor() { this.rooms = new Map(); }
   get(code) { return this.rooms.get(code); }
   ensure(code, isPrivate = false) {
-    if (!this.rooms.has(code)) this.rooms.set(code, { code, isPrivate, players: new Map(), bells: new Map(), createdAt: Date.now() });
+    if (!this.rooms.has(code)) this.rooms.set(code, { code, isPrivate, players: new Map(), bells: new Map(), incense: new Map(), createdAt: Date.now() });
     return this.rooms.get(code);
   }
   findPlayer(playerId) { for (const room of this.rooms.values()) { const p = room.players.get(playerId); if (p) return p; } return null; }

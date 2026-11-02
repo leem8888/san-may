@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { ACTIONS, COOLDOWNS, DURATIONS, EMOTES, GARDEN, ITEMS, LANTERN_STYLES, LIMITS, MEDITATION_MINUTES, REACTIONS, ROUND, SCENE_IDS, SPEED } from '../../public/js/shared/rules.js';
+import { ACTIONS, COOLDOWNS, DURATIONS, EMOTES, GARDEN, INCENSE_SECONDS, ITEMS, LANTERN_STYLES, LIMITS, MEDITATION_MINUTES, REACTIONS, ROUND, SCENE_IDS, SPEED } from '../../public/js/shared/rules.js';
 import { cleanText, isObject, number, oneOf, roomCode } from '../validators/index.js';
 import { isOffensive, RateLimiter } from '../services/moderation.js';
 import { publicPlayer, roomChannel, sceneChannel } from '../services/rooms.js';
@@ -30,6 +30,7 @@ const ACTIVITY_TEXT = {
  *   wish:react {wishId, emoji|null}        → {ok}; broadcast wish:reaction
  *   lantern:release {objectId, text, style, clientId} → {ok, lantern}; broadcast lantern:new
  *   meditation:start {minutes} / meditation:finish {} → session / result
+ *   incense:light {objectId}               → {ok, stick}; broadcast incense:new; sticks burn INCENSE_SECONDS (memory only)
  *   chat:send {text}                       → {ok}; broadcast chat:message {id, name, text, at} to the same area (not stored)
  *   activity:complete {objectId, title?, tea?} → {ok}; journal entry for sand/sweep/tea/stories/chant, proximity + 20 s rate limit
  * Server → client: room:state {sceneId, t, full, players[]}, room:online, player:join, player:leave,
@@ -56,6 +57,12 @@ export function attachSockets(io, ctx) {
     return bells;
   }
   const hasLanterns = sceneId => Boolean(world.map(sceneId)?.objects?.some(o => o.action === 'lantern'));
+  // Incense sticks live in memory per room and area and burn out after INCENSE_SECONDS.
+  function liveIncense(p) {
+    const room = rooms.get(p.room), list = (room?.incense.get(p.sceneId) || []).filter(s => Date.now() - s.at < INCENSE_SECONDS * 1000);
+    room?.incense.set(p.sceneId, list);
+    return list;
+  }
   const gardenCode = sceneId => sceneId.startsWith('garden:') ? sceneId.slice(7) : null;
   function gardenSnapshot(code) {
     const garden = code && repos.gardens.byCode(code);
@@ -66,6 +73,7 @@ export function attachSockets(io, ctx) {
     players: rooms.inScene(p.room, p.sceneId).filter(other => other !== p).map(other => publicPlayer(other)),
     bells: bellsFor(p),
     lanterns: hasLanterns(p.sceneId) ? repos.content.lanterns(p.room, Date.now() - LANTERN_LIFETIME) : [],
+    incense: liveIncense(p),
     garden: gardenSnapshot(gardenCode(p.sceneId)),
   });
 
@@ -161,7 +169,7 @@ export function attachSockets(io, ctx) {
       self = {
         id: playerId, socketId: socket.id, room: code, name: profile.name, appearance: profile.appearance, sceneId, ...position,
         direction: 'down', state: 'idle', actionAt: now, moved: false, lastMoveAt: now, dirty: true, locationDirty: false,
-        historyId: repos.rooms.recordJoin(code, playerId, now), meditation: null, lastWishAt: 0, lastLanternAt: 0, lastEmoteAt: 0, lastChatAt: 0, recent: new Map(), activities: new Map(),
+        historyId: repos.rooms.recordJoin(code, playerId, now), meditation: null, lastWishAt: 0, lastLanternAt: 0, lastEmoteAt: 0, lastChatAt: 0, lastIncenseAt: 0, recent: new Map(), activities: new Map(),
       };
       room.players.set(playerId, self);
       socket.join(roomChannel(code)); socket.join(scene(self));
@@ -237,6 +245,22 @@ export function attachSockets(io, ctx) {
       p.lastChatAt = now;
       io.to(scene(p)).emit('chat:message', { id: p.id, name: p.name, text, at: now });
       ack({ ok: true, text });
+    });
+
+    socket.on('incense:light', (data, ack) => {
+      ack = reply(ack);
+      const p = self, censer = p && world.object(p.sceneId, data?.objectId);
+      if (!censer || censer.action !== 'incense') return ack({ error: 'Không tìm thấy lư hương.' });
+      if (Math.hypot(p.x - censer.x, p.y - censer.y) > censer.radius + 40) return ack({ error: 'Hãy đến gần lư hương hơn.' });
+      const now = Date.now();
+      if (now - p.lastIncenseAt < COOLDOWNS.incense) return ack({ error: 'Nén hương của bạn vẫn đang cháy. Hãy đợi một lát.' });
+      p.lastIncenseAt = now;
+      const stick = { id: crypto.randomUUID(), playerId: p.id, name: p.name, at: now };
+      rooms.get(p.room).incense.set(p.sceneId, [...liveIncense(p), stick].slice(-12));
+      Object.assign(p, { state: 'pray', actionAt: now, moved: false, dirty: true });
+      io.to(scene(p)).emit('incense:new', { sceneId: p.sceneId, ...stick });
+      progression.journal(p.id, 'Thắp một nén hương ở Chánh Điện.', now);
+      ack({ ok: true, stick, progress: notify(socket, progression.record(p.id, [['incense', 1]], now)) });
     });
 
     socket.on('practice:complete', (data, ack) => {

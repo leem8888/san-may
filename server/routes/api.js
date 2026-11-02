@@ -1,4 +1,7 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { PUBLIC_DIR } from '../config/index.js';
 import express from 'express';
 import { LIMITS, ROUND, normalizeAppearance } from '../../public/js/shared/rules.js';
 import { cleanName, cleanText, isObject, number, oneOf, roomCode } from '../validators/index.js';
@@ -48,6 +51,9 @@ export function createApiRouter(ctx) {
     repos.players.setRounds(req.playerId, type === 'bow' ? 0 : progress.bowsRound, type === 'bead' ? 0 : progress.beadsRound);
     res.json({ progress: repos.players.progress(req.playerId) });
   });
+
+  // Optional operator-supplied audio (see public/assets/audio/README.md); lets the client avoid probing for 404s.
+  router.get('/media', (req, res) => res.json({ hallChant: fs.existsSync(path.join(PUBLIC_DIR, 'assets', 'audio', 'chanh-dien.mp3')) }));
 
   router.get('/rooms', (req, res) => res.json({ rooms: rooms.publicRooms(), capacity: config.maxPlayersPerRoom }));
 

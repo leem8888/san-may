@@ -26,6 +26,7 @@ import { GardenPanel } from './ui/GardenPanel.js';
 import { ProgressPanels } from './ui/ProgressPanels.js';
 import { SocialPanel } from './ui/SocialPanel.js';
 import { FortunePanel } from './ui/FortunePanel.js';
+import { HallChant } from './systems/HallChant.js';
 
 const params = new URLSearchParams(location.search);
 // ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
@@ -40,7 +41,9 @@ const savedVolumes = (() => { try { return JSON.parse(store.get('sanmay-volumes'
 const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolumes);
 const panels = new Panels(), creator = new CharacterCreator();
 const blocked = new Set();
-let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0;
+let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
+const chant = new HallChant(audio);
+chant.detectRecording();
 
 const STATE_TEXT = { idle: 'Một khoảng lặng giữa ngày', walk: 'Dạo bước thong thả', bow: 'Đang cúi lạy…', bead: 'Đang lần một hạt…', pray: 'Chắp tay · an lành', sit: 'Đang ngồi nghỉ', bell: 'Tiếng chuông ngân', wave: 'Vẫy chào bạn bè', meditate: 'Đang thiền', interact: 'Đang chạm khẽ' };
 
@@ -72,6 +75,7 @@ function applyScene(self, snapshot, announce = true) {
   syncBells(snapshot.bells, now);
   if (game.scene.lanterns) game.scene.blocked = blocked;
   game.scene.setLanterns?.(snapshot.lanterns || [], now);
+  game.scene.setIncense?.(snapshot.incense || [], now);
   game.scene.setGarden?.(snapshot.garden, net.selfId);
   gardens?.refresh();
   if (changed || announce) showAreaTitle(game.scene.map);
@@ -112,6 +116,7 @@ const net = new SocketClient(io, {
   'wish:hidden'(data) { wishes.remove(data.id); },
   'lantern:new'(lantern) { game.scene.addLantern?.(lantern, net.clock.now()); },
   'lantern:hidden'(data) { game.scene.removeLantern?.(data.id); },
+  'incense:new'(stick) { if (stick.sceneId === game.scene.id) game.scene.addIncense?.(stick, net.clock.now()); },
   'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
   'progress:events'(events) { if (events.progress) setProgress(events.progress); celebrate(events); },
   'session:replaced'() { entered = false; net.stop(); game.pauseInput(true); toast('Bạn vừa mở Sân Mây ở tab khác. Tab này đã tạm dừng; tải lại để tiếp tục tại đây.', 8000); $('#connection').textContent = 'Đang mở ở tab khác'; },
@@ -149,9 +154,19 @@ function interact(o = game.interactions.nearest) {
     case 'chant': return toggleChant(o);
     case 'garden': return gardens.openGate();
     case 'fortune': return fortunes.open(o);
+    case 'incense': return lightIncense(o);
     case 'water': return gardens.water(o);
     default: return toast('Không có gì để làm ở đây.');
   }
+}
+async function lightIncense(o) {
+  if (!['idle', 'walk'].includes(game.player.state)) return toast('Hãy hoàn tất hành động hiện tại trước.');
+  try {
+    net.sendMove(game.player, performance.now(), true);
+    await net.request('incense:light', { objectId: o.id });
+    game.player.act('pray'); audio.tone(523, 1.4, .03, 'sfx');
+    toast('Bạn thắp một nén hương. Khói hương nhẹ bay lên ban thờ.');
+  } catch (error) { toast(error.message); }
 }
 function toggleChant(o) {
   const on = !audio.chanting;
@@ -196,6 +211,11 @@ function tick(dt) {
     if (!portal) blockedPortal = null; else if (portal.id !== blockedPortal) usePortal(portal);
   }
   audio.setScene(game.scene.map.ambient, game.weather, game.scene.indoor);
+  // Every three minutes the monk in the main hall chants; only players in the hall hear and see it.
+  const chantLine = chant.update(net.clock.now(), entered && game.scene.id === 'mainHall'), monk = game.scene.npcs.find(npc => npc.id === 'chanter');
+  if (monk) monk.chat = chantLine ? { text: chantLine, age: 1 } : null;
+  if (chantLine && !lastChantLine) toast('Sư Tâm Hòa bắt đầu tụng kinh…', 3000);
+  lastChantLine = chantLine;
   if (audio.chanting && game.scene.id !== 'mainHall') audio.setChant(false);
   if (game.player.state === 'walk' && (stepTimer -= dt) <= 0) { audio.step(); stepTimer = .38; }
   const nearest = game.interactions.nearest, p = game.player, env = game.env;
@@ -234,7 +254,7 @@ function setupSettings() {
 function setupEmotes() {
   $('#emotes').replaceChildren(...EMOTES.map(name => {
     const canvas = el('canvas', { width: 64, height: 64, 'aria-hidden': 'true' }), c = canvas.getContext('2d');
-    c.scale(2, 2); emoteBubble(c, 16, 33, name, .5);
+    c.scale(2, 2); emoteBubble(c, 16, 32, name, 0);
     return el('button', { type: 'button', role: 'menuitem', 'aria-label': { bow: 'Cúi chào', lotus: 'Hoa sen', heart: 'Thương mến', smile: 'Mỉm cười', sparkle: 'Lấp lánh' }[name], onclick: () => emote(name) }, canvas);
   }));
   $('#emoteToggle').onclick = () => { const open = $('#emotes').hidden; $('#emotes').hidden = !open; $('#emoteToggle').setAttribute('aria-expanded', String(open)); };

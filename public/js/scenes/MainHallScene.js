@@ -1,10 +1,33 @@
 import { Scene } from './Scene.js';
+import { INCENSE_SECONDS } from '../shared/rules.js';
+import { ellipse } from '../rendering/SpriteRenderer.js';
 
-// Incense smoke rises from the altar burner; warm candlelight comes from the altar prop itself.
+// Incense lit by players stands in the censer and slowly burns down; smoke rises from the altar burner and
+// from every lit stick. Sticks come from the server snapshot and live `incense:new` events.
 export class MainHallScene extends Scene {
+  constructor(map) { super(map); this.sticks = []; this.censer = this.objects.find(o => o.action === 'incense'); }
+  setIncense(list, serverNow) { this.sticks = []; for (const s of list) this.addIncense(s, serverNow); }
+  addIncense(stick, serverNow = Date.now()) { this.sticks.push({ ...stick, born: this.time - (serverNow - stick.at) / 1000 }); }
+  liveSticks() { this.sticks = this.sticks.filter(s => this.time - s.born < INCENSE_SECONDS); return this.sticks.slice(-9); }
+  stickTips() {
+    const list = this.liveSticks(), n = list.length;
+    return list.map((s, i) => { const burnt = (this.time - s.born) / INCENSE_SECONDS; return { x: this.censer.x + (i - (n - 1) / 2) * 4.2, y: this.censer.y - 30 - 26 * (1 - burnt * .75), lean: (i - (n - 1) / 2) * .9 }; });
+  }
+  entities(c, env) {
+    const list = super.entities(c, env);
+    if (this.censer) list.push({ y: this.censer.y + .5, x: this.censer.x, vy: this.censer.y, draw: () => {
+      for (const tip of this.stickTips()) {
+        c.strokeStyle = '#a3543c'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(this.censer.x + tip.lean * .3, this.censer.y - 28); c.lineTo(tip.x + tip.lean, tip.y); c.stroke();
+        ellipse(c, tip.x + tip.lean, tip.y, 1.6, 1.6, `rgba(255,${120 + Math.sin(env.time * 6 + tip.x) * 40},60,.95)`);
+      }
+    } });
+    return list;
+  }
+  dynamicLights() { const n = this.liveSticks().length; return n && this.censer ? [{ x: this.censer.x, y: this.censer.y - 50, r: 40 + n * 4, color: '255,140,80', flicker: true, power: .5 }] : []; }
   ambient(game, particles, env) {
+    if (env.reduced) return;
     const burner = this.objects.find(o => o.type === 'altar') || this.props.find(o => o.type === 'altar');
-    if (!burner || env.reduced || Math.random() > env.dt * 5) return;
-    particles.spawn({ kind: 'smoke', x: burner.x + (Math.random() - .5) * 12, y: burner.y - 100, vy: -16 - Math.random() * 6, life: 5, size: 2, alpha: .22, seed: Math.random() * 6 });
+    if (burner && Math.random() < env.dt * 5) particles.spawn({ kind: 'smoke', x: burner.x + (Math.random() - .5) * 12, y: burner.y - 100, vy: -16 - Math.random() * 6, life: 5, size: 2, alpha: .22, seed: Math.random() * 6 });
+    for (const tip of this.stickTips()) if (Math.random() < env.dt * 1.6) particles.spawn({ kind: 'smoke', x: tip.x + tip.lean, y: tip.y - 2, vy: -14 - Math.random() * 6, life: 4.5, size: 1.4, alpha: .2, seed: Math.random() * 6 });
   }
 }

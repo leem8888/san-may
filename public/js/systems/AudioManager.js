@@ -65,7 +65,22 @@ export class AudioManager {
     if (!this.nextTempleBell) this.nextTempleBell = t + 40 + Math.random() * 50;
     else if (t > this.nextTempleBell) { this.templeBell(); this.onTempleBell?.(); this.nextTempleBell = t + 120 + Math.random() * 180; }
   }
-  templeBell() { [98, 196, 294, 392].forEach((f, i) => this.tone(f, 8 - i * 1.4, .07 / (i + 1), 'ambient')); }
+  // A soft sung vowel: sawtooth through vowel formant filters with gentle vibrato. Used for the hall chant.
+  voice(frequency, when, duration, gain = .14) {
+    if (!this.running) return;
+    const c = this.context, start = Math.max(c.currentTime, when), end = start + duration;
+    const o = c.createOscillator(), lfo = c.createOscillator(), depth = c.createGain(), env = c.createGain(), out = c.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(frequency, start);
+    lfo.frequency.value = 5.2; depth.gain.value = frequency * .012; lfo.connect(depth).connect(o.frequency);
+    env.gain.setValueAtTime(.0001, start); env.gain.exponentialRampToValueAtTime(gain, start + .09);
+    env.gain.setValueAtTime(gain, Math.max(start + .1, end - .22)); env.gain.exponentialRampToValueAtTime(.0001, end);
+    out.gain.value = 2.6; o.connect(env);
+    for (const [f, q, g] of [[620, 5, 1], [1080, 7, .55], [2500, 9, .16]]) { const bp = c.createBiquadFilter(), fg = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q; fg.gain.value = g; env.connect(bp).connect(fg).connect(out); }
+    out.connect(this.bus.music);
+    o.start(start); lfo.start(start); o.stop(end + .05); lfo.stop(end + .05);
+    o.onended = () => { o.disconnect(); lfo.disconnect(); depth.disconnect(); env.disconnect(); out.disconnect(); };
+  }
+  templeBell(when = 0) { [98, 196, 294, 392].forEach((f, i) => this.tone(f, 8 - i * 1.4, .07 / (i + 1), 'ambient', 'sine', 1, when)); }
   tone(frequency = 440, duration = .4, gain = .08, bus = 'sfx', type = 'sine', glide = 1, when = 0) {
     if (!this.running) return;
     const c = this.context, start = Math.max(c.currentTime, when), o = c.createOscillator(), g = c.createGain();

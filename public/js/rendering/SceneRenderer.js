@@ -43,7 +43,9 @@ export class SceneRenderer {
     for (const npc of scene.npcs) if (cam.visible(npc.x, npc.y)) list.push({ y: npc.y, draw: () => this.sprites.draw(c, npc) });
     const people = game.entered ? [player] : [];
     for (const remote of game.remotes) if (!game.blocked.has(remote.id) && cam.visible(remote.x, remote.y)) people.push(remote);
-    for (const p of people) list.push({ y: p.y, draw: () => this.sprites.draw(c, p) });
+    // Seated players are shown on the bench seat instead of where they stand.
+    const views = people.map(p => { const seat = p.state === 'sit' && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, direction: 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
+    for (const v of views) list.push({ y: v.y, draw: () => this.sprites.draw(c, v) });
     list.sort((a, b) => a.y - b.y);
     for (const item of list) item.draw();
     game.particles.draw(c, false, cam);
@@ -57,7 +59,7 @@ export class SceneRenderer {
     this.lighting.lights(c, scene.dynamicLights ? [...scene.lights, ...scene.dynamicLights()] : scene.lights, cam, env, scene.indoor, env.time);
     for (const portal of scene.map.portals || []) this.portal(c, portal, player, env.time);
     for (const npc of scene.npcs) if (cam.visible(npc.x, npc.y)) this.sprites.label(c, npc);
-    for (const p of people) this.sprites.label(c, p, p === player);
+    for (const v of views) this.sprites.label(c, v, v.self);
     c.restore();
 
     this.lighting.atmosphere(c, this.width, this.height, env, scene.indoor ? 0 : game.weather.levels.fog, env.time, scene.indoor);
