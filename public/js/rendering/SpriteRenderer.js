@@ -39,7 +39,7 @@ export class SpriteRenderer {
   label(c, p, self = false) {
     if (!p.name) return;
     const top = p.y - (p.appearance?.characterStyle === 'abbot' ? 111 : p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1);
-    c.textAlign = 'center'; c.font = '12px system-ui';
+    c.textAlign = 'center'; c.font = '500 13px Arial';
     const width = c.measureText(p.name).width + 18;
     c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, 20, 8); c.fill();
     c.fillStyle = self ? '#ffe2a4' : p.npc ? '#f1d9a8' : '#d1e5ce'; c.fillText(p.name, p.x, top + 14);
@@ -87,14 +87,14 @@ function wrap(c, text, maxWidth) {
 
 // Speech bubble above a name for CHAT_SECONDS, fading in and out. Returns its height so emotes can sit above it.
 export function chatBubble(c, x, bottom, text, age) {
-  c.save(); c.font = '12px system-ui'; c.textAlign = 'center';
-  const lines = wrap(c, text, 190), width = Math.max(...lines.map(l => c.measureText(l).width)) + 20, height = lines.length * 16 + 12;
+  c.save(); c.font = '13px Arial'; c.textAlign = 'center';
+  const lines = wrap(c, text, 190), width = Math.max(...lines.map(l => c.measureText(l).width)) + 20, height = lines.length * 18 + 12;
   c.globalAlpha = Math.max(0, Math.min(1, age / .15, (CHAT_SECONDS - age) / .6));
   const top = bottom - height - 6;
   c.fillStyle = '#f7f1e1'; c.strokeStyle = '#c9b48a'; c.lineWidth = 1;
   c.beginPath(); c.roundRect(x - width / 2, top, width, height, 9); c.fill(); c.stroke();
   polygon(c, [[x - 6, top + height - 1], [x + 6, top + height - 1], [x, bottom]], '#f7f1e1');
-  c.fillStyle = '#2f3a2e'; lines.forEach((l, i) => c.fillText(l, x, top + 18 + i * 16));
+  c.fillStyle = '#2f3a2e'; lines.forEach((l, i) => c.fillText(l, x, top + 18 + i * 18));
   c.restore();
   return height + 8;
 }

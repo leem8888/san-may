@@ -43,5 +43,13 @@ export function drawOfferingStall(c,o){
   box(c,x-98,y-118,196,7,'#aa8650',2);
   for(let i=-5;i<=5;i++){c.strokeStyle='#91a07b66';c.lineWidth=1;c.beginPath();c.moveTo(x+i*12,y-140);c.lineTo(x+i*17,y-119);c.stroke();}
   box(c,x-63,y-110,126,23,'#5f3928',3);c.strokeStyle='#cfaa69';c.lineWidth=1;c.strokeRect(x-60,y-108,120,19);
-  c.textAlign='center';c.font='12px Georgia';c.fillStyle='#f1d79c';c.fillText('HƯƠNG & MÂM LỄ',x,y-94);
+  c.textAlign='center';c.font='12px Arial';c.fillStyle='#f1d79c';c.fillText('HƯƠNG & MÂM LỄ',x,y-94);
+  // A linen counter valance and small red lanterns make the stall easy to spot.
+  box(c,x-69,y-18,138,19,'#d2bf91',2);box(c,x-69,y-18,138,2,'#f0dbab');
+  c.font='9px system-ui';c.fillStyle='#5c4632';c.fillText('CÓ THỨC ĂN CÁ',x,y-5);
+  for(const side of [-1,1]){
+    c.strokeStyle='#bb975c';c.lineWidth=1;c.beginPath();c.moveTo(x+side*76,y-110);c.lineTo(x+side*76,y-91);c.stroke();
+    oval(c,x+side*76,y-82,7,10,'#b84e39');oval(c,x+side*76-2,y-83,2,6,'#e3a66a');
+    box(c,x+side*76-5,y-93,10,2,'#d5b372');box(c,x+side*76-4,y-73,8,2,'#cda460');
+  }
 }

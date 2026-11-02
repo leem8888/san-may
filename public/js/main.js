@@ -28,6 +28,7 @@ import { SocialPanel } from './ui/SocialPanel.js';
 import { FortunePanel } from './ui/FortunePanel.js';
 import { HallChant } from './systems/HallChant.js';
 import { ShopPanel } from './ui/ShopPanel.js';
+import { closeScenePopups } from './ui/ScenePopups.js';
 
 const params = new URLSearchParams(location.search);
 // ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
@@ -81,6 +82,7 @@ function applyScene(self, snapshot, announce = true) {
   game.scene.setGarden?.(snapshot.garden, net.selfId);
   game.scene.setSand?.(snapshot.sand);
   game.scene.setOfferings?.(snapshot.offerings, now);
+  game.scene.setFishFeed?.(snapshot.fishFeed, now);
   gardens?.refresh();
   if (changed || announce) showAreaTitle(game.scene.map);
   if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress?.scenesVisited, game.player);
@@ -123,6 +125,7 @@ const net = new SocketClient(io, {
   'incense:new'(stick) { if (stick.sceneId === game.scene.id) game.scene.addIncense?.(stick, net.clock.now()); },
   'sand:update'(data) { if (data.sceneId === game.scene.id) game.scene.setSand?.(data.strokes); },
   'offering:update'(data) { if (data.sceneId === game.scene.id) game.scene.setOfferings?.(data.offerings, net.clock.now()); },
+  'fish:fed'(data) { if (data.sceneId === game.scene.id) game.scene.setFishFeed?.(data, net.clock.now()); },
   'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
   'progress:events'(events) { if (events.progress) setProgress(events.progress); celebrate(events); },
   'session:replaced'() { entered = false; net.stop(); game.pauseInput(true); toast('Bạn vừa mở Sân Mây ở tab khác. Tab này đã tạm dừng; tải lại để tiếp tục tại đây.', 8000); $('#connection').textContent = 'Đang mở ở tab khác'; },
@@ -148,7 +151,7 @@ function interact(o = game.interactions.nearest) {
   if (!o) return toast('Hãy đến gần một người, một vật hoặc chạm vào nó để tương tác.');
   game.input.clear();
   switch (o.action) {
-    case 'shop': case 'offering': return shop.open(o);
+    case 'shop': case 'offering': case 'fishFeed': return shop.open(o);
     case 'cat': selectedCat = o; return panels.open('catPanel');
     case 'dialogue': return dialogue.open(o.dialogue).catch(error => toast(error.message));
     case 'wishes': return panels.open('wishPanel');
@@ -295,6 +298,11 @@ async function boot() {
     const start = assets.get('maps').has(me.progress.lastScene) ? me.progress.lastScene : 'gate';
     game?.destroy();
     game = new Game($('#scene'), assets, $('#joystick'), keyAction, tick, { scene: start, room, time: store.get('sanmay-time', 'auto'), weather: store.get('sanmay-weather', 'auto') });
+    game.onSceneChange = () => {
+      closeScenePopups({ panels, dialogue, minigames, game });
+      selectedCat = null;
+      if (editing) { editing = false; creator.stop(); $('#intro').hidden = true; game.pauseInput(false); }
+    };
     game.blocked = blocked; game.onApproach = interact;
     game.reduced = store.get('sanmay-reduced', String(matchMedia('(prefers-reduced-motion: reduce)').matches)) === 'true';
     game.setQuality(store.get('sanmay-quality', matchMedia('(pointer: coarse)').matches ? 'medium' : 'high'));

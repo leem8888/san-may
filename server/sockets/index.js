@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { attachShop } from './shop.js';
+import { createFishFeeding } from './fishFeeding.js';
 import { bowDirection } from '../../public/js/shared/rules.js';
 import { validSandStrokes } from '../../public/js/shared/sand.js';
 import { ACTIONS, COOLDOWNS, DURATIONS, EMOTES, GARDEN, INCENSE_SECONDS, ITEMS, LANTERN_STYLES, LIMITS, MEDITATION_MINUTES, REACTIONS, ROUND, SCENE_IDS, SPEED } from '../../public/js/shared/rules.js';
@@ -44,6 +45,7 @@ const ACTIVITY_TEXT = {
  */
 export function attachSockets(io, ctx) {
   const { repos, world, rooms, identity, progression, config } = ctx;
+  const fishFeeding = createFishFeeding(ctx);
   const graceTimers = new Map();
   let ticks = 0, closed = false;
 
@@ -77,6 +79,7 @@ export function attachSockets(io, ctx) {
   const snapshot = p => ({
     sceneId: p.sceneId,
     offerings: p.sceneId === 'mainHall' ? repos.shop.offerings(p.room) : [],
+    fishFeed: fishFeeding.snapshot(p),
     sand: p.sceneId === 'zenGarden' ? repos.content.roomSand(p.room) : null,
     players: rooms.inScene(p.room, p.sceneId).filter(other => other !== p).map(other => publicPlayer(other)),
     bells: bellsFor(p),
@@ -126,6 +129,7 @@ export function attachSockets(io, ctx) {
     const limiter = new RateLimiter(40, 30);
     let self = null, dropped = 0;
     attachShop(socket, ctx, () => self);
+    fishFeeding.attach(socket, () => self);
 
     socket.on('error', () => {});
     socket.use(([event, ...args], next) => {

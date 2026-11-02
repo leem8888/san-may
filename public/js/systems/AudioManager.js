@@ -1,3 +1,4 @@
+import { OutdoorMusic } from './OutdoorMusic.js';
 // Everything is synthesised with Web Audio (no recorded or licensed audio). Buses: music, ambient, sfx, ui → master.
 export const BUSES = { master: 'Tổng', music: 'Nhạc', ambient: 'Môi trường', sfx: 'Hiệu ứng', ui: 'Giao diện' };
 const AMBIENT_MIX = {
@@ -7,6 +8,7 @@ const AMBIENT_MIX = {
 
 export class AudioManager {
   constructor(muted = false, volumes = {}) {
+    this.outdoorScore = new OutdoorMusic(this);
     this.muted = muted; this.context = null; this.volumes = { master: .8, music: .6, ambient: .55, sfx: .8, ui: .5, ...volumes };
     this.loops = {}; this.target = {}; this.chanting = false; this.meditationMusic = false; this.timer = 0; this.nextBeat = 0; this.nextNote = 0; this.nextChirp = 0; this.beat = 0;
   }
@@ -46,6 +48,7 @@ export class AudioManager {
   get running() { return Boolean(this.context && this.context.state === 'running'); }
   // Called every frame with the current place and weather; loops cross-fade towards their targets.
   setScene(ambient, weather, indoor) {
+    this.outdoorScore.setWeather(weather?.current || 'clear', !indoor);
     const mix = { ...AMBIENT_MIX[ambient] };
     if ((ambient === 'hall') !== this.hallMusic) { this.hallMusic = ambient === 'hall'; if (this.hallMusic && this.running) this.nextNote = this.context.currentTime + .5; }
     if (weather) { mix.rain = (mix.rain || 0) + weather.levels.rain * (indoor ? .25 : .9); mix.wind = (mix.wind || 0) + weather.wind * (indoor ? .05 : .5); mix.leaves = (mix.leaves || 0) + weather.levels.leaves * .3; }
@@ -61,6 +64,7 @@ export class AudioManager {
     if (this.chanting) while (this.nextBeat < t + .3) { this.woodfish(Math.max(this.nextBeat, t)); if (++this.beat % 8 === 0) this.bowl(Math.max(this.nextBeat, t) + .05); this.nextBeat = Math.max(this.nextBeat, t) + .92; }
     // The pad plays while meditating and, a little softer, as background music inside the main hall.
     if (this.meditationMusic || this.hallMusic) while (this.nextNote < t + .3) { this.pad(Math.max(this.nextNote, t), this.meditationMusic ? 1 : .8); this.nextNote = Math.max(this.nextNote, t) + 6; }
+    this.outdoorScore.schedule();
     // Now and then a distant temple bell, wherever the player is.
     if (!this.nextTempleBell) this.nextTempleBell = t + 40 + Math.random() * 50;
     else if (t > this.nextTempleBell) { this.templeBell(); this.onTempleBell?.(); this.nextTempleBell = t + 120 + Math.random() * 180; }

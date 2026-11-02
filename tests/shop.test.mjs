@@ -28,7 +28,8 @@ test('buy at the gate and offer in the hall: proximity, stock, room sync and exp
   const s = await startServer(); t.after(s.close);
   const a = guest(s.game), b = guest(s.game), c = guest(s.game);
   const repo = s.game.ctx.repos.players;
-  repo.saveLocation(a.id, 'gate', 440, 930);
+  const stall = s.game.ctx.world.object('gate', 'offeringStall');
+  repo.saveLocation(a.id, 'gate', stall.x, stall.y + 50);
   repo.saveLocation(b.id, 'mainHall', 900, 600); repo.saveLocation(c.id, 'mainHall', 900, 600);
   let sa = await connect(s.base, a.token);
   const sb = await connect(s.base, b.token), sc = await connect(s.base, c.token);

@@ -21,12 +21,15 @@ export class DialoguePanel {
     this.dialog = $('#dialogue');
     this.portrait = new NpcPortrait($('#dialoguePortrait'), $('#dialogueGesture'));
     $('#dialogueNext').addEventListener('click', () => this.next());
-    $('#dialogueClose').addEventListener('click', () => this.dialog.close());
-    this.dialog.addEventListener('close', () => { this.portrait.stop(); this.game.pauseInput(false); this.opener?.focus?.(); });
+    $('#dialogueClose').addEventListener('click', () => this.close());
+    this.request = 0;
+    this.dialog.addEventListener('close', () => { this.request++; this.portrait.stop(); this.game.pauseInput(false); this.opener?.focus?.(); });
     window.addEventListener('pagehide', () => this.portrait.stop());
   }
   async open(id) {
-    this.entry = await this.provider.get(id); this.index = 0; this.opener = document.activeElement;
+    const request = ++this.request, scene = this.game.scene, entry = await this.provider.get(id);
+    if (request !== this.request || scene !== this.game.scene) return;
+    this.entry = entry; this.index = 0; this.opener = document.activeElement;
     $('#dialogueName').textContent = this.entry.name; $('#dialogueTitle').textContent = this.entry.title;
     this.game.pauseInput(true); this.dialog.showModal(); this.show();
     const speaker = this.game.scene.npcs.find(npc => npc.dialogue === id);
@@ -41,5 +44,6 @@ export class DialoguePanel {
     this.portrait.gesture();
   }
   next() { if (++this.index >= this.entry.pages.length) this.dialog.close(); else this.show(); }
+  close() { this.request++; this.portrait.stop(); if (this.dialog.open) this.dialog.close(); }
   get isOpen() { return this.dialog.open; }
 }

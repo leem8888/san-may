@@ -16,7 +16,7 @@ export function attachShop(socket, ctx, getSelf) {
     });
   }
   handle('shop:open', (p, data) => {
-    if (!near(p, 'shop', data.objectId) && !near(p, 'offering', data.objectId)) throw Error('Hãy đến gần quầy hương hoặc bàn dâng lễ.');
+    if (!near(p, 'shop', data.objectId) && !near(p, 'offering', data.objectId) && !near(p, 'fishFeed', data.objectId)) throw Error('Hãy đến gần quầy, bàn dâng lễ hoặc chỗ cho cá ăn.');
     return { ok: true, shop: repos.shop.state(p.id, day()) };
   });
   handle('shop:buy', (p, data) => {

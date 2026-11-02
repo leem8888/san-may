@@ -1,7 +1,7 @@
 import { RemotePlayer } from './RemotePlayer.js';
 import { Clock, RENDER_DELAY } from './Interpolation.js';
 
-const FORWARDED = ['bell:ring', 'wish:new', 'wish:reaction', 'wish:hidden', 'lantern:new', 'lantern:hidden', 'progress:events', 'meditation:ended', 'player:correct', 'player:emote', 'session:replaced', 'garden:update', 'chat:message', 'incense:new', 'sand:update', 'offering:update'];
+const FORWARDED = ['bell:ring', 'wish:new', 'wish:reaction', 'wish:hidden', 'lantern:new', 'lantern:hidden', 'progress:events', 'meditation:ended', 'player:correct', 'player:emote', 'session:replaced', 'garden:update', 'chat:message', 'incense:new', 'sand:update', 'offering:update', 'fish:fed'];
 const SEND_INTERVAL = 80; // ~12 position updates per second while moving, nothing while still
 
 // `connect` is the socket.io `io` factory (injected so Node tests can pass socket.io-client).

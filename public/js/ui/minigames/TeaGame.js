@@ -1,3 +1,4 @@
+import { drawTea } from '../../rendering/TeaArt.js';
 const TEAS = { 'trà sen': '#c9b06a', 'trà lài': '#d6c27a', 'trà ô long': '#b7793e' };
 const SIPS = ['Hương trà lan nhẹ nơi đầu lưỡi.', 'Hơi ấm truyền qua lòng bàn tay.', 'Chén vơi dần, lòng cũng nhẹ đi.'];
 
@@ -50,28 +51,6 @@ export class TeaGame {
     if (hot && Math.random() < dt * 10) this.steam.push({ x: this.step === 'boil' ? 500 : 690, y: this.step === 'boil' ? 250 : 360, age: 0 });
     this.steam = this.steam.filter(s => (s.age += dt) < 2.4);
   }
-  render() {
-    const c = this.c, color = TEAS[this.tea] || '#c9b06a';
-    c.fillStyle = '#3a2a1e'; c.fillRect(0, 0, 1000, 600);
-    c.fillStyle = '#6b4a33'; c.beginPath(); c.roundRect(80, 380, 840, 160, 30); c.fill(); c.fillStyle = '#7f5638'; c.beginPath(); c.roundRect(60, 360, 880, 40, 20); c.fill();
-    // Brazier and kettle.
-    c.fillStyle = '#4a4a44'; c.beginPath(); c.roundRect(430, 300, 140, 64, 10); c.fill();
-    c.fillStyle = `rgba(255,${120 + this.temp},60,${this.step === 'boil' && this.holding ? .9 : .35})`; c.beginPath(); c.ellipse(500, 318, 46, 10, 0, 0, Math.PI * 2); c.fill();
-    c.fillStyle = '#2f3a36'; c.beginPath(); c.ellipse(500, 270, 60, 42, 0, 0, Math.PI * 2); c.fill(); c.strokeStyle = '#2f3a36'; c.lineWidth = 10; c.beginPath(); c.moveTo(552, 262); c.lineTo(600, 228); c.stroke();
-    // Teapot tilts while pouring.
-    const tilt = this.step === 'pour' && this.holding ? -.55 : 0;
-    c.save(); c.translate(300, 330); c.rotate(tilt); c.fillStyle = '#6e8a7b'; c.beginPath(); c.ellipse(0, 0, 66, 46, 0, 0, Math.PI * 2); c.fill();
-    c.fillRect(-14, -58, 28, 14); c.strokeStyle = '#6e8a7b'; c.lineWidth = 12; c.beginPath(); c.moveTo(56, -8); c.lineTo(104, -36); c.stroke(); c.lineWidth = 8; c.beginPath(); c.arc(-70, 0, 26, Math.PI * .5, Math.PI * 1.5); c.stroke(); c.restore();
-    if (this.step === 'pour' && this.holding) { c.strokeStyle = color; c.lineWidth = 6; c.beginPath(); c.moveTo(392, 262); c.quadraticCurveTo(560, 250, 690, 350); c.stroke(); }
-    // Cup with fill line.
-    c.fillStyle = '#e9e1cf'; c.beginPath(); c.moveTo(630, 300); c.lineTo(750, 300); c.lineTo(730, 372); c.quadraticCurveTo(690, 390, 650, 372); c.closePath(); c.fill();
-    const level = 372 - Math.min(100, this.fill) / 100 * 68;
-    c.save(); c.beginPath(); c.moveTo(630, 300); c.lineTo(750, 300); c.lineTo(730, 372); c.quadraticCurveTo(690, 390, 650, 372); c.closePath(); c.clip(); c.fillStyle = color; c.fillRect(620, level, 140, 120); c.restore();
-    c.setLineDash([5, 5]); c.strokeStyle = '#b8604c'; c.lineWidth = 2; for (const f of [70, 92]) { const y = 372 - f / 100 * 68; c.beginPath(); c.moveTo(620, y); c.lineTo(760, y); c.stroke(); } c.setLineDash([]);
-    for (const s of this.steam) { c.fillStyle = `rgba(240,240,232,${.35 * (1 - s.age / 2.4)})`; c.beginPath(); c.arc(s.x + Math.sin(s.age * 3 + s.x) * 10, s.y - s.age * 60, 6 + s.age * 8, 0, Math.PI * 2); c.fill(); }
-    c.fillStyle = '#f2ebd8'; c.font = '20px "Palatino Linotype", Georgia, serif'; c.textAlign = 'left';
-    c.fillText(this.tea ? `Ấm ${this.tea}` : 'Chọn trà', 90, 70);
-    if (this.step === 'boil') { c.fillStyle = '#ffffff22'; c.fillRect(90, 90, 300, 10); c.fillStyle = '#e7a35a'; c.fillRect(90, 90, this.temp / 100 * 300, 10); }
-  }
+  render() { drawTea(this.c, this, TEAS[this.tea] || '#c9b06a'); }
   destroy() { window.removeEventListener('keydown', this.keydown); window.removeEventListener('keyup', this.keyup); }
 }

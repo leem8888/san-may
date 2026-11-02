@@ -1,6 +1,7 @@
 import { ellipse } from './SpriteRenderer.js';
 import { box, line } from './props.js';
 import { stoneTexture, steppingStone } from './StoneArt.js';
+import { drawLotus } from './LotusArt.js';
 export function seeded(seed) { return () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; }
 const pick = (random, list) => list[Math.floor(random() * list.length)];
 
@@ -70,8 +71,7 @@ const LAYERS = {
     }
     for (let i = 0; i < (l.lotus || 0); i++) {
       const a = random() * Math.PI * 2, d = Math.sqrt(random()) * .8, x = l.shape === 'rect' ? l.x + 20 + random() * (l.w - 40) : l.x + Math.cos(a) * l.rx * d, y = l.shape === 'rect' ? l.y + 20 + random() * (l.h - 40) : l.y + Math.sin(a) * l.ry * d;
-      ellipse(c, x, y, 13, 6, '#708b57'); c.fillStyle = '#5a7547'; c.beginPath(); c.moveTo(x, y); c.arc(x, y, 13, -.3, .2); c.fill();
-      if (random() < .45) { ellipse(c, x + 3, y - 4, 5, 4, '#e9a9b6'); ellipse(c, x + 3, y - 5, 2, 2, '#f6d58d'); }
+      drawLotus(c,x,y,random);
     }
   },
   stream(c, l, random) {

@@ -1,0 +1,3 @@
+export const FISH_FEED_SECONDS = 20;
+export const FISH_FEED_COOLDOWN = 12000;
+export const FISH_FEED_ROOM_COOLDOWN = 8000;

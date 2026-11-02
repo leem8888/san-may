@@ -9,3 +9,7 @@ import './dialogue-art.test.mjs';
 import './practice-controls.test.mjs';
 import './character-art.test.mjs';
 import './pathfinding.test.mjs';
+import './fish-feeding.test.mjs';
+import './presentation.test.mjs';
+import './scene-popups.test.mjs';
+import './outdoor-music.test.mjs';

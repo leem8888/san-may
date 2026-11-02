@@ -13,7 +13,8 @@
       {"type":"scatter","kind":"grass","x":60,"y":80,"w":1280,"h":960,"count":200,"colors":["#4f7352","#5b7d58","#3f6449"]},
       {"type":"scatter","x":80,"y":300,"w":280,"h":600,"count":50,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
       {"type":"scatter","x":1040,"y":300,"w":280,"h":600,"count":50,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
-      {"type":"tiles","x":380,"y":330,"w":640,"h":560,"border":"#8a8061"},
+      {"type":"tiles","x":350,"y":315,"w":700,"h":600,"colors":["#a39a7c","#b2a889","#9f987b"],"border":"#b29c70"},
+      {"type":"tiles","x":470,"y":365,"w":460,"h":280,"tile":[90,40],"colors":["#b6a17b","#bdaa88","#ab9874"],"border":"#897958"},
       {"type":"tiles","x":620,"y":890,"w":160,"h":210,"tile":[66,42],"colors":["#a0977b","#978e73"],"grout":"#8f866b"}
     ]
   },
@@ -23,6 +24,10 @@
   ],
   "obstacles": [],
   "props": [
+    {"type":"flowerBed","x":300,"y":460,"color":"#ebc880","solid":false},
+    {"type":"flowerBed","x":1100,"y":460,"color":"#e6a8b9","solid":false},
+    {"type":"lotusPot","x":390,"y":740,"solid":false},
+    {"type":"lotusPot","x":1010,"y":740,"solid":false},
     {"type":"stoneLantern","x":450,"y":870},
     {"type":"stoneLantern","x":950,"y":870},
     {"type":"pine","x":200,"y":320,"size":1.2},

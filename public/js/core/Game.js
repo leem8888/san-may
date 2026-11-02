@@ -9,6 +9,7 @@ import { DayNightSystem } from '../systems/DayNightSystem.js';
 import { WeatherSystem } from '../systems/WeatherSystem.js';
 import { bowDirection } from '../shared/rules.js';
 import { Pathfinder } from '../systems/Pathfinder.js';
+import { AmbientVisitors } from '../entities/AmbientVisitors.js';
 
 export class Game {
   constructor(canvas, assets, joystick, onAction, onTick, options = {}) {
@@ -22,6 +23,7 @@ export class Game {
     this.particles = new ParticleSystem(); this.reduced = false; this.entered = false; this.locked = false;
     this.time = 0; this.remotes = []; this.blocked = new Set(); this.approach = null; this.onApproach = () => {};
     this.env = this.environment(0);
+    this.visitors = new AmbientVisitors(this.scenes);
     this.loop = new GameLoop(dt => this.update(dt, onTick), () => this.renderer.render(this));
     this.resize = () => this.renderer.resize(innerWidth, innerHeight); this.resize(); window.addEventListener('resize', this.resize);
     this.visibility = () => { this.input.clear(); if (document.hidden) { this.loop.stop(); if (!['idle', 'sit', 'meditate'].includes(this.player.state)) this.player.setState('idle'); } else if (!this.suspended) this.loop.start(); };
@@ -36,6 +38,7 @@ export class Game {
   suspend(suspended) { this.suspended = suspended; this.pauseInput(suspended); if (suspended) this.loop.stop(); else if (!document.hidden) this.loop.start(); }
   setQuality(quality) { if (!QUALITY[quality]) return; this.renderer.quality = quality; this.particles.setCap(QUALITY[quality].particles); this.resize(); }
   setScene(id, x, y, direction = 'down') {
+    if (this.scene.id !== id) this.onSceneChange?.();
     const scene = this.scenes.enter(id);
     this.camera.setWorld(scene.map); this.player.place(x, y, direction); this.camera.snap(x, y);
     this.particles.clear(); this.input.clear(); this.approach = null; this.tapMarker = null;
@@ -86,6 +89,7 @@ export class Game {
     if (this.fortuneShake > 0) this.fortuneShake -= dt;
     this.env = this.environment(dt);
     scene.update(dt, this);
+    this.visitors.update(dt, scene.id);
     const view = this.view();
     this.spawnWeather(dt, view);
     scene.ambient(this, this.particles, this.env, view);

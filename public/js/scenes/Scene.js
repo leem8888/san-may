@@ -53,7 +53,8 @@ export class Scene {
         c.strokeStyle = `rgba(162,207,185,${(1 - a) * .22})`; c.lineWidth = 1; c.beginPath(); c.ellipse(x, y, 10 + a * 28, 4 + a * 10, 0, 0, Math.PI * 2); c.stroke();
       }
     }
-    for (const f of this.fish) drawKoi(c, f, env.time, env.reduced);
+    const feed = this.fishFeeding?.();
+    for (const f of this.fish) drawKoi(c, f, env.time, env.reduced, feed);
   }
   drawBelow() {}
   drawAbove() {}

@@ -27,6 +27,12 @@
     {"x":892,"y":822,"w":708,"h":86}
   ],
   "props": [
+    {"type":"fern","x":540,"y":750,"solid":false},
+    {"type":"fern","x":1070,"y":940,"solid":false},
+    {"type":"fern","x":650,"y":1120,"solid":false},
+    {"type":"fern","x":960,"y":470,"solid":false},
+    {"type":"fern","x":330,"y":1100,"solid":false},
+    {"type":"fern","x":1260,"y":1030,"solid":false},
     {"type":"bamboo","x":200,"y":250,"height":230},
     {"type":"bamboo","x":420,"y":200,"height":250},
     {"type":"bamboo","x":1150,"y":200,"height":250},

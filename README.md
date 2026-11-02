@@ -47,7 +47,7 @@ Hoạt động: lạy và lần chuỗi 108 (chỉ tính khi động tác trọn
 
 ## Danh tính và dữ liệu
 
-Quầy **Hương & mâm lễ** ở bên trái lối vào Cổng Tam Quan bán bó hương (5 điểm), mâm ngũ quả (20 điểm) và mâm hoa sen (15 điểm), dùng điểm trong game. Mỗi danh tính có 100 điểm ban đầu; từ ngày kế tiếp có thể ghé quầy nhận 30 điểm/ngày theo múi giờ server. Đồ mua nằm trong túi lễ và lưu SQLite. Mang vào **bàn Dâng lễ** trong Chánh Điện, chọn món để dâng; lễ hiển thị 10 phút cho người cùng phòng, ghi vào nhật ký và trừ một món trong túi. Migration 3 tự bổ sung bảng ví, túi lễ, đơn mua và lễ đã dâng khi khởi động server.
+Quầy **Hương & mâm lễ** ở bên phải đường vào Cổng Tam Quan bán bó hương (5 điểm), mâm ngũ quả (20 điểm) và mâm hoa sen (15 điểm), dùng điểm trong game. Mỗi danh tính có 100 điểm ban đầu; từ ngày kế tiếp có thể ghé quầy nhận 30 điểm/ngày theo múi giờ server. Đồ mua nằm trong túi lễ và lưu SQLite. Mang vào **bàn Dâng lễ** trong Chánh Điện, chọn món để dâng; lễ hiển thị 10 phút cho người cùng phòng, ghi vào nhật ký và trừ một món trong túi. Migration 3 tự bổ sung bảng ví, túi lễ, đơn mua và lễ đã dâng khi khởi động server.
 
 - Mỗi trình duyệt nhận một **token khách** do server cấp; server chỉ lưu bản băm SHA-256. Token cũng là **mã khôi phục** (Cài đặt → Mã khôi phục) để dùng lại tiến trình trên máy khác. Không có mật khẩu.
 - Tiến trình (lạy, chuỗi, thời gian thiền, vị trí, vườn, nhiệm vụ, thành tựu, nhật ký), lời chúc và hoa đăng được lưu trong SQLite; reload không mất.

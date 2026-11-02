@@ -16,7 +16,7 @@
       {"type":"path","points":[[1540,640],[1532,701],[1509,761],[1470,817],[1418,869],[1353,916],[1276,956],[1191,987],[1098,1011],[1000,1025],[900,1030],[800,1025],[702,1011],[609,987],[524,956],[447,916],[382,869],[330,817],[291,761],[268,701],[260,640],[268,579],[291,519],[330,463],[382,411],[447,364],[524,324],[609,293],[702,269],[800,255],[900,250],[1000,255],[1098,269],[1191,293],[1276,324],[1353,364],[1418,411],[1470,463],[1509,519],[1532,579],[1540,640]],"size":22,"spacing":34},
       {"type":"dirt","points":[[0,630],[270,640]],"width":60,"color":"#6f6650","edge":"#7d735a"},
       {"type":"dirt","points":[[900,60],[900,250]],"width":60,"color":"#6f6650","edge":"#7d735a"},
-      {"type":"water","shape":"ellipse","x":900,"y":640,"rx":560,"ry":320,"lotus":46,"fish":6}
+      {"type":"water","shape":"ellipse","x":900,"y":640,"rx":560,"ry":320,"lotus":58,"fish":6}
     ]
   },
   "spawns": {"default":[900,1120],"fromCourtyard":[170,640],"fromBell":[900,190]},
@@ -28,6 +28,9 @@
     {"shape":"ellipse","x":900,"y":640,"rx":545,"ry":300}
   ],
   "props": [
+    {"type":"flowerBed","x":530,"y":1100,"color":"#dfabc1","solid":false},
+    {"type":"flowerBed","x":1280,"y":1110,"color":"#e9bdca","solid":false},
+    {"type":"fern","x":1500,"y":970,"solid":false},
     {"type":"dock","x":900,"y":1012,"w":110,"h":122,"solid":false,"sortY":0},
     {"type":"tree","x":250,"y":300,"size":1.1,"blossom":true},
     {"type":"tree","x":1560,"y":290,"size":1.2},
@@ -46,6 +49,7 @@
     {"type":"rock","x":1500,"y":640}
   ],
   "objects": [
+    {"id":"fishFeeder","type":"fishFeeder","x":1120,"y":970,"label":"Cho cá ăn","action":"fishFeed","radius":90,"hitW":36,"hitH":60,"solid":false,"feedAt":[1100,865]},
     {"id":"lanternDock","type":"zone","x":900,"y":975,"label":"Thả hoa đăng","action":"lantern","radius":90}
   ]
 }

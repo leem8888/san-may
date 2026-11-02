@@ -1,4 +1,7 @@
 import { drawTempleGate } from './GateArt.js';
+import { drawLibraryTeaTable } from './LibraryTeaArt.js';
+import { drawFishFeeder } from './FishFeedingArt.js';
+import { vegetablePatch, bookStack, fern, libraryWindow } from './SceneryPolish.js';
 import { drawBellBody, drawNoticeBoard, hallOrnaments } from './TempleDetails.js';
 import { drawMeditationCushion } from './CushionArt.js';
 import { drawOfferingStall, drawOfferingStand } from './OfferingArt.js';
@@ -23,6 +26,8 @@ function roof(c, cx, y, w, h, color = '#2b4541', trim = '#cfad6e') {
 }
 
 export const PROPS = {
+  vegetablePatch, bookStack, fern, libraryWindow,
+  fishFeeder: drawFishFeeder,
   offeringStall: drawOfferingStall,
   offeringStand: drawOfferingStand,
   cat: drawCat,
@@ -33,7 +38,7 @@ export const PROPS = {
   rock(c, o, env) { const s = o.size || 1; shadow(c, o.x, o.y, 30 * s, 9 * s, env); polygon(c, [[o.x - 28 * s, o.y], [o.x - 20 * s, o.y - 26 * s], [o.x + 4 * s, o.y - 38 * s], [o.x + 26 * s, o.y - 18 * s], [o.x + 30 * s, o.y]], '#7d8579', '#5c6459'); polygon(c, [[o.x - 14 * s, o.y - 24 * s], [o.x + 3 * s, o.y - 34 * s], [o.x + 8 * s, o.y - 20 * s]], '#9aa294'); ellipse(c, o.x - 10 * s, o.y - 6 * s, 8 * s, 3 * s, '#6f8a5c'); },
   bench(c, o, env) { const { x, y } = o; shadow(c, x, y + 4, 72, 15, env); box(c, x - 48, y - 1, 15, 18, '#667362', 3); box(c, x + 33, y - 1, 15, 18, '#667362', 3); box(c, x - 60, y - 20, 120, 24, '#a9af94', 5); box(c, x - 58, y - 22, 116, 8, '#c0c3a6', 3); },
   board: drawNoticeBoard,
-  sign(c, o) { const { x, y } = o; box(c, x - 4, y - 70, 8, 72, '#6b5038'); box(c, x - 50, y - 92, 100, 40, '#7a5a3f', 4); box(c, x - 45, y - 87, 90, 30, '#d8c69a', 3); c.font = '11px Georgia'; c.textAlign = 'center'; c.fillStyle = '#4a3a28'; c.fillText(o.text || 'Hướng dẫn', x, y - 68); },
+  sign(c, o) { const { x, y } = o; box(c, x - 4, y - 70, 8, 72, '#6b5038'); box(c, x - 50, y - 92, 100, 40, '#7a5a3f', 4); box(c, x - 45, y - 87, 90, 30, '#d8c69a', 3); c.font = '11px Arial'; c.textAlign = 'center'; c.fillStyle = '#4a3a28'; c.fillText(o.text || 'Hướng dẫn', x, y - 68); },
   bell(c, o, env) {
     const { x, y } = o; shadow(c, x, y + 5, 60, 18, env); box(c, x - 48, y - 104, 10, 110, '#715940'); box(c, x + 38, y - 104, 10, 110, '#715940'); box(c, x - 52, y - 110, 104, 12, '#be9a63', 3);
     const age = env.time - (env.bells[o.id] ?? -100), swing = age < 4 ? Math.sin(age * 12) * .15 * Math.exp(-age) : 0;
@@ -41,7 +46,7 @@ export const PROPS = {
     line(c, x, y - 22, x, y + 14, '#d5bf8f', 2); ripples(c, x, y - 22, age, 1);
   },
   bigBell(c, o, env) {
-    const { x, y } = o, age = env.time - (env.bells[o.id] ?? -100), swing = age < 6 ? Math.sin(age * 7) * .07 * Math.exp(-age * .6) : 0;
+    const { x, y } = o, age = env.time - (env.bells[o.id] ?? -100), swing = !env.reduced && age >= 0 && age < 8 ? Math.sin(age * 6) * .095 * Math.exp(-age * .45) : 0;
     shadow(c, x, y + 8, 150, 34, env);
     box(c, x - 150, y - 12, 300, 22, '#8f866b', 4); box(c, x - 140, y - 18, 280, 10, '#a59c80', 3);
     for (const side of [-1, 1]) { box(c, x + side * 118 - 9, y - 230, 18, 222, '#8e4f3c'); box(c, x + side * 118 - 12, y - 22, 24, 14, '#c5a36d', 3); }
@@ -50,11 +55,18 @@ export const PROPS = {
     line(c, 0, 0, 0, 22, '#3d3528', 6);
     drawBellBody(c, true); c.restore();
     // The striker log hangs on two ropes and swings back after each strike.
-    const pull = age < 1.2 ? Math.sin(Math.min(1, age / .6) * Math.PI) * 26 : 0, sx = x - 128 + pull;
+    const pull = !env.reduced && age >= 0 && age < 1.1 ? Math.sin(age / 1.1 * Math.PI) * 39 : 0, sx = x - 128 + pull;
     line(c, x - 150, y - 210, sx - 30, y - 152, '#c9b48a', 2); line(c, x - 110, y - 210, sx + 30, y - 152, '#c9b48a', 2);
     box(c, sx - 52, y - 160, 104, 16, '#8a6a46', 8); ellipse(c, sx + 52, y - 152, 6, 8, '#6d5236');
     line(c, sx - 40, y - 144, sx - 46, y - 40, '#d6c49a', 2); ellipse(c, sx - 46, y - 38, 4, 6, '#c75b46');
     roof(c, x, y - 330, 320, 96);
+    for(const side of [-1,1]){
+      const px=x+side*104,dy=env.reduced?0:Math.sin(env.time*1.4+side)*2;
+      line(c,px,y-232,px+dy,y-212,'#d5b57b',1);
+      ellipse(c,px+dy,y-202,7,11,'#b7583e');box(c,px+dy-5,y-215,10,3,'#d7b575',1);
+      for(let i=-1;i<=1;i++)line(c,px+dy+i,y-191,px+dy*1.5+i*2,y-181,'#d8ae67',.8);
+    }
+    if(age>=0&&age<5){c.save();c.globalAlpha=(1-age/5)*.35;c.strokeStyle='#f5d693';c.lineWidth=1.5;for(let i=0;i<3;i++){c.beginPath();c.ellipse(x,y-112,40+age*40+i*20,16+age*13+i*7,0,0,Math.PI*2);c.stroke();}c.restore();}
     ripples(c, x, y - 120, age, 2.2);
   },
   lamp: drawStandingLantern,
@@ -93,7 +105,7 @@ export const PROPS = {
   },
   bookshelf(c, o, env) { const { x, y } = o, w = o.w || 150; shadow(c, x, y, w / 2, 9, env); box(c, x - w / 2, y - 150, w, 150, '#5a3d2a', 4); for (let r = 0; r < 4; r++) { box(c, x - w / 2 + 6, y - 144 + r * 36, w - 12, 30, '#3a2a1e', 2); for (let b = 0, bx = x - w / 2 + 9; bx < x + w / 2 - 14; b++) { const bw = 7 + (b * 37 + r * 11) % 7; box(c, bx, y - 140 + r * 36 + (b % 3), bw, 26 - (b % 3), ['#8f4a3a', '#5e7a5a', '#b38f55', '#46607a', '#7b5b8a', '#c7b48a'][(b + r) % 6], 1); bx += bw + 1; } } box(c, x - w / 2 - 4, y - 154, w + 8, 8, '#7a5438', 3); },
   desk(c, o, env) { const { x, y } = o; shadow(c, x, y, 70, 12, env); box(c, x - 64, y - 34, 10, 34, '#5a3d2a'); box(c, x + 54, y - 34, 10, 34, '#5a3d2a'); box(c, x - 72, y - 46, 144, 16, '#7d5638', 4); box(c, x - 30, y - 52, 60, 8, '#efe3c4', 1); line(c, x, y - 52, x, y - 44, '#b9a67a', 1); ellipse(c, x + 46, y - 50, 7, 4, '#3b3b32'); if (o.lamp) { box(c, x - 56, y - 74, 4, 26, '#6b6048'); ellipse(c, x - 54, y - 78, 9, 11, '#e8bd70'); } },
-  teaTable(c, o, env) { const { x, y } = o; shadow(c, x, y, 54, 12, env); box(c, x - 46, y - 22, 92, 22, '#5e3f2b', 6); box(c, x - 52, y - 30, 104, 10, '#7f5638', 5); ellipse(c, x - 14, y - 38, 12, 9, '#6e8a7b'); box(c, x - 4, y - 44, 12, 3, '#6e8a7b'); for (const dx of [16, 30]) ellipse(c, x + dx, y - 33, 5, 4, '#e9e1cf'); },
+  teaTable: drawLibraryTeaTable,
   scrollRack(c, o, env) { const { x, y } = o; shadow(c, x, y, 50, 8, env); box(c, x - 48, y - 110, 96, 110, '#6a4630', 4); for (let i = 0; i < 12; i++) ellipse(c, x - 36 + (i % 4) * 24, y - 92 + Math.floor(i / 4) * 32, 9, 9, ['#e8dcba', '#d9c79a', '#efe4c8'][i % 3]); },
   bonsai(c, o, env) { const { x, y } = o; shadow(c, x, y, 30, 8, env); box(c, x - 26, y - 18, 52, 18, '#4f6a7a', 4); box(c, x - 30, y - 22, 60, 6, '#5d7c8c', 3); line(c, x, y - 22, x - 8, y - 48, '#6b5741', 5); line(c, x - 8, y - 48, x + 12, y - 62, '#6b5741', 4); for (const [dx, dy, r] of [[-20, -52, 16], [12, -66, 14], [18, -46, 11]]) ellipse(c, x + dx + sway(env, dx, 1), y + dy, r, r * .6, '#3f6b4f'); },
   lotusPot(c, o, env) { const { x, y } = o; shadow(c, x, y, 30, 8, env); ellipse(c, x, y - 14, 30, 16, '#6e5a48'); ellipse(c, x, y - 22, 26, 8, '#2f5a57'); ellipse(c, x - 8, y - 24, 10, 4, '#4f8a5c'); ellipse(c, x + 10, y - 23, 7, 3, '#4f8a5c'); ellipse(c, x + 2, y - 32, 6, 8, '#e8a3b4'); },
@@ -123,7 +135,7 @@ export const PROPS = {
       c.bezierCurveTo(900 + side * 238, 99, 900 + side * 244, 85, 900 + side * 235, 82);
       c.bezierCurveTo(900 + side * 225, 80, 900 + side * 225, 92, 900 + side * 235, 91); c.stroke();
     }
-    box(c, 836, 211, 128, 30, '#283d32', 4); c.font = '14px Georgia'; c.textAlign = 'center'; c.fillStyle = '#e5ce96'; c.fillText(o.title || 'S Â N   M Â Y', 900, 231);
+    box(c, 836, 211, 128, 30, '#283d32', 4); c.font = '14px Arial'; c.textAlign = 'center'; c.fillStyle = '#e5ce96'; c.fillText(o.title || 'S Â N   M Â Y', 900, 231);
     for (const x of [570, 1224]) { box(c, x, 416, 20, 58, '#a5a180'); box(c, x - 5, 413, 30, 9, '#d1c59b'); ellipse(c, x + 10, 407, 18, 9, '#778b67'); }
     c.restore();
   },
@@ -153,7 +165,7 @@ export const PROPS = {
     for (const dx of [-38, 30]) box(c, x + dx, y - 92, 8, 94, '#7d5f40', 2);
     c.strokeStyle = '#8a6a48'; c.lineWidth = 8; c.beginPath(); c.moveTo(x - 46, y - 88); c.quadraticCurveTo(x - 4, y - 122, x + 42, y - 88); c.stroke();
     for (let i = 0; i < 7; i++) ellipse(c, x - 40 + i * 13, y - 98 - Math.sin(i / 6 * Math.PI) * 14, 6, 4, i % 2 ? '#e6a0ad' : '#5f8a4e');
-    box(c, x - 24, y - 70, 48, 18, '#d8c69a', 3); c.font = '9px Georgia'; c.textAlign = 'center'; c.fillStyle = '#4a3a28'; c.fillText('VƯỜN RIÊNG', x - 2, y - 58);
+    box(c, x - 24, y - 70, 48, 18, '#d8c69a', 3); c.font = '9px Arial'; c.textAlign = 'center'; c.fillStyle = '#4a3a28'; c.fillText('VƯỜN RIÊNG', x - 2, y - 58);
   },
   rake(c, o, env) { const { x, y } = o; shadow(c, x, y, 16, 5, env); line(c, x - 4, y, x + 10, y - 70, '#8a6a46', 4); box(c, x + 0, y - 82, 26, 8, '#6d5236', 2); for (let i = 0; i < 5; i++) line(c, x + 3 + i * 5, y - 74, x + 3 + i * 5, y - 66, '#6d5236', 2); },
   hallBack(c, o) {

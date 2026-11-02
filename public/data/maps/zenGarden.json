@@ -27,6 +27,9 @@
     {"x":246,"y":286,"w":528,"h":328}
   ],
   "props": [
+    {"type":"vegetablePatch","x":480,"y":885,"solid":false,"sortY":1},
+    {"type":"fern","x":340,"y":1030,"solid":false},
+    {"type":"fern","x":640,"y":1035,"solid":false},
     {"type":"bonsai","x":1060,"y":330},
     {"type":"bonsai","x":1160,"y":330},
     {"type":"bonsai","x":1260,"y":330},

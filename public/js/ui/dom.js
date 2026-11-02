@@ -6,7 +6,7 @@ export function el(tag, props = {}, ...children) {
   for (const [key, value] of Object.entries(props)) {
     if (value === undefined || value === null || value === false) continue;
     if (key === 'class') node.className = value;
-    else if (key === 'text') node.textContent = value;
+    else if (key === 'text') node.textContent = typeof value === 'string' ? value.normalize('NFC') : value;
     else if (key.startsWith('on')) node.addEventListener(key.slice(2), value);
     else if (key === 'text') node.textContent = value;
     else node.setAttribute(key, value === true ? '' : value);

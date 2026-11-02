@@ -13,7 +13,7 @@
     "void": "#120b07",
     "layers": [
       {"type":"planks","x":50,"y":220,"w":1200,"h":740,"colors":["#6b4a33","#74503a","#5f412d"]},
-      {"type":"carpet","x":380,"y":450,"w":540,"h":360,"color":"#3f5a4e","border":"#a8865a"},
+      {"type":"carpet","x":360,"y":435,"w":580,"h":390,"color":"#385c53","border":"#b79a66"},
       {"type":"rect","x":26,"y":560,"w":26,"h":120,"color":"#e8c98a"}
     ]
   },
@@ -28,6 +28,10 @@
     [650,560,320,"255,200,140"]
   ],
   "props": [
+    {"type":"libraryWindow","x":460,"y":220,"solid":false,"sortY":1},
+    {"type":"libraryWindow","x":850,"y":220,"solid":false,"sortY":1},
+    {"type":"bookStack","x":549,"y":551,"solid":false,"sortY":601},
+    {"type":"bookStack","x":808,"y":721,"solid":false,"sortY":771},
     {"type":"shelfWall","x":50,"y":232,"w":1200,"big":true,"solid":false,"sortY":0},
     {"type":"bookshelf","x":220,"y":440,"w":140},
     {"type":"bookshelf","x":220,"y":880,"w":140},

@@ -28,7 +28,7 @@ export class SceneRenderer {
     }
     c.globalAlpha = 1;
     if (Math.hypot(player.x - cx, player.y - cy) < 190) {
-      c.font = '12px Georgia'; c.textAlign = 'center';
+      c.font = '12px Arial'; c.textAlign = 'center';
       const text = p.label, w = c.measureText(text).width + 22; c.fillStyle = '#102625cc'; c.beginPath(); c.roundRect(cx - w / 2, cy - 44, w, 22, 10); c.fill(); c.fillStyle = '#f2d398'; c.fillText(text, cx, cy - 29);
     }
   }
@@ -41,7 +41,8 @@ export class SceneRenderer {
     scene.drawWater(c, env, this.quality);
     scene.drawBelow(c, env);
     const list = scene.entities(c, env).filter(e => e.big || cam.visible(e.x, e.vy ?? e.y, 320));
-    for (const npc of scene.npcs) if (cam.visible(npc.x, npc.y)) list.push({ y: npc.y, draw: () => this.sprites.draw(c, npc) });
+    const npcs = [...scene.npcs, ...(game.visitors?.inScene(scene.id) || [])];
+    for (const npc of npcs) if (cam.visible(npc.x, npc.y)) list.push({ y: npc.y, draw: () => this.sprites.draw(c, npc) });
     const people = game.entered ? [player] : [];
     for (const remote of game.remotes) if (!game.blocked.has(remote.id) && cam.visible(remote.x, remote.y)) people.push(remote);
     // Seated players are shown on the bench seat instead of where they stand.
@@ -82,7 +83,7 @@ export class SceneRenderer {
         c.restore();
       } else game.tapMarker = null;
     }
-    for (const npc of scene.npcs) if (cam.visible(npc.x, npc.y)) this.sprites.label(c, npc);
+    for (const npc of npcs) if (cam.visible(npc.x, npc.y)) this.sprites.label(c, npc);
     for (const v of views) this.sprites.label(c, v, v.self);
     c.restore();
 

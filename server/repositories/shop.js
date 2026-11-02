@@ -34,13 +34,17 @@ export function createShopRepo(db) {
     return state(id, day);
   });
   const offer = db.transaction((p, sku, now) => {
-    if (!Object.hasOwn(SHOP_ITEMS, sku)) throw Error('Không có món lễ này.');
+    if (!Object.hasOwn(SHOP_ITEMS, sku) || SHOP_ITEMS[sku].feed) throw Error('Không có món lễ này.');
     if (!q.consume.run(p.id, sku).changes) throw Error('Bạn chưa có món này. Ghé quầy trước cổng để mua nhé.');
     const offering = { id: crypto.randomUUID(), room: p.room, playerId: p.id, name: p.name, sku, at: now };
     q.prune.run(now - OFFERING_SECONDS * 1000); q.offer.run(offering); return offering;
   });
   return {
     state, purchase, offer,
+    useFishFood: db.transaction((id, day) => {
+      if (!q.consume.run(id, 'fishFood').changes) throw Error('Bạn chưa có thức ăn cá. Ghé quầy ngoài cổng chùa để mua nhé.');
+      return state(id, day);
+    }),
     claim(id, day) { init(id, day); if (!q.claim.run(SHOP_DAILY_POINTS, day, id, day).changes) throw Error('Hôm nay bạn đã nhận điểm rồi.'); return state(id, day); },
     offerings: (room, now = Date.now()) => q.offers.all(room, now - OFFERING_SECONDS * 1000),
   };

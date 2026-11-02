@@ -1,3 +1,4 @@
+import { drawGateCourtyardView, drawGateCourtyardBackdrop } from './GateCourtyardView.js';
 function box(c,x,y,w,h,color,r=1){c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
 function oval(c,x,y,rx,ry,color){c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill();}
 function gradient(c,x,w,colors){const g=c.createLinearGradient(x,0,x+w,0);colors.forEach((v,i)=>g.addColorStop(i/(colors.length-1),v));return g;}
@@ -20,13 +21,13 @@ function door(c,side,openness){
 export function drawTempleGate(c,o,env,roof){
   const {x,y}=o,sh=env.shadow;
   c.save();c.translate(x,y);
+  drawGateCourtyardBackdrop(c);
   oval(c,sh.dx*4,6,330*sh.stretch,30,`rgba(8,28,30,${sh.alpha})`);
   const masonry=gradient(c,-300,600,['#918873','#d5c9a5','#b4a789','#d6c9a6','#8c826e']);
   for(const side of [-1,1]){
     const sx=side*200;
     box(c,sx-70,-150,140,150,masonry,2);box(c,sx-44,-115,88,116,'#827963',43);box(c,sx-36,-108,72,109,'#292b23',35);
-    const shade=c.createLinearGradient(0,-110,0,0);shade.addColorStop(0,'#0c201e');shade.addColorStop(1,'#698269');
-    box(c,sx-32,-104,64,104,shade,31);
+    drawGateCourtyardView(c,sx,-104,64,104,side);
     for(const px of [sx-69,sx+61]){
       box(c,px,-150,8,150,gradient(c,px,8,['#5d3528','#b7704d','#6d3c2a']));box(c,px-4,-13,16,13,'#c2b28c',2);
     }
@@ -37,8 +38,7 @@ export function drawTempleGate(c,o,env,roof){
   }
   box(c,-120,-210,240,210,masonry,3);
   box(c,-82,-176,164,176,'#95876a',78);box(c,-74,-168,148,168,'#1e2c24',70);
-  const passage=c.createLinearGradient(0,-164,0,5);passage.addColorStop(0,'#172b27');passage.addColorStop(.6,'#354c38');passage.addColorStop(1,'#a69b73');
-  box(c,-69,-162,138,164,passage,66);
+  drawGateCourtyardView(c,0,-162,138,164);
   const visitor=env.visitor;
   const distance=visitor?Math.hypot(visitor.x-x,(visitor.y-y)*.8):600;
   const openness = env.reduced ? .65 : .35 + .65 * Math.max(0, 1 - distance / 430);
@@ -52,7 +52,7 @@ export function drawTempleGate(c,o,env,roof){
   for(let px=-96;px<108;px+=24){box(c,px,-227,16,6,'#be9b62');box(c,px+3,-221,10,6,'#775537');}
   box(c,-68,-242,136,34,'#61472c',4);box(c,-64,-239,128,28,'#284037',3);
   c.strokeStyle='#d9b879';c.lineWidth=1;c.strokeRect(-60,-236,120,22);
-  c.font='15px Georgia';c.textAlign='center';c.fillStyle='#f1d59b';c.fillText(o.title||'TAM QUAN',0,-219);
+  c.font='15px Arial';c.textAlign='center';c.fillStyle='#f1d59b';c.fillText(o.title||'TAM QUAN',0,-219);
   oval(c,0,-392,6,14,'#d6b56e');oval(c,-1,-397,2,6,'#f3d99a');
   for(const side of [-1,1]){
     c.strokeStyle='#d2ad69';c.lineWidth=2;c.beginPath();c.moveTo(side*15,-378);c.bezierCurveTo(side*48,-389,side*71,-378,side*95,-386);c.quadraticCurveTo(side*111,-394,side*102,-400);c.stroke();

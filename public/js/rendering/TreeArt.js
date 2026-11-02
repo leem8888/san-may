@@ -18,7 +18,11 @@ function treeImage(o, pine) {
   const clusters = pine ? Array.from({length:5},(_,i)=>[0,-49-i*33,62-i*10,20]) : [[-61,-116,48,32],[53,-119,50,33],[-34,-151,54,37],[29,-154,55,37],[0,-120,65,38],[0,-178,43,28]];
   for (const [x,y,rx,ry] of clusters) {
     const g = c.createRadialGradient(x-rx*.3,y-ry*.45,2,x,y,rx); g.addColorStop(0,palette[3]); g.addColorStop(.55,palette[2]); g.addColorStop(1,palette[0]); oval(c,x,y,rx,ry,g);
-    for (let i=0;i<45;i++) { const a=random()*Math.PI*2,d=Math.sqrt(random()); oval(c,x+Math.cos(a)*rx*d,y+Math.sin(a)*ry*d,2+random()*4,pine ? 1.3 : 1.5+random()*2,palette[Math.floor(random()*palette.length)]); }
+    for (let i=0;i<45;i++) {
+      const a=random()*Math.PI*2,d=Math.sqrt(random()),lx=x+Math.cos(a)*rx*d,ly=y+Math.sin(a)*ry*d;
+      oval(c,lx,ly,2+random()*4,pine?1.3:1.5+random()*2,palette[Math.floor(random()*palette.length)]);
+      if(o.blossom&&i%6===0){for(let k=0;k<5;k++)oval(c,lx+Math.cos(k*1.26)*2,ly+Math.sin(k*1.26)*1.6,1.8,1.3,'#f7d7d9');oval(c,lx,ly,.8,.8,'#eac979');}
+    }
   }
   if (cache.size >= 48) cache.delete(cache.keys().next().value);
   cache.set(key,canvas); return canvas;

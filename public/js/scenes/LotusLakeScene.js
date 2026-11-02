@@ -1,5 +1,7 @@
 import { Scene } from './Scene.js';
 import { ellipse, polygon } from '../rendering/SpriteRenderer.js';
+import { drawFishFeeding } from '../rendering/FishFeedingArt.js';
+import { FISH_FEED_SECONDS } from '../shared/fishFeeding.js';
 
 export const LANTERN_LIFETIME = 600;
 function hash(text) { let h = 2166136261; for (const ch of text) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
@@ -22,6 +24,16 @@ export class LotusLakeScene extends Scene {
     this.dock = this.objects.find(o => o.action === 'lantern');
   }
   setLanterns(list, serverNow) { this.lanterns.clear(); for (const l of list) this.addLantern(l, serverNow); }
+  setFishFeed(feed,serverNow){
+    if(feed&&this.feed?.id===feed.id)return;
+    this.feed=feed?{...feed,born:this.time-(serverNow-feed.at)/1000}:null;
+  }
+  fishFeeding(){
+    if(!this.feed)return null;
+    const age=this.time-this.feed.born;
+    if(age>=FISH_FEED_SECONDS){this.feed=null;return null;}
+    return {...this.feed,age};
+  }
   addLantern(l, serverNow = Date.now()) { this.lanterns.set(l.id, { ...l, born: this.time - (serverNow - l.createdAt) / 1000 }); }
   removeLantern(id) { this.lanterns.delete(id); }
   visibleLanterns() {
@@ -36,6 +48,8 @@ export class LotusLakeScene extends Scene {
   dynamicLights() { return this.visibleLanterns().map(l => ({ x: l.x, y: l.y - 8, r: 60, color: '255,190,120', flicker: true, power: Math.min(1, (LANTERN_LIFETIME - l.age) / 30) })); }
   drawWater(c, env, quality) {
     super.drawWater(c, env, quality);
+    const feeding=this.fishFeeding();
+    if(feeding)drawFishFeeding(c,feeding,feeding.age,this.lake,env.reduced,quality);
     for (const l of this.visibleLanterns()) {
       const fade = Math.min(1, (LANTERN_LIFETIME - l.age) / 30, l.age / 1.5), bob = Math.sin(env.time * 2 + l.x) * 1.5;
       c.globalAlpha = fade; ellipse(c, l.x, l.y + 6, 18, 5, 'rgba(255,214,150,.25)');

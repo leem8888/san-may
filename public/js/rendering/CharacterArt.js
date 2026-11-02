@@ -1,4 +1,5 @@
-import { drawNovice, drawAbbot } from './MonkArt.js';
+import { drawNovice } from './MonkArt.js';
+import { drawAbbot } from './AbbotArt.js';
 // Procedural character art: realistic-leaning proportions (head ≈ 1/6.5 of height), shaded clothing,
 // elbows, hands, shoes and a simple face. Origin is the point between the feet; up is negative y.
 const SKIN = '#e9c39c', SKIN_SHADE = '#d2a37b', SHOE = '#3a3129', INK = '#3a2f28';
@@ -99,7 +100,9 @@ export function drawCharacter(c, state, frame, dir, look) {
   const sx = 10.5 * w, wx = 8 * w, hx = 9.5 * w, fill = cloth(c, outfit, -14, 14);
   if (style === 'robe') {
     const hem = sit ? hip + 9 : meditate ? -6 : -5, flare = sit ? 11 : meditate ? 15 : 14 * w;
-    shape(c, [[-sx, shoulder], [sx, shoulder], [wx, hip - 6], [flare, hem], [0, hem + 1.5], [-flare, hem], [-wx, hip - 6]], fill);
+    c.fillStyle = fill; c.beginPath(); c.moveTo(-sx, shoulder+2);
+    c.quadraticCurveTo(0,shoulder-3,sx,shoulder+2);c.quadraticCurveTo(wx,hip-6,flare,hem);
+    c.quadraticCurveTo(0,hem+3,-flare,hem);c.quadraticCurveTo(-wx,hip-6,-sx,shoulder+2);c.fill();
     stroke(c, [[-wx * .5, hip - 2], [-flare * .55, hem - 1]], 'rgba(0,0,0,.12)', 1); stroke(c, [[wx * .6, hip - 3], [flare * .6, hem - 1]], 'rgba(0,0,0,.12)', 1);
   } else if (style === 'tunic') {
     shape(c, [[-sx, shoulder], [sx, shoulder], [wx, hip - 6], [hx + 1, hip + 4], [-hx - 1, hip + 4], [-wx, hip - 6]], fill);
@@ -146,7 +149,8 @@ export function drawCharacter(c, state, frame, dir, look) {
   c.save();
   if (child) { c.translate(0, headY); c.scale(1.3, 1.16); c.translate(0, -headY); }
   ellipse(c, 0, shoulder - 2.5, 2.6, 3, SKIN_SHADE);
-  ellipse(c, side * .8, headY, 7.2 * (side ? .94 : 1), 8.4, SKIN);
+  const skinLight=c.createLinearGradient(-7,headY,7,headY);skinLight.addColorStop(0,'#cfa47d');skinLight.addColorStop(.35,'#f0d1ad');skinLight.addColorStop(1,'#d8af87');
+  ellipse(c, side * .8, headY, 7.2 * (side ? .94 : 1), 8.4, skinLight);
   ellipse(c, side * .8 + 2.5, headY + 2, 4, 5.5, 'rgba(160,100,70,.08)');
   if (!back && bow < .55) face(c, headY, side, ['pray', 'meditate', 'bow'].includes(state));
   hair(c, look, headY, side, back, bow > .55);

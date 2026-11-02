@@ -48,7 +48,7 @@ export function hallOrnaments(c,o){
     for(const dx of [6,58]){box(c,px+dx,y-192,10,15,'#a47b42');box(c,px+dx-4,y-180,18,4,'#c29d60');}
   }
   box(c,cx-119,y-195,238,55,'#321f19',5);box(c,cx-115,y-191,230,47,'#bd9658',4);box(c,cx-110,y-186,220,37,'#5a2c24',3);
-  c.textAlign='center';c.font='20px Georgia';c.fillStyle='#f0d49a';c.fillText('CHÁNH ĐIỆN',cx,y-160);
+  c.textAlign='center';c.font='20px Arial';c.fillStyle='#f0d49a';c.fillText('CHÁNH ĐIỆN',cx,y-160);
   for(const side of [-1,1]){
     const px=cx+side*225;
     const g=gradient(c,px-13,26,['#532a22','#ae6242','#743c2b']);box(c,px-13,y-204,26,196,g,3);
