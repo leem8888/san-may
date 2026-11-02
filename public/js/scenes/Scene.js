@@ -4,6 +4,7 @@ import { NPC } from '../entities/NPC.js';
 import { buildGround, seeded } from '../rendering/ground.js';
 import { PROPS, propLights } from '../rendering/props.js';
 import { ellipse, polygon } from '../rendering/SpriteRenderer.js';
+import { drawKoi } from '../rendering/FishArt.js';
 
 export const insideRect = (r, x, y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
 
@@ -44,10 +45,7 @@ export class Scene {
         c.strokeStyle = `rgba(162,207,185,${(1 - a) * .22})`; c.lineWidth = 1; c.beginPath(); c.ellipse(x, y, 10 + a * 28, 4 + a * 10, 0, 0, Math.PI * 2); c.stroke();
       }
     }
-    for (const f of this.fish) {
-      const a = env.time * f.speed + f.phase, x = f.w.x + Math.sin(a) * f.w.rx * f.r * 1.4, y = f.w.y + Math.cos(a * 1.3) * f.w.ry * f.r;
-      c.save(); c.translate(x, y); c.rotate(Math.atan2(-Math.sin(a * 1.3) * 1.3 * f.w.ry * f.r, Math.cos(a) * f.w.rx * f.r * 1.4)); ellipse(c, 0, 0, 12, 4, f.color); polygon(c, [[-10, 0], [-18, -5], [-18, 5]], '#c2aa7b'); c.restore();
-    }
+    for (const f of this.fish) drawKoi(c, f, env.time, env.reduced);
   }
   drawBelow() {}
   drawAbove() {}

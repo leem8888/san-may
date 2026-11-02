@@ -58,6 +58,20 @@ export class SceneRenderer {
     c.save(); cam.apply(c);
     this.lighting.lights(c, scene.dynamicLights ? [...scene.lights, ...scene.dynamicLights()] : scene.lights, cam, env, scene.indoor, env.time);
     for (const portal of scene.map.portals || []) this.portal(c, portal, player, env.time);
+    const marker = game.tapMarker;
+    if (marker) {
+      const age = game.time - marker.started, moving = Boolean(game.input.target);
+      if (age < .8 || (moving && !marker.blocked)) {
+        c.save();
+        c.globalAlpha = age < .8 ? 1 - age * .5 : .55;
+        c.strokeStyle = marker.blocked ? '#e5a18b' : '#ffe4a3'; c.lineWidth = 2;
+        const radius = game.reduced ? 18 : 15 + Math.min(age, .8) * 16;
+        c.beginPath(); c.ellipse(marker.x, marker.y, radius, radius * .45, 0, 0, Math.PI * 2); c.stroke();
+        c.beginPath(); c.ellipse(marker.x, marker.y, 6, 2.7, 0, 0, Math.PI * 2); c.stroke();
+        if (marker.blocked) { c.beginPath(); c.moveTo(marker.x - 4, marker.y - 4); c.lineTo(marker.x + 4, marker.y + 4); c.moveTo(marker.x + 4, marker.y - 4); c.lineTo(marker.x - 4, marker.y + 4); c.stroke(); }
+        c.restore();
+      } else game.tapMarker = null;
+    }
     for (const npc of scene.npcs) if (cam.visible(npc.x, npc.y)) this.sprites.label(c, npc);
     for (const v of views) this.sprites.label(c, v, v.self);
     c.restore();

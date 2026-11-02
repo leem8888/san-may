@@ -1,3 +1,10 @@
+import { drawBellBody, drawNoticeBoard, hallOrnaments } from './TempleDetails.js';
+import { drawBamboo } from './BambooArt.js';
+import { drawTree } from './TreeArt.js';
+import { drawStandingLantern, drawStoneLantern, drawHangingLantern } from './LanternArt.js';
+import { drawBuddha } from './BuddhaArt.js';
+import { drawCat } from './CatArt.js';
+import { drawCandle } from './CandleArt.js';
 import { ellipse, polygon } from './SpriteRenderer.js';
 // Original, procedurally drawn scenery. Every prop is `draw(c, o, env)` in world space, base point at (o.x, o.y).
 export function line(c, x, y, xx, yy, color, width = 1) { c.strokeStyle = color; c.lineWidth = width; c.beginPath(); c.moveTo(x, y); c.lineTo(xx, yy); c.stroke(); }
@@ -13,40 +20,19 @@ function roof(c, cx, y, w, h, color = '#2b4541', trim = '#cfad6e') {
 }
 
 export const PROPS = {
-  tree(c, o, env) {
-    const s = o.size || 1; c.save(); c.translate(o.x, o.y); c.scale(s, s);
-    shadow(c, 15, 5, 100, 27, env);
-    polygon(c, [[-14, 0], [17, 0], [8, -105], [-6, -105]], '#6b5741'); line(c, 0, -58, -48, -112, '#6b5741', 12); line(c, 0, -70, 45, -125, '#6b5741', 10);
-    const palette = o.blossom ? ['#7a5560', '#a8707a', '#c48d93', '#dcaab0'] : ['#315446', '#3e6250', '#4b7058', '#587c5c'];
-    for (let i = 0; i < 11; i++) { const a = i * 2.399, x = Math.cos(a) * 70 + sway(env, i), y = -113 + Math.sin(a) * 36; ellipse(c, x, y, 48, 32, palette[i % 4]); ellipse(c, x - 12, y - 11, 21, 9, '#8c9c6550'); }
-    c.restore();
-  },
-  pine(c, o, env) {
-    const s = o.size || 1; c.save(); c.translate(o.x, o.y); c.scale(s, s); shadow(c, 8, 4, 60, 18, env);
-    box(c, -7, -40, 14, 42, '#5d4a37', 3);
-    for (let i = 0; i < 4; i++) polygon(c, [[-58 + i * 10 + sway(env, i, 2), -30 - i * 34], [58 - i * 10 + sway(env, i, 2), -30 - i * 34], [sway(env, i, 3), -92 - i * 34]], ['#284a3f', '#2f5546', '#376050', '#41695a'][i], '#1f3d34');
-    c.restore();
-  },
-  bamboo(c, o, env) {
-    const n = o.count || 7, h = o.height || 210, rnd = i => Math.sin(i * 91.7 + o.x) * .5 + .5;
-    shadow(c, o.x, o.y, 46, 14, env);
-    for (let i = 0; i < n; i++) {
-      const bx = o.x - 34 + rnd(i) * 68, top = o.y - h * (.75 + rnd(i + 3) * .35), bend = sway(env, i + o.x * .01, 9);
-      c.strokeStyle = ['#7f9a5c', '#6e8c52', '#8fa96a'][i % 3]; c.lineWidth = 6; c.lineCap = 'round';
-      c.beginPath(); c.moveTo(bx, o.y); c.quadraticCurveTo(bx + bend * .3, (o.y + top) / 2, bx + bend, top); c.stroke();
-      for (let k = 1; k < 6; k++) { const t = k / 6, jx = bx + bend * t * t, jy = o.y + (top - o.y) * t; line(c, jx - 4, jy, jx + 4, jy, '#4f6a3c', 2); }
-      for (let k = 0; k < 4; k++) { const t = .55 + k * .12, lx = bx + bend * t * t, ly = o.y + (top - o.y) * t, dir = k % 2 ? 1 : -1; c.fillStyle = '#5f8a4e'; c.beginPath(); c.ellipse(lx + dir * 16, ly - 4, 17, 4, dir * .5 + bend * .01, 0, Math.PI * 2); c.fill(); }
-    }
-  },
+  cat: drawCat,
+  tree: drawTree,
+  pine(c, o, env) { drawTree(c, o, env, true); },
+  bamboo: drawBamboo,
   bush(c, o, env) { shadow(c, o.x, o.y, 34, 10, env); for (let i = 0; i < 5; i++) ellipse(c, o.x - 22 + i * 11 + sway(env, i, 1), o.y - 14 - (i % 2) * 8, 18, 14, ['#3b604c', '#476d55', '#527a5b'][i % 3]); if (o.flowers) for (let i = 0; i < 6; i++) ellipse(c, o.x - 20 + i * 8, o.y - 18 - (i % 3) * 6, 2.5, 2.5, o.flowers); },
   rock(c, o, env) { const s = o.size || 1; shadow(c, o.x, o.y, 30 * s, 9 * s, env); polygon(c, [[o.x - 28 * s, o.y], [o.x - 20 * s, o.y - 26 * s], [o.x + 4 * s, o.y - 38 * s], [o.x + 26 * s, o.y - 18 * s], [o.x + 30 * s, o.y]], '#7d8579', '#5c6459'); polygon(c, [[o.x - 14 * s, o.y - 24 * s], [o.x + 3 * s, o.y - 34 * s], [o.x + 8 * s, o.y - 20 * s]], '#9aa294'); ellipse(c, o.x - 10 * s, o.y - 6 * s, 8 * s, 3 * s, '#6f8a5c'); },
   bench(c, o, env) { const { x, y } = o; shadow(c, x, y + 4, 72, 15, env); box(c, x - 48, y - 1, 15, 18, '#667362', 3); box(c, x + 33, y - 1, 15, 18, '#667362', 3); box(c, x - 60, y - 20, 120, 24, '#a9af94', 5); box(c, x - 58, y - 22, 116, 8, '#c0c3a6', 3); },
-  board(c, o) { const { x, y } = o; box(c, x - 32, y - 48, 8, 49, '#77543b'); box(c, x + 25, y - 48, 8, 49, '#77543b'); box(c, x - 45, y - 95, 90, 57, '#6d4e38', 4); box(c, x - 38, y - 88, 76, 44, '#bca875', 2); for (let i = 0; i < 5; i++) box(c, x - 29 + i * 12, y - 80 + (i % 2) * 5, 9, 23, '#eadabc', 1); polygon(c, [[x - 54, y - 95], [x, y - 116], [x + 54, y - 95]], '#325349', '#d9b77e'); },
+  board: drawNoticeBoard,
   sign(c, o) { const { x, y } = o; box(c, x - 4, y - 70, 8, 72, '#6b5038'); box(c, x - 50, y - 92, 100, 40, '#7a5a3f', 4); box(c, x - 45, y - 87, 90, 30, '#d8c69a', 3); c.font = '11px Georgia'; c.textAlign = 'center'; c.fillStyle = '#4a3a28'; c.fillText(o.text || 'Hướng dẫn', x, y - 68); },
   bell(c, o, env) {
     const { x, y } = o; shadow(c, x, y + 5, 60, 18, env); box(c, x - 48, y - 104, 10, 110, '#715940'); box(c, x + 38, y - 104, 10, 110, '#715940'); box(c, x - 52, y - 110, 104, 12, '#be9a63', 3);
     const age = env.time - (env.bells[o.id] ?? -100), swing = age < 4 ? Math.sin(age * 12) * .15 * Math.exp(-age) : 0;
-    c.save(); c.translate(x, y - 100); c.rotate(swing); polygon(c, [[-18, 12], [18, 12], [25, 63], [32, 72], [-32, 72], [-25, 63]], '#b69b61', '#e1c88d'); for (let i = 0; i < 3; i++) line(c, -22, 28 + i * 13, 22, 28 + i * 13, '#857645', 2); ellipse(c, 0, 74, 32, 8, '#4c513b'); c.restore();
+    c.save(); c.translate(x, y - 100); c.rotate(swing); drawBellBody(c); c.restore();
     line(c, x, y - 22, x, y + 14, '#d5bf8f', 2); ripples(c, x, y - 22, age, 1);
   },
   bigBell(c, o, env) {
@@ -57,10 +43,7 @@ export const PROPS = {
     box(c, x - 135, y - 238, 270, 16, '#6e4d3e', 3);
     c.save(); c.translate(x, y - 222); c.rotate(swing);
     line(c, 0, 0, 0, 22, '#3d3528', 6);
-    polygon(c, [[-34, 22], [34, 22], [46, 120], [60, 140], [-60, 140], [-46, 120]], '#7f8a63', '#b7b27a');
-    for (let i = 0; i < 4; i++) line(c, -42 + i * 2, 50 + i * 22, 42 - i * 2, 50 + i * 22, '#5f6a47', 3);
-    for (let i = -1; i <= 1; i++) box(c, i * 22 - 7, 72, 14, 22, '#9aa274', 2);
-    ellipse(c, 0, 140, 60, 12, '#3f4632'); c.restore();
+    drawBellBody(c, true); c.restore();
     // The striker log hangs on two ropes and swings back after each strike.
     const pull = age < 1.2 ? Math.sin(Math.min(1, age / .6) * Math.PI) * 26 : 0, sx = x - 128 + pull;
     line(c, x - 150, y - 210, sx - 30, y - 152, '#c9b48a', 2); line(c, x - 110, y - 210, sx + 30, y - 152, '#c9b48a', 2);
@@ -69,26 +52,33 @@ export const PROPS = {
     roof(c, x, y - 330, 320, 96);
     ripples(c, x, y - 120, age, 2.2);
   },
-  lamp(c, o) { const { x, y } = o; box(c, x - 3, y - 63, 6, 68, '#6b6048'); box(c, x - 15, y - 70, 30, 5, '#d1b77e', 2); ellipse(c, x, y - 48, 13, 19, '#e8bd70'); ellipse(c, x - 4, y - 51, 5, 13, '#ffe2a0'); line(c, x, y - 28, x, y - 17, '#d5b076', 2); },
-  stoneLantern(c, o, env) { const { x, y } = o; shadow(c, x, y, 26, 8, env); box(c, x - 18, y - 12, 36, 12, '#8e958a', 2); box(c, x - 7, y - 50, 14, 40, '#9da497', 2); box(c, x - 16, y - 70, 32, 22, '#a7ae9f', 3); box(c, x - 9, y - 65, 18, 12, '#ffd889'); polygon(c, [[x - 24, y - 70], [x + 24, y - 70], [x + 6, y - 88], [x - 6, y - 88]], '#7f877b'); ellipse(c, x, y - 90, 5, 5, '#8e958a'); },
-  hangingLantern(c, o, env) { const { x, y } = o, s = sway(env, x, 2); box(c, x - 3, y - 110, 6, 112, '#5a4632'); line(c, x, y - 104, x + 26, y - 104, '#5a4632', 4); line(c, x + 24, y - 104, x + 24 + s, y - 88, '#3b2f22', 1); ellipse(c, x + 24 + s, y - 72, 13, 17, o.color || '#c4503c'); box(c, x + 15 + s, y - 90, 18, 4, '#d9b77e', 1); box(c, x + 15 + s, y - 57, 18, 4, '#d9b77e', 1); line(c, x + 24 + s, y - 53, x + 24 + s * 1.3, y - 42, '#e6c27d', 2); },
+  lamp: drawStandingLantern,
+  stoneLantern: drawStoneLantern,
+  hangingLantern: drawHangingLantern,
   pillar(c, o, env) { const { x, y } = o, h = o.height || 190; shadow(c, x, y, 22, 7, env); box(c, x - 16, y - 12, 32, 14, '#b9a27a', 3); box(c, x - 11, y - h, 22, h - 10, o.color || '#9b3f32'); box(c, x - 6, y - h, 4, h - 10, '#b9584833'); for (const ry of [y - h + 18, y - 40]) box(c, x - 13, ry, 26, 6, '#d2ad66', 2); },
-  statue(c, o, env) {
-    const { x, y } = o, glow = c.createRadialGradient(x, y - 150, 8, x, y - 150, 150);
-    glow.addColorStop(0, `rgba(255,214,140,${.38 + Math.sin(env.time) * .03})`); glow.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = glow; c.fillRect(x - 160, y - 300, 320, 300);
-    box(c, x - 92, y - 40, 184, 42, '#7a3e30', 6); box(c, x - 80, y - 52, 160, 16, '#b88a4e', 4);
-    for (let i = 0; i < 9; i++) { const a = Math.PI + i / 8 * Math.PI; polygon(c, [[x + Math.cos(a) * 30, y - 56], [x + Math.cos(a) * 82, y - 56 + Math.sin(a) * 26], [x + Math.cos(a + .2) * 60, y - 70 + Math.sin(a) * 30]], i % 2 ? '#d9a5ad' : '#c88791', '#a8676f'); }
-    ellipse(c, x, y - 82, 62, 26, '#cfa45a'); polygon(c, [[x - 40, y - 82], [x + 40, y - 82], [x + 30, y - 158], [x - 30, y - 158]], '#d9b26a', '#b48a46');
-    polygon(c, [[x - 8, y - 150], [x + 8, y - 150], [x + 22, y - 96], [x - 22, y - 96]], '#e6c17b');
-    ellipse(c, x, y - 104, 16, 8, '#e8c77f'); ellipse(c, x, y - 182, 23, 26, '#e3bd72'); ellipse(c, x, y - 207, 13, 12, '#c79b52');
-    for (let i = 0; i < 9; i++) ellipse(c, x - 16 + (i % 3) * 16, y - 202 + Math.floor(i / 3) * 7 - 4, 3, 3, '#b78c48');
-    line(c, x - 9, y - 180, x - 3, y - 180, '#9b7436', 2); line(c, x + 3, y - 180, x + 9, y - 180, '#9b7436', 2);
-    c.strokeStyle = 'rgba(255,224,160,.55)'; c.lineWidth = 2; c.beginPath(); c.arc(x, y - 182, 46, 0, Math.PI * 2); c.stroke();
+  statue(c, o, env) { drawBuddha(c, o); },
+  altarDais(c, o) {
+    const { x, y } = o;
+    box(c, x - 150, 262, 300, y - 262, '#654737', 5);
+    box(c, x - 145, 266, 290, y - 274, '#826044', 4);
+    for (let i = 0; i < 3; i++) {
+      box(c, x - 150 + i * 5, y - 18 + i * 6, 300 - i * 10, 6, ['#bb9560', '#987348', '#d0af77'][i], 1);
+    }
+    for (const dx of [-143, 143]) { box(c, x + dx - 3, 277, 6, y - 300, '#c6a267', 1); }
   },
   altar(c, o, env) {
     const { x, y } = o; shadow(c, x, y, 120, 14, env);
     box(c, x - 120, y - 46, 240, 46, '#6e2f26', 4); box(c, x - 128, y - 52, 256, 10, '#a8763f', 3); box(c, x - 100, y - 38, 200, 26, '#7f3a2e', 3);
-    for (const dx of [-80, 80]) { box(c, x + dx - 4, y - 78, 8, 26, '#efe6cf', 2); const f = env.reduced ? 0 : Math.sin(env.time * 11 + dx) * 1.5; ellipse(c, x + dx + f * .3, y - 84, 3.5, 7 + f, '#ffc86a'); ellipse(c, x + dx, y - 83, 1.5, 3, '#fff4cc'); }
+    box(c, x - 114, y - 43, 228, 3, '#e0bb77', 1);
+    box(c, x - 107, y - 9, 214, 3, '#c99d58', 1);
+    for (const dx of [-72, 0, 72]) {
+      c.strokeStyle = '#d4ac68'; c.lineWidth = 1.2;
+      c.beginPath(); c.roundRect(x + dx - 27, y - 34, 54, 21, 4); c.stroke();
+      for (let petal = -2; petal <= 2; petal++) {
+        c.beginPath(); c.ellipse(x + dx + petal * 3, y - 22, 2.5, 6, petal * .35, 0, Math.PI * 2); c.stroke();
+      }
+    }
+    for (const dx of [-80, 80]) drawCandle(c, x + dx, y - 52, env);
     box(c, x - 18, y - 70, 36, 18, '#a4834e', 3); for (let i = -1; i <= 1; i++) line(c, x + i * 6, y - 70, x + i * 7, y - 100, '#9b4b32', 1.5);
     for (const dx of [-45, 45]) { ellipse(c, x + dx, y - 58, 16, 6, '#c8a46a'); for (let i = 0; i < 4; i++) ellipse(c, x + dx - 7 + i * 5, y - 63 - (i % 2) * 3, 4, 4, ['#e0a14a', '#c2453a', '#e8c65a', '#8fae5a'][i]); }
   },
@@ -116,6 +106,15 @@ export const PROPS = {
     const glow = c.createRadialGradient(900, 315, 5, 900, 315, 85); glow.addColorStop(0, '#ffd98b88'); glow.addColorStop(1, '#ffd98b00'); c.fillStyle = glow; c.fillRect(810, 225, 180, 180);
     ellipse(c, 900, 294, 13, 16, '#e6c17b'); polygon(c, [[886, 309], [914, 309], [926, 348], [875, 348]], '#d0ab64'); ellipse(c, 900, 348, 35, 12, '#d9b56e'); box(c, 857, 360, 86, 12, '#c59952');
     roof(c, 900, 165, 720, 92); roof(c, 900, 108, 500, 92); ellipse(c, 900, 96, 5, 13, '#d9b77e');
+    for (let px = 614; px < 1200; px += 46) {
+      box(c, px, 258, 30, 5, '#bb9156'); box(c, px + 6, 263, 18, 6, '#8f623d');
+    }
+    for (const side of [-1, 1]) {
+      c.strokeStyle = '#d7b56b'; c.lineWidth = 3; c.beginPath(); c.moveTo(900 + side * 10, 110);
+      c.bezierCurveTo(900 + side * 70, 95, 900 + side * 150, 116, 900 + side * 218, 103);
+      c.bezierCurveTo(900 + side * 238, 99, 900 + side * 244, 85, 900 + side * 235, 82);
+      c.bezierCurveTo(900 + side * 225, 80, 900 + side * 225, 92, 900 + side * 235, 91); c.stroke();
+    }
     box(c, 836, 211, 128, 30, '#283d32', 4); c.font = '14px Georgia'; c.textAlign = 'center'; c.fillStyle = '#e5ce96'; c.fillText(o.title || 'S Â N   M Â Y', 900, 231);
     for (const x of [570, 1224]) { box(c, x, 416, 20, 58, '#a5a180'); box(c, x - 5, 413, 30, 9, '#d1c59b'); ellipse(c, x + 10, 407, 18, 9, '#778b67'); }
     c.restore();
@@ -167,6 +166,7 @@ export const PROPS = {
     for (let px = x + 40; px < x + w - 40; px += 120) { box(c, px, y - 190, 80, 150, '#6e4535', 4); for (let k = 0; k < 5; k++) line(c, px + 12 + k * 14, y - 182, px + 12 + k * 14, y - 48, '#8a5a44', 2); }
     for (const dx of [x + 260, x + w - 300]) { box(c, dx, y - 210, 40, 170, '#a8763f', 3); box(c, dx + 6, y - 204, 28, 158, '#d8c69a', 2); for (let k = 0; k < 6; k++) box(c, dx + 14, y - 196 + k * 24, 12, 14, '#5a3a28', 1); }
     box(c, x, y - 8, w, 8, '#2d1d16');
+    hallOrnaments(c, o);
   },
   shelfWall(c, o) { const { x, y } = o, w = o.w; box(c, x, y - 200, w, 200, '#4c3324'); box(c, x, y - 200, w, 18, '#33231a'); for (let px = x + 20; px < x + w - 140; px += 160) PROPS.bookshelf(c, { x: px + 70, y: y - 6, w: 140 }, { shadow: { alpha: 0, dx: 0, stretch: 1 } }); },
 };

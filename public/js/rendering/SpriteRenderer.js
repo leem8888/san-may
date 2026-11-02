@@ -5,7 +5,7 @@ export function polygon(c, points, color, stroke) { c.beginPath(); points.forEac
 const FRAMES = 8, CELL_W = 64, CELL_H = 96;
 
 const STATES = Object.keys(DURATIONS), DIRS = ['down', 'left', 'right', 'up'];
-export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory].join('|');
+export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.characterStyle || 'adult'].join('|');
 
 // Rasterises one (appearance, state, direction) strip of 8 frames on demand and keeps a bounded LRU cache,
 // so twenty differently dressed players cost a few MB instead of one full atlas each.
@@ -28,12 +28,13 @@ export class SpriteRenderer {
   }
   draw(c, p) {
     const { state, index } = this.frame(p), look = p.appearance || DEFAULT_APPEARANCE;
-    c.drawImage(this.strip(look, state, DIRS.includes(p.direction) ? p.direction : 'down'), index * CELL_W, 0, CELL_W, CELL_H, p.x - CELL_W / 2, p.y - 80, CELL_W, CELL_H);
+    const scale = p.renderScale || 1;
+    c.drawImage(this.strip(look, state, DIRS.includes(p.direction) ? p.direction : 'down'), index * CELL_W, 0, CELL_W, CELL_H, p.x - CELL_W * scale / 2, p.y - 80 * scale, CELL_W * scale, CELL_H * scale);
   }
   // Labels are drawn after the lighting pass so names stay readable at night.
   label(c, p, self = false) {
     if (!p.name) return;
-    const top = p.y - (p.appearance?.accessory === 'hat' ? 99 : 91);
+    const top = p.y - (p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1);
     c.textAlign = 'center'; c.font = '12px system-ui';
     const width = c.measureText(p.name).width + 18;
     c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, 20, 8); c.fill();

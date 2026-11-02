@@ -35,12 +35,13 @@ export class Game {
   setScene(id, x, y, direction = 'down') {
     const scene = this.scenes.enter(id);
     this.camera.setWorld(scene.map); this.player.place(x, y, direction); this.camera.snap(x, y);
-    this.particles.clear(); this.input.clear(); this.approach = null;
+    this.particles.clear(); this.input.clear(); this.approach = null; this.tapMarker = null;
     return scene;
   }
   // Tapping an interactive object walks to it; the interaction fires on arrival.
   tap(point) {
     if (this.pointHandler?.(point)) return true;
+    this.tapMarker = { x: point.x, y: point.y, started: this.time, blocked: this.scene.collision.blocked(point.x, point.y) };
     const o = this.interactions.at(point.x, point.y);
     if (!o) { this.approach = null; return false; }
     this.approach = o; this.input.target = { x: o.x, y: o.y + 34 };

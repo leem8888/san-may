@@ -50,3 +50,5 @@
 @media(max-width:1050px){.chat{width:min(300px,calc(100vw - 480px));min-width:200px}}
 @media(max-width:760px){.chat{left:122px;right:12px;width:auto;min-width:0;bottom:auto;top:104px}}
 body.meditating .chat{opacity:0;pointer-events:none}
+/* Prevent mobile browsers from zooming the game when focusing chat. */
+@media(pointer:coarse),(max-width:760px){.chat input{font-size:16px}}

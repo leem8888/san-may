@@ -166,6 +166,7 @@ export function attachSockets(io, ctx) {
       const now = Date.now(), profile = repos.players.profile(playerId), saved = repos.players.progress(playerId);
       const sceneId = saved.lastScene && world.has(saved.lastScene) ? saved.lastScene : (world.has('gate') ? 'gate' : world.ids[0]);
       const position = saved.lastScene === sceneId && world.walkable(sceneId, saved.lastX, saved.lastY) ? { x: saved.lastX, y: saved.lastY } : world.spawn(sceneId);
+      repos.players.saveLocation(playerId, sceneId, position.x, position.y, now);
       self = {
         id: playerId, socketId: socket.id, room: code, name: profile.name, appearance: profile.appearance, sceneId, ...position,
         direction: 'down', state: 'idle', actionAt: now, moved: false, lastMoveAt: now, dirty: true, locationDirty: false,
@@ -200,6 +201,14 @@ export function attachSockets(io, ctx) {
     socket.on('player:move', data => {
       const p = self;
       if (!p || !isObject(data) || data.sceneId !== p.sceneId) return;
+      // A map update can put an old saved position inside a new obstacle.
+      // Recover on the server so clients are never corrected back into that obstacle.
+      if (!world.walkable(p.sceneId, p.x, p.y)) {
+        const safe = world.spawn(p.sceneId);
+        Object.assign(p, safe, { state: 'idle', actionAt: Date.now(), lastMoveAt: Date.now(), moved: true, dirty: true, locationDirty: true });
+        repos.players.saveLocation(p.id, p.sceneId, p.x, p.y);
+        return socket.emit('player:correct', { sceneId: p.sceneId, x: p.x, y: p.y });
+      }
       const map = world.map(p.sceneId), x = number(data.x, 0, map.width), y = number(data.y, 0, map.height);
       if (x === null || y === null) return;
       const now = Date.now(), dt = Math.min(1, (now - p.lastMoveAt) / 1000), distance = Math.hypot(x - p.x, y - p.y);

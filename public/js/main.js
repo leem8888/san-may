@@ -140,6 +140,7 @@ function interact(o = game.interactions.nearest) {
   if (!o) return toast('Hãy đến gần một người, một vật hoặc chạm vào nó để tương tác.');
   game.input.clear();
   switch (o.action) {
+    case 'cat': selectedCat = o; return panels.open('catPanel');
     case 'dialogue': return dialogue.open(o.dialogue).catch(error => toast(error.message));
     case 'wishes': return panels.open('wishPanel');
     case 'bell': return ringBell(o);
@@ -159,6 +160,20 @@ function interact(o = game.interactions.nearest) {
     default: return toast('Không có gì để làm ở đây.');
   }
 }
+let selectedCat = null;
+function greetCat(kind) {
+  const cat = selectedCat;
+  if (!cat || !game.scene.objects.includes(cat) || Math.hypot(game.player.x - cat.x, game.player.y - cat.y) >= cat.radius) {
+    panels.close(); return toast('Hãy đến gần mèo vàng một chút nhé.');
+  }
+  if (cat.reaction && game.time - cat.reaction.started < 4) return toast('Mèo đang vui chơi, chờ một chút nhé.');
+  cat.reaction = { kind, started: game.time };
+  game.player.act('interact');
+  panels.close();
+  toast(kind === 'pet' ? 'Mèo nhắm mắt, dụi đầu vào tay bạn. Grừ… grừ…' : 'Bạn lăn quả bóng nhỏ. Mèo thích thú đưa chân khều bóng!');
+}
+$('#petCat').onclick = () => greetCat('pet');
+$('#playCat').onclick = () => greetCat('play');
 async function lightIncense(o) {
   if (!['idle', 'walk'].includes(game.player.state)) return toast('Hãy hoàn tất hành động hiện tại trước.');
   try {
@@ -213,7 +228,8 @@ function tick(dt) {
   audio.setScene(game.scene.map.ambient, game.weather, game.scene.indoor);
   // Every three minutes the monk in the main hall chants; only players in the hall hear and see it.
   const chantLine = chant.update(net.clock.now(), entered && game.scene.id === 'mainHall'), monk = game.scene.npcs.find(npc => npc.id === 'chanter');
-  if (monk) monk.chat = chantLine ? { text: chantLine, age: 1 } : null;
+  if (monk && chantLine) monk.chat = { text: chantLine, age: 1, chant: true };
+  else if (monk?.chat?.chant) monk.chat = null;
   if (chantLine && !lastChantLine) toast('Sư Tâm Hòa bắt đầu tụng kinh…', 3000);
   lastChantLine = chantLine;
   if (audio.chanting && game.scene.id !== 'mainHall') audio.setChant(false);
@@ -333,10 +349,27 @@ $('#chatForm').addEventListener('submit', async event => {
   event.preventDefault();
   const input = $('#chatInput'), text = input.value.trim();
   if (!text) return input.blur();
-  try { await net.request('chat:send', { text }); input.value = ''; }
+  try { await net.request('chat:send', { text }); input.value = ''; input.blur(); }
   catch (error) { toast(error.message); }
 });
 $('#chatInput').addEventListener('keydown', event => { if (event.key === 'Escape') { event.stopPropagation(); event.target.blur(); } });
+// Mobile keyboards can leave the document panned after dismissing an input.
+// Follow the keyboard animation, then restore the game's unscrolled viewport.
+let chatViewportTimer;
+function restoreChatViewport() {
+  if (document.activeElement?.matches('input, textarea, select')) return;
+  window.scrollTo(0, 0);
+}
+$('#chatInput').addEventListener('focus', () => {
+  clearTimeout(chatViewportTimer);
+  game?.input.clear();
+});
+$('#chatInput').addEventListener('blur', () => {
+  restoreChatViewport();
+  clearTimeout(chatViewportTimer);
+  chatViewportTimer = setTimeout(restoreChatViewport, 350);
+});
+window.visualViewport?.addEventListener('resize', restoreChatViewport);
 $('#name').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#enter').disabled) $('#enter').click(); });
 $('#bow').onclick = () => act('bow'); $('#bead').onclick = () => act('bead'); $('#pray').onclick = () => act('pray'); $('#wave').onclick = () => act('wave'); $('#interact').onclick = () => interact();
 $('#restart').onclick = async () => { try { for (const type of ['bow', 'bead']) if (progress?.[`${type}sRound`] >= ROUND) setProgress((await api.post('/progress/restart', { type })).progress); toast('Đã bắt đầu vòng mới.'); } catch (error) { toast(error.message); } };

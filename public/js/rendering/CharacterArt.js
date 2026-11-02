@@ -135,6 +135,9 @@ export function drawCharacter(c, state, frame, dir, look) {
   if (look.accessory === 'beads' && !back) for (let i = 0; i < 9; i++) { const a = Math.PI * (.1 + i / 8 * .8); ellipse(c, Math.cos(a) * 6.5, shoulder + 1 + Math.sin(a) * 8, 1.05, 1.05, '#6e3d27'); }
 
   // Neck and head.
+  const child = look.characterStyle === 'child';
+  c.save();
+  if (child) { c.translate(0, headY); c.scale(1.3, 1.16); c.translate(0, -headY); }
   ellipse(c, 0, shoulder - 2.5, 2.6, 3, SKIN_SHADE);
   ellipse(c, side * .8, headY, 7.2 * (side ? .94 : 1), 8.4, SKIN);
   ellipse(c, side * .8 + 2.5, headY + 2, 4, 5.5, 'rgba(160,100,70,.08)');
@@ -142,4 +145,9 @@ export function drawCharacter(c, state, frame, dir, look) {
   hair(c, look, headY, side, back, bow > .55);
   if (look.accessory === 'lotus' && !back) { ellipse(c, 6.5, headY - 5, 2.6, 1.8, '#e9a3b4'); ellipse(c, 6.5, headY - 5.5, 1, 1, '#f6d58d'); }
   if (look.accessory === 'hat') hat(c, headY - 5);
+  if (child && !back && bow < .55) {
+    ellipse(c, -4 + side * 2, headY + 3, 1.7, 1, 'rgba(225,123,109,.35)');
+    ellipse(c, 4 + side * 2, headY + 3, 1.7, 1, 'rgba(225,123,109,.35)');
+  }
+  c.restore();
 }

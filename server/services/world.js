@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CollisionSystem } from '../../public/js/systems/CollisionSystem.js';
+import { PLAYER_RADIUS } from '../../public/js/shared/rules.js';
 
 export const insideRect = (rect, x, y, pad = 0) => x >= rect.x - pad && x <= rect.x + rect.w + pad && y >= rect.y - pad && y <= rect.y + rect.h + pad;
 
@@ -22,7 +23,7 @@ export function loadWorld(dir) {
     has: id => Boolean(base(id)),
     map: id => base(id)?.map,
     spawn(id, name = 'default') { const map = base(id).map, [x, y] = map.spawns[name] || map.spawns.default; return { x, y }; },
-    walkable: (id, x, y) => Boolean(base(id)) && !base(id).collision.blocked(x, y, 8),
+    walkable: (id, x, y) => Boolean(base(id)) && Number.isFinite(x) && Number.isFinite(y) && !base(id).collision.blocked(x, y, PLAYER_RADIUS),
     portal: (id, portalId) => base(id)?.map.portals?.find(portal => portal.id === portalId) || null,
     object: (id, objectId) => base(id)?.map.objects?.find(object => object.id === objectId) || null,
   };

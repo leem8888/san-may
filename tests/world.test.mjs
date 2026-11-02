@@ -7,6 +7,17 @@ import { DayNightSystem } from '../public/js/systems/DayNightSystem.js';
 import { WeatherSystem } from '../public/js/systems/WeatherSystem.js';
 import { ParticleSystem } from '../public/js/rendering/ParticleSystem.js';
 import { lanternPosition } from '../public/js/scenes/LotusLakeScene.js';
+import { loadWorld } from '../server/services/world.js';
+import { fileURLToPath } from 'node:url';
+
+test('server rejects old altar positions and uses the full player radius', () => {
+  const world = loadWorld(fileURLToPath(new URL('../public/data/maps/', import.meta.url)));
+  assert.equal(world.walkable('mainHall', 570, 350), false);
+  assert.equal(world.walkable('mainHall', 540, 350), false);
+  assert.equal(world.walkable('mainHall', NaN, 350), false);
+  const safe = world.spawn('mainHall');
+  assert.equal(world.walkable('mainHall', safe.x, safe.y), true);
+});
 
 const load = id => JSON.parse(fs.readFileSync(new URL(`../public/data/maps/${id}.json`, import.meta.url), 'utf8'));
 const maps = Object.fromEntries(SCENE_IDS.map(id => [id, load(id)]));
