@@ -13,6 +13,8 @@ export function loadConfig(env = process.env, overrides = {}) {
     // Daily/weekly quests roll over at local midnight; default Asia/Bangkok (UTC+7).
     tzOffsetMinutes: Number(env.TZ_OFFSET_MINUTES ?? 420),
     trustProxy: env.TRUST_PROXY === '1',
+    // Owner-only journey statistics (/api/owner/journey). Unset = the endpoint does not exist.
+    ownerToken: env.OWNER_TOKEN || null,
     maxPlayersPerRoom: 20,
     tickMs: 100,
     disconnectGraceMs: 15000,

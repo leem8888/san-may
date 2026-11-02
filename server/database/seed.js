@@ -10,6 +10,11 @@ export const ACHIEVEMENTS = [
   { id: 'tree-first', title: 'Gieo một mầm xanh', description: 'Trồng cây đầu tiên trong khu vườn riêng.', icon: 'tree', reward_item: null },
   { id: 'shared-meditation', title: 'Cùng ngồi yên', description: 'Thiền cùng lúc với một người bạn trong cùng khu vực.', icon: 'friends', reward_item: null },
   { id: 'wish-first', title: 'Lời lành đầu tiên', description: 'Gửi lời chúc đầu tiên.', icon: 'wish', reward_item: null },
+  { id: 'coop-tea', title: 'Chén trà đôi', description: 'Thưởng trọn một ấm trà cùng một người bạn.', icon: 'friends', reward_item: null },
+  { id: 'coop-bell', title: 'Hai nhịp một tiếng chuông', description: 'Cùng một người bạn thỉnh đại hồng chung theo hơi thở.', icon: 'bell', reward_item: null },
+  { id: 'coop-meditation', title: 'Ngồi yên bên nhau', description: 'Hoàn thành trọn một phiên thiền chung.', icon: 'meditate', reward_item: null },
+  { id: 'coop-garden', title: 'Hai bàn tay làm vườn', description: 'Cùng bạn đưa góc vườn cũ lên một giai đoạn mới.', icon: 'tree', reward_item: null },
+  { id: 'coop-puzzle', title: 'Hai mảnh một lời giải', description: 'Giải câu đố ký hiệu ở Tháp Chuông.', icon: 'map', reward_item: 'badge:twoKeys' },
 ];
 
 export const QUESTS = [

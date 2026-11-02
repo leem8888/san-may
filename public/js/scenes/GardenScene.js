@@ -4,7 +4,7 @@ import { ellipse } from '../rendering/SpriteRenderer.js';
 import { InteractionSystem } from '../systems/InteractionSystem.js';
 import { TREE_STAGES, treeStage } from '../shared/rules.js';
 
-const DECOR = { lantern: 'stoneLantern', flower: 'flowerBed', bonsai: 'bonsai', bench: 'bench', lotusPot: 'lotusPot' };
+const DECOR = { lantern: 'stoneLantern', flower: 'flowerBed', bonsai: 'bonsai', bench: 'bench', lotusPot: 'lotusPot', windbell: 'windbellPost', wildflower: 'wildFlowers', hallLamp: 'lampMini' };
 
 function drawTree(c, o, env, stage) {
   const { x, y } = o;

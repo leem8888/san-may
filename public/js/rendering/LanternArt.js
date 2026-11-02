@@ -37,7 +37,8 @@ export function drawStandingLantern(c, o, env) {
 
 export function drawHangingLantern(c, o, env) {
   const { x, y } = o;
-  const angle = env.reduced ? 0 : Math.sin(env.time * (1.1 + env.wind * .15) + x) * (.025 + env.wind * .012);
+  // A bell nearby (env.ring, fading 1 → 0) sets the lanterns swinging a little more.
+  const angle = env.reduced ? 0 : Math.sin(env.time * (1.1 + env.wind * .15) + x) * (.025 + env.wind * .012) + Math.sin(env.time * 7 + x) * .09 * (env.ring || 0);
   c.save();
   box(c, x - 4, y - 110, 8, 112, gradient(c, x - 4, 8, ['#3d3025', '#866442', '#503b29']));
   line(c, x, y - 104, x + 27, y - 104, '#775537', 4);

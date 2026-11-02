@@ -38,3 +38,55 @@ nav button[aria-expanded=true]{background:#3c5e4d;border-color:#d9b77e88}
 .chat{position:absolute;left:24px;bottom:20px;width:min(340px,calc(50vw - 230px));display:flex;gap:6px;z-index:2}
 .chat input{padding:9px 12px;font-size:13px;background:#102625dd;backdrop-filter:blur(10px)}
 .chat button{font-size:12px;padding:8px 12px}
+.story-objective{position:absolute;left:30px;top:128px;max-width:min(380px,calc(100vw - 60px));display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:#102625cc;border:1px solid #d9b77e55;border-radius:14px;padding:8px 12px;z-index:2;font-size:12px;line-height:1.4}
+.story-objective .eyebrow{font-size:8px}
+/* Cooperative play: a slim card on the right, below the menu, never over the canvas centre. */
+.coop{position:absolute;right:24px;top:92px;width:min(320px,calc(100vw - 48px));max-height:calc(100vh - 230px);overflow:auto;display:grid;gap:10px;z-index:3}
+.coop-card,.coop-invite{background:#102625ee;backdrop-filter:blur(10px);border:1px solid #d9b77e66;border-radius:16px;padding:12px 14px;display:grid;gap:8px;font-size:13px;line-height:1.45;box-shadow:0 10px 30px #0006}
+.coop-invite{border-color:var(--gold);animation:coopIn .35s ease-out}
+.coop h3{margin:0;font-size:17px}
+.coop p{margin:0}
+.coop small{color:#cfc3a3}
+.coop-row{display:flex;gap:8px}.coop-row button{flex:1}
+.coop-list{display:grid;gap:6px}
+.coop-list button{display:grid;gap:2px;text-align:left;padding:8px 10px;font-size:13px}
+.coop-list button small{font-size:11px}
+.coop-guide{color:#efe3c5}
+.coop-topic{margin:0;padding:8px 10px;border-left:3px solid var(--gold);background:#d9b77e14;font-style:italic}
+.coop-notes{display:grid;gap:4px;padding:6px 8px;background:#f3ead40f;border-radius:8px}
+.coop-breath{display:flex;align-items:center;gap:12px;padding:6px 0}
+.coop-breath .ring{width:44px;height:44px;border-radius:50%;border:3px solid #9fc7b4;transform:scale(.7);transition:transform 1.8s ease-in-out,border-color .3s,box-shadow .3s}
+.coop-breath.in .ring{transform:scale(1.05)}
+.coop-breath.out .ring{transform:scale(.7)}
+.coop-breath.strike .ring{border-color:var(--gold);box-shadow:0 0 18px var(--gold);transform:scale(1.1);transition-duration:.2s}
+@keyframes coopIn{from{opacity:0;transform:translateY(-8px)}}
+@media(prefers-reduced-motion:reduce){.coop-invite{animation:none}.coop-breath .ring{transition:none}}
+.coop .primary{margin:0;padding:9px}
+.objective-open{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.objective-open:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:6px}
+#storyHint{color:#cfc3a3;font-style:italic}
+.story-objective .link{font-size:11px;padding:0;color:#cfc3a3}
+.story-objective.paused{flex-direction:row;align-items:center;gap:8px}
+/* Journey: a stage introduction that fades by itself, and the closing moment. */
+.journey-card{position:absolute;left:50%;top:18%;transform:translateX(-50%);width:min(440px,calc(100vw - 32px));text-align:center;background:#102625ee;border:1px solid #d9b77e88;border-radius:18px;padding:18px 22px;z-index:4;cursor:pointer;animation:journeyIn 1.2s ease-out}
+.journey-card h2{margin:6px 0;font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;font-weight:500}
+.journey-card p{margin:0;color:#e9dcbd;font-size:14px}
+.journey-card small{display:block;margin-top:8px;color:#a9b8a8;font-size:11px}
+.journey-card.out{opacity:0;transition:opacity 1.4s}
+.journey-finale{max-width:min(520px,calc(100vw - 32px));text-align:center;background:linear-gradient(#1a332e,#0f2421);color:var(--text);border:1px solid var(--gold);border-radius:20px;padding:26px}
+.journey-finale::backdrop{background:radial-gradient(circle at 50% 40%,#ffcf7a33,#06110fcc)}
+.journey-finale h2{font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;font-weight:500}
+.finale-text{font:italic 16px/1.8 "Palatino Linotype","Book Antiqua",Georgia,serif;color:#f3e6c4}
+.finale-gifts{color:var(--gold)}
+@keyframes journeyIn{from{opacity:0;transform:translate(-50%,-10px)}}
+@media(prefers-reduced-motion:reduce){.journey-card{animation:none}.journey-card.out{transition:none}}
+
+/* Bowing session card stays visible in focus mode, everything else steps back. */
+.practice-card{position:absolute;right:24px;bottom:150px;width:min(240px,calc(100vw - 48px));display:grid;gap:6px;background:#102625ee;border:1px solid #d9b77e66;border-radius:16px;padding:12px 14px;z-index:3;font-size:13px}
+.practice-bar{height:6px;border-radius:3px;background:#ffffff1a;overflow:hidden}.practice-bar span{display:block;height:100%;background:var(--gold);transition:width .6s}
+.practice-card .link{font-size:12px;padding:0;color:#cfc3a3}
+body.focus .topbar,body.focus .room,body.focus .hud-bottom,body.focus .world-caption,body.focus #joystick,body.focus .chat,body.focus .story-objective,body.focus .coop{opacity:0;pointer-events:none;transition:opacity .8s}
+body.meditating #scene{filter:brightness(.9) saturate(.92);transition:filter 3s}
+#scene{transition:filter 3s}
+.coop-reading{display:grid;gap:6px;padding:8px 10px;border-radius:10px;background:#d9b77e14}.coop-reading p{font:15px/1.7 "Palatino Linotype","Book Antiqua",Georgia,serif;color:#f3e6c4}
+.candle-slots button{min-width:40px}

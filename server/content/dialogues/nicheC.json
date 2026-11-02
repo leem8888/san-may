@@ -1,0 +1,65 @@
+{
+  "npc": "nicheC",
+  "kind": "object",
+  "name": "HỐC TƯỜNG",
+  "title": "Hốc tường thứ ba",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 3,
+            "step": "find"
+          }
+        }
+      },
+      "node": "found"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": "completed"
+        }
+      },
+      "node": "lit"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapterAtLeast": 4
+          }
+        }
+      },
+      "node": "waiting"
+    },
+    {
+      "node": "look"
+    }
+  ],
+  "nodes": {
+    "look": {
+      "lines": [
+        "Một hốc tường nhỏ, sâu hơn hai hốc kia. Bụi phủ dày."
+      ]
+    },
+    "found": {
+      "mood": "surprised",
+      "lines": [
+        "Bạn phẩy lớp bụi. Phía trong có một khấc gỗ tròn, vừa khít một chân đèn.",
+        "Đây rồi — chỗ của chiếc đèn cổ."
+      ]
+    },
+    "waiting": {
+      "lines": [
+        "Khấc gỗ tròn đang chờ chiếc đèn. Trên vách khắc một dấu nhỏ, phải soi đèn mới thấy rõ."
+      ]
+    },
+    "lit": {
+      "mood": "happy",
+      "lines": [
+        "Chiếc đèn cổ đang cháy đều. Ánh vàng chiếu lên ba áng mây trên thân đèn."
+      ]
+    }
+  }
+}

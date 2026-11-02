@@ -12,6 +12,13 @@ export class MeditationPanel {
     $('#meditationMinutes').replaceChildren(...MEDITATION_MINUTES.map(m => el('button', { type: 'button', 'aria-pressed': String(m === this.minutes), text: `${m} phút`, onclick: event => this.pick(m, event.currentTarget) })));
     $('#meditationMusic').checked = this.music;
     $('#meditationMusic').onchange = () => { this.music = $('#meditationMusic').checked; store.set('sanmay-meditation-music', this.music); };
+    this.nature = store.get('sanmay-meditation-nature', ''); this.endBell = store.get('sanmay-meditation-bell', 'true') === 'true';
+    $('#meditationNature').value = this.nature; $('#meditationBell').checked = this.endBell;
+    $('#meditationVolume').value = audio.volumes.ambient;
+    $('#meditationNature').onchange = event => { this.nature = event.target.value; store.set('sanmay-meditation-nature', this.nature); if (this.session) this.audio.setNature(this.nature); };
+    $('#meditationBell').onchange = event => { this.endBell = event.target.checked; store.set('sanmay-meditation-bell', this.endBell); };
+    // One slider for what you hear while sitting: the ambient sounds and the soft music.
+    $('#meditationVolume').oninput = event => { const v = Number(event.target.value); this.audio.setVolume('ambient', v); this.audio.setVolume('music', v); };
     $('#startMeditation').onclick = () => this.start();
     $('#endMeditation').onclick = () => this.finish();
     $('#meditationSound').onclick = () => { this.music = !this.music; this.audio.setMeditationMusic(this.music); this.soundLabel(); };
@@ -30,7 +37,7 @@ export class MeditationPanel {
     this.game.input.clear(); this.game.player.setState('meditate'); this.game.camera.setFocus(1.16);
     this.game.pauseInput(true); this.game.approach = null; this.game.tapMarker = null;
     document.body.classList.add('meditating'); $('#meditation').hidden = false; this.soundLabel();
-    this.audio.setMeditationMusic(this.music);
+    this.audio.setMeditationMusic(this.music); this.audio.setNature(this.nature);
     clearInterval(this.timer); this.timer = setInterval(() => this.tick(), 250); this.tick();
   }
   tick() {
@@ -52,13 +59,13 @@ export class MeditationPanel {
   close() {
     clearInterval(this.timer); this.session = null;
     document.body.classList.remove('meditating'); $('#meditation').hidden = true;
-    this.game.camera.setFocus(1); this.audio.setMeditationMusic(false);
+    this.game.camera.setFocus(1); this.audio.setMeditationMusic(false); this.audio.setNature(null);
     if (this.game.player.state === 'meditate') this.game.player.setState('idle');
     this.game.pauseInput(false);
   }
   result(r) {
     this.close();
-    this.audio.bell();
+    if (this.endBell) this.audio.bell();
     toast(`Đã thiền ${spoken(r.actualSeconds)}${r.completed ? ' — trọn vẹn' : ''}${r.shared ? ', cùng bạn đồng tu' : ''}. Thời gian đã được lưu.`, 5000);
     if (r.progress) this.celebrate({ achievements: r.achievements, quests: r.quests, progress: r.progress });
   }

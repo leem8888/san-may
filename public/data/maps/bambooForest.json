@@ -9,53 +9,361 @@
   "ground": {
     "base": "#24402f",
     "layers": [
-      {"type":"noise","count":5200,"colors":["#2f4d38","#2a4533","#36553d","#1f3a2b"]},
-      {"type":"forestFloor","count":1100},
-      {"type":"scatter","kind":"grass","x":40,"y":60,"w":1520,"h":1300,"count":320,"colors":["#4f7352","#5b7d58","#3f6449"]},
-      {"type":"stream","points":[[0,820],[420,860],[800,850],[1200,880],[1600,860]],"width":64},
-      {"type":"dirt","points":[[800,1400],[760,1180],[820,1000],[820,700],[640,520],[700,380],[1000,380],[1600,400]],"width":58,"color":"#5d5644","edge":"#6b634e"},
-      {"type":"planks","x":748,"y":798,"w":144,"h":110,"colors":["#8a6a48","#7d5f40"]}
+      {
+        "type": "noise",
+        "count": 5200,
+        "colors": [
+          "#2f4d38",
+          "#2a4533",
+          "#36553d",
+          "#1f3a2b"
+        ]
+      },
+      {
+        "type": "forestFloor",
+        "count": 1100
+      },
+      {
+        "type": "scatter",
+        "kind": "grass",
+        "x": 40,
+        "y": 60,
+        "w": 1520,
+        "h": 1300,
+        "count": 320,
+        "colors": [
+          "#4f7352",
+          "#5b7d58",
+          "#3f6449"
+        ]
+      },
+      {
+        "type": "stream",
+        "points": [
+          [
+            0,
+            820
+          ],
+          [
+            420,
+            860
+          ],
+          [
+            800,
+            850
+          ],
+          [
+            1200,
+            880
+          ],
+          [
+            1600,
+            860
+          ]
+        ],
+        "width": 64
+      },
+      {
+        "type": "dirt",
+        "points": [
+          [
+            800,
+            1400
+          ],
+          [
+            760,
+            1180
+          ],
+          [
+            820,
+            1000
+          ],
+          [
+            820,
+            700
+          ],
+          [
+            640,
+            520
+          ],
+          [
+            700,
+            380
+          ],
+          [
+            1000,
+            380
+          ],
+          [
+            1600,
+            400
+          ]
+        ],
+        "width": 58,
+        "color": "#5d5644",
+        "edge": "#6b634e"
+      },
+      {
+        "type": "planks",
+        "x": 748,
+        "y": 798,
+        "w": 144,
+        "h": 110,
+        "colors": [
+          "#8a6a48",
+          "#7d5f40"
+        ]
+      }
     ]
   },
-  "spawns": {"default":[790,1230],"fromZen":[790,1240],"fromLibrary":[1420,400]},
+  "spawns": {
+    "default": [
+      790,
+      1230
+    ],
+    "fromZen": [
+      790,
+      1240
+    ],
+    "fromLibrary": [
+      1420,
+      400
+    ]
+  },
   "portals": [
-    {"id":"toZen","x":740,"y":1300,"w":120,"h":50,"to":"zenGarden","spawn":"fromBamboo","label":"Về Vườn Thiền","dir":"down"},
-    {"id":"toLibrary","x":1500,"y":340,"w":60,"h":120,"to":"library","spawn":"fromBamboo","label":"Đến Thư Viện","dir":"right"}
+    {
+      "id": "toZen",
+      "x": 740,
+      "y": 1300,
+      "w": 120,
+      "h": 50,
+      "to": "zenGarden",
+      "spawn": "fromBamboo",
+      "label": "Về Vườn Thiền",
+      "dir": "down"
+    },
+    {
+      "id": "toLibrary",
+      "x": 1500,
+      "y": 340,
+      "w": 60,
+      "h": 120,
+      "to": "library",
+      "spawn": "fromBamboo",
+      "label": "Đến Thư Viện",
+      "dir": "right"
+    }
   ],
   "obstacles": [
-    {"x":0,"y":812,"w":748,"h":76},
-    {"x":892,"y":822,"w":708,"h":86}
+    {
+      "x": 0,
+      "y": 812,
+      "w": 748,
+      "h": 76
+    },
+    {
+      "x": 892,
+      "y": 822,
+      "w": 708,
+      "h": 86
+    }
   ],
   "props": [
-    {"type":"fern","x":540,"y":750,"solid":false},
-    {"type":"fern","x":1070,"y":940,"solid":false},
-    {"type":"fern","x":650,"y":1120,"solid":false},
-    {"type":"fern","x":960,"y":470,"solid":false},
-    {"type":"fern","x":330,"y":1100,"solid":false},
-    {"type":"fern","x":1260,"y":1030,"solid":false},
-    {"type":"bamboo","x":200,"y":250,"height":230},
-    {"type":"bamboo","x":420,"y":200,"height":250},
-    {"type":"bamboo","x":1150,"y":200,"height":250},
-    {"type":"bamboo","x":1400,"y":220,"height":200},
-    {"type":"bamboo","x":250,"y":620,"height":250},
-    {"type":"bamboo","x":460,"y":700,"height":190},
-    {"type":"bamboo","x":1100,"y":620,"height":250},
-    {"type":"bamboo","x":1350,"y":700,"height":190},
-    {"type":"bamboo","x":200,"y":1060,"height":200},
-    {"type":"bamboo","x":450,"y":1200,"height":200},
-    {"type":"bamboo","x":1100,"y":1100,"height":240},
-    {"type":"bamboo","x":1350,"y":1200,"height":200},
-    {"type":"bamboo","x":1050,"y":1290,"height":220},
-    {"type":"bamboo","x":600,"y":250,"height":230},
-    {"type":"bamboo","x":1000,"y":560,"height":190},
-    {"type":"stoneLantern","x":900,"y":1010},
-    {"type":"stoneLantern","x":700,"y":650},
-    {"type":"rock","x":1250,"y":980,"size":0.9}
+    {
+      "type": "fern",
+      "x": 540,
+      "y": 750,
+      "solid": false
+    },
+    {
+      "type": "fern",
+      "x": 1070,
+      "y": 940,
+      "solid": false
+    },
+    {
+      "type": "fern",
+      "x": 650,
+      "y": 1120,
+      "solid": false
+    },
+    {
+      "type": "fern",
+      "x": 960,
+      "y": 470,
+      "solid": false
+    },
+    {
+      "type": "fern",
+      "x": 330,
+      "y": 1100,
+      "solid": false
+    },
+    {
+      "type": "fern",
+      "x": 1260,
+      "y": 1030,
+      "solid": false
+    },
+    {
+      "type": "bamboo",
+      "x": 200,
+      "y": 250,
+      "height": 230
+    },
+    {
+      "type": "bamboo",
+      "x": 420,
+      "y": 200,
+      "height": 250
+    },
+    {
+      "type": "bamboo",
+      "x": 1150,
+      "y": 200,
+      "height": 250
+    },
+    {
+      "type": "bamboo",
+      "x": 1400,
+      "y": 220,
+      "height": 200
+    },
+    {
+      "type": "bamboo",
+      "x": 250,
+      "y": 620,
+      "height": 250
+    },
+    {
+      "type": "bamboo",
+      "x": 460,
+      "y": 700,
+      "height": 190
+    },
+    {
+      "type": "bamboo",
+      "x": 1100,
+      "y": 620,
+      "height": 250
+    },
+    {
+      "type": "bamboo",
+      "x": 1350,
+      "y": 700,
+      "height": 190
+    },
+    {
+      "type": "bamboo",
+      "x": 200,
+      "y": 1060,
+      "height": 200
+    },
+    {
+      "type": "bamboo",
+      "x": 450,
+      "y": 1200,
+      "height": 200
+    },
+    {
+      "type": "bamboo",
+      "x": 1100,
+      "y": 1100,
+      "height": 240
+    },
+    {
+      "type": "bamboo",
+      "x": 1350,
+      "y": 1200,
+      "height": 200
+    },
+    {
+      "type": "bamboo",
+      "x": 1050,
+      "y": 1290,
+      "height": 220
+    },
+    {
+      "type": "bamboo",
+      "x": 600,
+      "y": 250,
+      "height": 230
+    },
+    {
+      "type": "bamboo",
+      "x": 1000,
+      "y": 560,
+      "height": 190
+    },
+    {
+      "type": "stoneLantern",
+      "x": 900,
+      "y": 1010
+    },
+    {
+      "type": "stoneLantern",
+      "x": 700,
+      "y": 650
+    },
+    {
+      "type": "rock",
+      "x": 1250,
+      "y": 980,
+      "size": 0.9
+    }
   ],
   "objects": [
-    {"id":"poemStone","type":"stele","x":560,"y":1010,"label":"Đọc bia đá","action":"dialogue","dialogue":"bamboo-stele","radius":90},
-    {"id":"shrine","type":"shrine","x":1000,"y":300,"label":"Thăm miếu nhỏ","action":"dialogue","dialogue":"bamboo-shrine","radius":90},
-    {"id":"hiddenBench","type":"bench","x":1260,"y":520,"label":"Ngồi nghe gió","action":"sit","radius":100},
-    {"id":"oldTree","type":"tree","x":320,"y":440,"size":1.3,"label":"Ngắm cây cổ thụ","action":"dialogue","dialogue":"bamboo-tree","radius":110,"hitH":200}
+    {
+      "id": "poemStone",
+      "type": "stele",
+      "x": 560,
+      "y": 1010,
+      "label": "Đọc bia đá",
+      "action": "dialogue",
+      "dialogue": "bamboo-stele",
+      "radius": 90
+    },
+    {
+      "id": "shrine",
+      "type": "shrine",
+      "x": 1000,
+      "y": 300,
+      "label": "Thăm miếu nhỏ",
+      "action": "dialogue",
+      "dialogue": "bamboo-shrine",
+      "radius": 90
+    },
+    {
+      "id": "hiddenBench",
+      "type": "bench",
+      "x": 1260,
+      "y": 520,
+      "label": "Ngồi nghe gió",
+      "action": "sit",
+      "radius": 100
+    },
+    {
+      "id": "oldTree",
+      "type": "tree",
+      "x": 320,
+      "y": 440,
+      "size": 1.3,
+      "label": "Ngắm cây cổ thụ",
+      "action": "dialogue",
+      "dialogue": "bamboo-tree",
+      "radius": 110,
+      "hitH": 200
+    },
+    {
+      "id": "wildSeed",
+      "type": "wildFlowers",
+      "x": 1330,
+      "y": 1010,
+      "label": "Xem khóm hoa dại",
+      "action": "story",
+      "narrative": true,
+      "radius": 90,
+      "solid": false
+    }
   ]
 }

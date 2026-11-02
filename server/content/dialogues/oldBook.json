@@ -1,0 +1,165 @@
+{
+  "npc": "oldBook",
+  "kind": "object",
+  "name": "SÁCH “ĐỒ THỜ TRONG CHÙA”",
+  "title": "Cuốn sách cũ",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 2,
+            "step": "book"
+          }
+        }
+      },
+      "node": "toc"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapterAtLeast": 3
+          }
+        }
+      },
+      "node": "read-again"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": "completed"
+        }
+      },
+      "node": "read-again"
+    },
+    {
+      "node": "closed"
+    }
+  ],
+  "nodes": {
+    "closed": {
+      "lines": [
+        "Cuốn sách dày, gáy đã sờn: “Đồ thờ trong chùa”. Mỗi trang vẽ tay một món đồ."
+      ]
+    },
+    "toc": {
+      "lines": [
+        "Mục lục có bốn trang vẽ đèn đồng. Trang nào là chiếc đèn An tả?"
+      ],
+      "choices": [
+        {
+          "id": "p12",
+          "text": "Trang 12",
+          "next": "p12"
+        },
+        {
+          "id": "p19",
+          "text": "Trang 19",
+          "next": "p19"
+        },
+        {
+          "id": "p27",
+          "text": "Trang 27",
+          "next": "p27"
+        },
+        {
+          "id": "p31",
+          "text": "Trang 31",
+          "next": "p31"
+        },
+        {
+          "id": "close",
+          "text": "Gấp sách lại"
+        }
+      ]
+    },
+    "p12": {
+      "lines": [
+        "Trang 12: đèn đồng chân vuông, thân khắc hai con cá."
+      ],
+      "choices": [
+        {
+          "id": "this",
+          "text": "Đúng chiếc này rồi",
+          "next": "not-this"
+        },
+        {
+          "id": "back",
+          "text": "Lật trang khác",
+          "next": "toc"
+        }
+      ]
+    },
+    "p19": {
+      "lines": [
+        "Trang 19: đèn đồng chân hình hoa sen, thân khắc một vầng trăng."
+      ],
+      "choices": [
+        {
+          "id": "this",
+          "text": "Đúng chiếc này rồi",
+          "next": "not-this"
+        },
+        {
+          "id": "back",
+          "text": "Lật trang khác",
+          "next": "toc"
+        }
+      ]
+    },
+    "p27": {
+      "lines": [
+        "Trang 27: đèn đồng chân hình hoa sen, thân khắc ba áng mây."
+      ],
+      "choices": [
+        {
+          "id": "this",
+          "text": "Đúng chiếc này rồi",
+          "next": "lamp-page"
+        },
+        {
+          "id": "back",
+          "text": "Lật trang khác",
+          "next": "toc"
+        }
+      ]
+    },
+    "p31": {
+      "lines": [
+        "Trang 31: đèn đồng chân tròn, thân khắc ba áng mây."
+      ],
+      "choices": [
+        {
+          "id": "this",
+          "text": "Đúng chiếc này rồi",
+          "next": "not-this"
+        },
+        {
+          "id": "back",
+          "text": "Lật trang khác",
+          "next": "toc"
+        }
+      ]
+    },
+    "not-this": {
+      "mood": "worried",
+      "lines": [
+        "Hình như chưa giống lời An tả: chân hình hoa sen, thân khắc ba áng mây."
+      ],
+      "next": "toc"
+    },
+    "lamp-page": {
+      "mood": "surprised",
+      "lines": [
+        "Dưới hình vẽ có một dòng chữ nhỏ, mực đã ngả nâu:",
+        "“Đèn nghỉ trong hốc tường thứ ba, đếm từ tượng Phật sang bên phải.”"
+      ]
+    },
+    "read-again": {
+      "lines": [
+        "Trang 27 vẫn kẹp một chiếc lá khô làm dấu: chiếc đèn chân sen, ba áng mây."
+      ]
+    }
+  }
+}

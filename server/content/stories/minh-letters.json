@@ -1,0 +1,33 @@
+{
+  "id": "minh-letters",
+  "title": "Những bức thư chưa gửi",
+  "npc": "librarian",
+  "finale": "Có những lá thư không cần gửi đi mới làm được việc của nó. Thầy Minh gấp lại cuốn sổ, khẽ mỉm cười.",
+  "chapters": [
+    {
+      "n": 1, "title": "Lá thư kẹp trong sách",
+      "summary": "Thầy Minh tìm thấy những lá thư người xưa viết mà không gửi, kẹp giữa các trang sách.",
+      "steps": [
+        { "id": "accept", "objective": "Thưa chuyện với thầy Minh", "hint": "Thầy Minh ở Thư Viện, có giờ dạo Rừng Trúc hoặc tịnh tọa ở Chánh Điện", "trigger": { "type": "dialogue", "npc": "librarian", "node": "letters-1-accept" }, "log": "Thầy Minh đưa bạn hộp gỗ đựng những lá thư chưa gửi." },
+        { "id": "read1", "objective": "Đọc lá thư đầu tiên trong hộp gỗ ở Thư Viện", "scene": "library", "trigger": { "type": "dialogue", "npc": "letterBox", "node": "letter1-reply" }, "log": "Lá thư của một người con chưa kịp xin lỗi cha." }
+      ]
+    },
+    {
+      "n": 2, "title": "Người trồng sen",
+      "summary": "Lá thư thứ hai được giấu dưới phiến đá bên Hồ Sen.",
+      "steps": [
+        { "id": "clue", "objective": "Hỏi thầy Minh về chữ ký “người trồng sen”", "trigger": { "type": "dialogue", "npc": "librarian", "node": "letters-2-clue" }, "log": "Thầy Minh đoán người trồng sen hay ngồi bên phiến đá cạnh hồ." },
+        { "id": "read2", "objective": "Tìm phiến đá phẳng bên Hồ Sen", "scene": "lotusLake", "trigger": { "type": "dialogue", "npc": "lakeStone", "node": "letter2-reply" }, "log": "Lá thư cảm ơn một người thầy đã dạy cách ngồi yên." }
+      ]
+    },
+    {
+      "n": 3, "title": "Lá thư của mình",
+      "summary": "Bạn viết lá thư chưa gửi của riêng mình.",
+      "steps": [
+        { "id": "invite", "objective": "Trở lại gặp thầy Minh", "trigger": { "type": "dialogue", "npc": "librarian", "node": "letters-3-write" } },
+        { "id": "ending", "objective": "Viết lá thư của bạn và quyết định giữ nó ở đâu", "trigger": { "type": "flag", "flag": "minh.letterEnding" } }
+      ],
+      "reward": { "items": ["badge:letter"] }
+    }
+  ]
+}

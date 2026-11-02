@@ -1,13 +1,20 @@
 import http from 'node:http';
 import express from 'express';
 import { Server } from 'socket.io';
-import { loadConfig, MAPS_DIR, PUBLIC_DIR } from './config/index.js';
+import { loadConfig, MAPS_DIR, PUBLIC_DIR, ROOT } from './config/index.js';
 import { openDatabase } from './database/db.js';
 import { createRepositories } from './repositories/index.js';
 import { createIdentity } from './services/identity.js';
 import { createProgression } from './services/progression.js';
 import { loadWorld } from './services/world.js';
 import { RoomManager } from './services/rooms.js';
+import { WorldStateManager } from './services/worldState.js';
+import { createNarrative, loadNarrativeContent } from './services/narrative.js';
+import { NpcDirector } from '../public/js/shared/npcSchedule.js';
+import { createWorldActions } from './services/worldActions.js';
+import { createHallActions } from './services/hallActions.js';
+import { createJourney } from './services/journey.js';
+import path from 'node:path';
 import { createApiRouter } from './routes/api.js';
 import { attachSockets } from './sockets/index.js';
 import { errorHandler, securityHeaders } from './middleware/index.js';
@@ -17,7 +24,12 @@ export function createGameServer(overrides = {}) {
   const config = loadConfig(process.env, overrides);
   const db = openDatabase(config.dbFile);
   const repos = createRepositories(db);
-  const ctx = { config, db, repos, world: loadWorld(MAPS_DIR), rooms: new RoomManager(), identity: createIdentity(repos), progression: createProgression(repos, config), io: null };
+  const ctx = { config, db, repos, world: loadWorld(MAPS_DIR), rooms: new RoomManager(), identity: createIdentity(repos), progression: createProgression(repos, config), worldState: new WorldStateManager(repos.world), io: null };
+  ctx.npcDirector = new NpcDirector(ctx.world.maps);
+  ctx.worldActions = createWorldActions(ctx);
+  ctx.hall = createHallActions(ctx);
+  ctx.narrative = createNarrative({ repos, config, worldState: ctx.worldState, progression: ctx.progression, content: loadNarrativeContent(path.join(ROOT, 'server', 'content')) });
+  ctx.journey = createJourney({ db, repos, content: ctx.narrative.content });
 
   const app = express();
   app.disable('x-powered-by');

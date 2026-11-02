@@ -9,64 +9,467 @@
   "ground": {
     "base": "#2b4a3f",
     "layers": [
-      {"type":"noise","count":5000,"colors":["#385443","#314e40","#496044","#233e36"]},
-      {"type":"scatter","kind":"grass","x":80,"y":480,"w":1440,"h":640,"count":260,"colors":["#4f7352","#5b7d58","#3f6449"]},
-      {"type":"scatter","x":120,"y":560,"w":440,"h":520,"count":80,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
-      {"type":"scatter","x":1040,"y":560,"w":440,"h":520,"count":80,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
-      {"type":"dirt","points":[[0,1150],[1600,1150]],"width":96,"color":"#5f5846","edge":"#6d6650"},
-      {"type":"rect","x":320,"y":680,"w":285,"h":360,"color":"#677457","r":28},
-      {"type":"rect","x":330,"y":690,"w":265,"h":340,"color":"#36543e","r":23},
-      {"type":"tiles","x":470,"y":405,"w":660,"h":190,"tile":[88,44],"colors":["#aaa38b","#b6ac91","#a39d84"],"border":"#827c62"},
-      {"type":"rect","x":655,"y":595,"w":290,"h":540,"color":"#626d53","r":8},
-      {"type":"tiles","x":675,"y":595,"w":250,"h":530,"tile":[80,44],"colors":["#b4ab91","#a49e83","#bcb296"],"grout":"#817f68","border":"#b5a47c"},
-      {"type":"tiles","x":985,"y":690,"w":270,"h":250,"tile":[68,42],"colors":["#a99c7b","#b7a887","#aa9f81"],"grout":"#83795e","border":"#a28b62"},
-      {"type":"path","points":[[925,965],[980,965],[1030,945],[1120,920]],"size":23,"spacing":30},
-      {"type":"path","points":[[675,1000],[620,1040],[560,1060]],"size":22,"spacing":30}
+      {
+        "type": "noise",
+        "count": 5000,
+        "colors": [
+          "#385443",
+          "#314e40",
+          "#496044",
+          "#233e36"
+        ]
+      },
+      {
+        "type": "scatter",
+        "kind": "grass",
+        "x": 80,
+        "y": 480,
+        "w": 1440,
+        "h": 640,
+        "count": 260,
+        "colors": [
+          "#4f7352",
+          "#5b7d58",
+          "#3f6449"
+        ]
+      },
+      {
+        "type": "scatter",
+        "x": 120,
+        "y": 560,
+        "w": 440,
+        "h": 520,
+        "count": 80,
+        "colors": [
+          "#a5ad73",
+          "#d7b794",
+          "#e6c46e"
+        ],
+        "size": 3
+      },
+      {
+        "type": "scatter",
+        "x": 1040,
+        "y": 560,
+        "w": 440,
+        "h": 520,
+        "count": 80,
+        "colors": [
+          "#a5ad73",
+          "#d7b794",
+          "#e6c46e"
+        ],
+        "size": 3
+      },
+      {
+        "type": "dirt",
+        "points": [
+          [
+            0,
+            1150
+          ],
+          [
+            1600,
+            1150
+          ]
+        ],
+        "width": 96,
+        "color": "#5f5846",
+        "edge": "#6d6650"
+      },
+      {
+        "type": "rect",
+        "x": 320,
+        "y": 680,
+        "w": 285,
+        "h": 360,
+        "color": "#677457",
+        "r": 28
+      },
+      {
+        "type": "rect",
+        "x": 330,
+        "y": 690,
+        "w": 265,
+        "h": 340,
+        "color": "#36543e",
+        "r": 23
+      },
+      {
+        "type": "tiles",
+        "x": 470,
+        "y": 405,
+        "w": 660,
+        "h": 190,
+        "tile": [
+          88,
+          44
+        ],
+        "colors": [
+          "#aaa38b",
+          "#b6ac91",
+          "#a39d84"
+        ],
+        "border": "#827c62"
+      },
+      {
+        "type": "rect",
+        "x": 655,
+        "y": 595,
+        "w": 290,
+        "h": 540,
+        "color": "#626d53",
+        "r": 8
+      },
+      {
+        "type": "tiles",
+        "x": 675,
+        "y": 595,
+        "w": 250,
+        "h": 530,
+        "tile": [
+          80,
+          44
+        ],
+        "colors": [
+          "#b4ab91",
+          "#a49e83",
+          "#bcb296"
+        ],
+        "grout": "#817f68",
+        "border": "#b5a47c"
+      },
+      {
+        "type": "tiles",
+        "x": 985,
+        "y": 690,
+        "w": 270,
+        "h": 250,
+        "tile": [
+          68,
+          42
+        ],
+        "colors": [
+          "#a99c7b",
+          "#b7a887",
+          "#aa9f81"
+        ],
+        "grout": "#83795e",
+        "border": "#a28b62"
+      },
+      {
+        "type": "path",
+        "points": [
+          [
+            925,
+            965
+          ],
+          [
+            980,
+            965
+          ],
+          [
+            1030,
+            945
+          ],
+          [
+            1120,
+            920
+          ]
+        ],
+        "size": 23,
+        "spacing": 30
+      },
+      {
+        "type": "path",
+        "points": [
+          [
+            675,
+            1000
+          ],
+          [
+            620,
+            1040
+          ],
+          [
+            560,
+            1060
+          ]
+        ],
+        "size": 22,
+        "spacing": 30
+      }
     ]
   },
-  "spawns": {"default":[800,1000],"fromCourtyard":[800,480]},
+  "spawns": {
+    "default": [
+      800,
+      1000
+    ],
+    "fromCourtyard": [
+      800,
+      480
+    ]
+  },
   "portals": [
-    {"id":"toCourtyard","x":712,"y":250,"w":176,"h":112,"to":"courtyard","spawn":"fromGate","label":"Vào Sân Chùa","dir":"up"}
+    {
+      "id": "toCourtyard",
+      "x": 712,
+      "y": 250,
+      "w": 176,
+      "h": 112,
+      "to": "courtyard",
+      "spawn": "fromGate",
+      "label": "Vào Sân Chùa",
+      "dir": "up"
+    }
   ],
   "obstacles": [
-    {"x":528,"y":240,"w":156,"h":172},
-    {"x":916,"y":240,"w":156,"h":172},
-    {"x":676,"y":236,"w":26,"h":176},
-    {"x":898,"y":236,"w":26,"h":176}
+    {
+      "x": 528,
+      "y": 240,
+      "w": 156,
+      "h": 172
+    },
+    {
+      "x": 916,
+      "y": 240,
+      "w": 156,
+      "h": 172
+    },
+    {
+      "x": 676,
+      "y": 236,
+      "w": 26,
+      "h": 176
+    },
+    {
+      "x": 898,
+      "y": 236,
+      "w": 26,
+      "h": 176
+    }
   ],
   "props": [
-    {"type":"wall","x":40,"y":400,"w":490,"h":80},
-    {"type":"wall","x":1070,"y":400,"w":500,"h":80},
-    {"type":"gate","x":800,"y":400,"big":true,"solid":false,"title":"TAM QUAN","sortY":402},
-    {"type":"hangingLantern","x":606,"y":520,"color":"#c4503c"},
-    {"type":"hangingLantern","x":958,"y":520,"color":"#c4503c"},
-    {"type":"lamp","x":668,"y":640},
-    {"type":"lamp","x":932,"y":640},
-    {"type":"lamp","x":668,"y":880},
-    {"type":"lamp","x":932,"y":880},
-    {"type":"tree","x":230,"y":740,"size":1.25},
-    {"type":"tree","x":1370,"y":740,"size":1.25,"blossom":true},
-    {"type":"tree","x":300,"y":1040,"size":1},
-    {"type":"tree","x":1300,"y":1040,"size":1},
-    {"type":"pine","x":440,"y":610},
-    {"type":"pine","x":1160,"y":610},
-    {"type":"bush","x":405,"y":765,"flowers":"#e6a0ad"},
-    {"type":"bush","x":515,"y":970,"flowers":"#f0d27a"},
-    {"type":"bush","x":1310,"y":930,"flowers":"#e6a0ad"},
-    {"type":"rock","x":160,"y":540,"size":0.9},
-    {"type":"rock","x":1440,"y":540,"size":1.1},
-    {"type":"stoneLantern","x":540,"y":580},
-    {"type":"stoneLantern","x":1060,"y":580},
-    {"type":"flowerBed","x":450,"y":860,"color":"#e88fa0"},
-    {"type":"flowerBed","x":500,"y":715,"color":"#f0d27a"},
-    {"type":"lotusPot","x":540,"y":475},
-    {"type":"lotusPot","x":1060,"y":475},
-    {"type":"stoneLantern","x":365,"y":985},
-    {"type":"stoneLantern","x":1265,"y":970}
+    {
+      "type": "wall",
+      "x": 40,
+      "y": 400,
+      "w": 490,
+      "h": 80
+    },
+    {
+      "type": "wall",
+      "x": 1070,
+      "y": 400,
+      "w": 500,
+      "h": 80
+    },
+    {
+      "type": "gate",
+      "x": 800,
+      "y": 400,
+      "big": true,
+      "solid": false,
+      "title": "TAM QUAN",
+      "sortY": 402
+    },
+    {
+      "type": "hangingLantern",
+      "x": 606,
+      "y": 520,
+      "color": "#c4503c"
+    },
+    {
+      "type": "hangingLantern",
+      "x": 958,
+      "y": 520,
+      "color": "#c4503c"
+    },
+    {
+      "type": "lamp",
+      "x": 668,
+      "y": 640
+    },
+    {
+      "type": "lamp",
+      "x": 932,
+      "y": 640
+    },
+    {
+      "type": "lamp",
+      "x": 668,
+      "y": 880
+    },
+    {
+      "type": "lamp",
+      "x": 932,
+      "y": 880
+    },
+    {
+      "type": "tree",
+      "x": 230,
+      "y": 740,
+      "size": 1.25
+    },
+    {
+      "type": "tree",
+      "x": 1370,
+      "y": 740,
+      "size": 1.25,
+      "blossom": true
+    },
+    {
+      "type": "tree",
+      "x": 300,
+      "y": 1040,
+      "size": 1
+    },
+    {
+      "type": "tree",
+      "x": 1300,
+      "y": 1040,
+      "size": 1
+    },
+    {
+      "type": "pine",
+      "x": 440,
+      "y": 610
+    },
+    {
+      "type": "pine",
+      "x": 1160,
+      "y": 610
+    },
+    {
+      "type": "bush",
+      "x": 405,
+      "y": 765,
+      "flowers": "#e6a0ad"
+    },
+    {
+      "type": "bush",
+      "x": 515,
+      "y": 970,
+      "flowers": "#f0d27a"
+    },
+    {
+      "type": "bush",
+      "x": 1310,
+      "y": 930,
+      "flowers": "#e6a0ad"
+    },
+    {
+      "type": "rock",
+      "x": 160,
+      "y": 540,
+      "size": 0.9
+    },
+    {
+      "type": "rock",
+      "x": 1440,
+      "y": 540,
+      "size": 1.1
+    },
+    {
+      "type": "stoneLantern",
+      "x": 540,
+      "y": 580
+    },
+    {
+      "type": "stoneLantern",
+      "x": 1060,
+      "y": 580
+    },
+    {
+      "type": "flowerBed",
+      "x": 450,
+      "y": 860,
+      "color": "#e88fa0"
+    },
+    {
+      "type": "flowerBed",
+      "x": 500,
+      "y": 715,
+      "color": "#f0d27a"
+    },
+    {
+      "type": "lotusPot",
+      "x": 540,
+      "y": 475
+    },
+    {
+      "type": "lotusPot",
+      "x": 1060,
+      "y": 475
+    },
+    {
+      "type": "stoneLantern",
+      "x": 365,
+      "y": 985
+    },
+    {
+      "type": "stoneLantern",
+      "x": 1265,
+      "y": 970
+    }
   ],
   "objects": [
-    {"id":"offeringStall","type":"offeringStall","x":1120,"y":860,"label":"Mua hương, lễ & thức ăn cá","action":"shop","radius":140,"hitW":98,"hitH":145},
-    {"id":"guide","type":"sign","x":560,"y":740,"text":"Hướng dẫn","label":"Đọc bảng hướng dẫn","action":"dialogue","dialogue":"guide","radius":100},
-    {"id":"novice","type":"npc","x":920,"y":720,"name":"An · Chú tiểu","appearance":{"hairStyle":"shaved","hairColor":"#2b2823","outfitStyle":"robe","outfitColor":"#c9935a","accessory":"beads"},"gestures":["pray","wave"],"label":"Trò chuyện với An","action":"dialogue","dialogue":"novice","radius":100}
+    {
+      "id": "offeringStall",
+      "type": "offeringStall",
+      "x": 1120,
+      "y": 860,
+      "label": "Mua hương, lễ & thức ăn cá",
+      "action": "shop",
+      "radius": 140,
+      "hitW": 98,
+      "hitH": 145
+    },
+    {
+      "id": "guide",
+      "type": "sign",
+      "x": 560,
+      "y": 740,
+      "text": "Hướng dẫn",
+      "label": "Đọc bảng hướng dẫn",
+      "action": "dialogue",
+      "dialogue": "guide",
+      "radius": 100
+    },
+    {
+      "id": "novice",
+      "type": "npc",
+      "schedule": true,
+      "x": 920,
+      "y": 720,
+      "name": "An · Chú tiểu",
+      "appearance": {
+        "hairStyle": "shaved",
+        "hairColor": "#2b2823",
+        "outfitStyle": "robe",
+        "outfitColor": "#c9935a",
+        "accessory": "beads"
+      },
+      "gestures": [
+        "pray",
+        "wave"
+      ],
+      "label": "Trò chuyện với An",
+      "action": "dialogue",
+      "dialogue": "novice",
+      "radius": 100
+    },
+    {
+      "id": "bellHook",
+      "type": "bellHook",
+      "x": 868,
+      "y": 470,
+      "label": "Xem móc sắt dưới mái cổng",
+      "action": "story",
+      "narrative": true,
+      "radius": 90,
+      "solid": false
+    }
   ]
 }

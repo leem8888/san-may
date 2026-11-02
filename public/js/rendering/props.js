@@ -12,6 +12,7 @@ import { drawBuddha } from './BuddhaArt.js';
 import { drawCat } from './CatArt.js';
 import { drawCandle } from './CandleArt.js';
 import { ellipse, polygon } from './SpriteRenderer.js';
+import { STORY_PROPS } from './StoryProps.js';
 // Original, procedurally drawn scenery. Every prop is `draw(c, o, env)` in world space, base point at (o.x, o.y).
 export function line(c, x, y, xx, yy, color, width = 1) { c.strokeStyle = color; c.lineWidth = width; c.beginPath(); c.moveTo(x, y); c.lineTo(xx, yy); c.stroke(); }
 export function box(c, x, y, w, h, color, r = 0) { c.fillStyle = color; c.beginPath(); c.roundRect(x, y, w, h, r); c.fill(); }
@@ -28,6 +29,7 @@ function roof(c, cx, y, w, h, color = '#2b4541', trim = '#cfad6e') {
 export const PROPS = {
   vegetablePatch, bookStack, fern, libraryWindow,
   fishFeeder: drawFishFeeder,
+  ...STORY_PROPS,
   offeringStall: drawOfferingStall,
   offeringStand: drawOfferingStand,
   cat: drawCat,

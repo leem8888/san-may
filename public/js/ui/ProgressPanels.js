@@ -34,8 +34,21 @@ export class ProgressPanels {
       this.quests();
     } catch (error) { toast(error.message); }
   }
+  // Stories the player has lived through, chapter by chapter, and how well they know each NPC.
+  async stories() {
+    const data = await this.api.get('/stories');
+    const blocks = data.stories.map(s => el('article', { class: 'entry' }, el('strong', { text: `${s.title}${s.status === 'completed' ? ' · đã trọn' : ''}` }),
+      s.chapters.map(c => el('div', { class: `story-chapter ${c.status}` }, el('strong', { text: `Chương ${c.n} · ${c.status === 'locked' ? '…' : c.title}` }),
+        c.beats.length ? el('ul', {}, c.beats.map(b => el('li', { text: b.text }))) : null,
+        c.status === 'active' && s.objective ? el('p', { class: 'now', text: `Việc tiếp theo: ${s.objective.text}${s.objective.hint ? ` (${s.objective.hint})` : ''}` }) : null))));
+    const npcs = data.npcs.length ? el('p', { class: 'hint', text: data.npcs.map(n => `${n.name}: ${n.familiarity.toLowerCase()}`).join(' · ') }) : null;
+    $('#storyJournal').replaceChildren(...(blocks.length ? blocks : [el('p', { class: 'empty', text: 'Chưa có câu chuyện nào. Hãy trò chuyện với mọi người trong chùa — ai có điều muốn kể sẽ có dấu ! bên cạnh tên.' })]), ...(npcs ? [npcs] : []));
+    const memories = data.memories || [];
+    $('#memoryJournal').replaceChildren(...(memories.length ? memories.map(m => el('article', { class: 'entry' }, el('time', { text: timeAgo(m.createdAt) }), el('p', { text: m.text }))) : [el('p', { class: 'empty', text: 'Chưa có kỷ niệm chung. Mở “Mọi người” và bấm “Cùng chơi” để rủ ai đó thưởng trà, thiền hay thỉnh chuông cùng bạn.' })]));
+  }
   async journal() {
     try {
+      this.stories().catch(error => toast(error.message));
       const data = await this.api.get('/journal'), p = data.progress;
       $('#journalStats').replaceChildren(...[['Lạy', p.bowsTotal], ['Lần hạt', p.beadsTotal], ['Phút thiền', Math.floor(p.meditationSeconds / 60)], ['Hoa đăng', p.lanternsTotal], ['Lời chúc', p.wishesTotal], ['Cây đã gieo', p.treesPlanted]].map(([label, value]) => el('div', {}, el('b', { text: String(value) }), el('small', { text: label }))));
       $('#meditationHistory').replaceChildren(...(data.meditations.length ? data.meditations.map(m => el('li', { text: `${timeAgo(m.startedAt)} · ${clock(m.actualSeconds)} / ${clock(m.plannedSeconds)}${m.shared ? ' · cùng bạn' : ''}` })) : [el('li', { text: 'Chưa có phiên thiền nào.' })]));

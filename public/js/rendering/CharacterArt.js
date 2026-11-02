@@ -63,12 +63,19 @@ function hat(c, headY) {
   stroke(c, [[-5, headY], [0, headY + 7], [5, headY]], '#7a5a3a', .7);
 }
 
-export function drawCharacter(c, state, frame, dir, look) {
-  if (look.characterStyle === 'child') return drawNovice(c, state, frame, dir);
-  if (look.characterStyle === 'abbot') return drawAbbot(c, state, frame, dir);
-  const t = frame / 8, walk = state === 'walk', swing = walk ? Math.sin(t * TAU) : 0;
+// A full prostration over t ∈ [0, 1]: join hands (0–.1), kneel (.1–.28), bow to the floor (.3–.46), hold, rise back to
+// kneeling (.6–.76) and stand up (.8–.96). Smoothstep easing keeps each phase gentle.
+const ease = x => { const k = Math.min(1, Math.max(0, x)); return k * k * (3 - 2 * k); };
+export function bowPhases(t) {
+  const span = (a, b) => ease((t - a) / (b - a));
+  return { kneel: span(.1, .28) * (1 - span(.8, .96)), lean: span(.3, .46) * (1 - span(.6, .76)) };
+}
+export function drawCharacter(c, state, frame, dir, look, frames = 8) {
+  if (look.characterStyle === 'child') return drawNovice(c, state, Math.floor(frame * 8 / frames), dir);
+  if (look.characterStyle === 'abbot') return drawAbbot(c, state, Math.floor(frame * 8 / frames), dir);
+  const t = frame / frames, walk = state === 'walk', swing = walk ? Math.sin(t * TAU) : 0;
   const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', w = side ? .8 : 1;
-  const bow = state === 'bow' ? Math.sin(t * Math.PI) : 0, breathe = Math.sin(t * TAU) * (state === 'meditate' ? .9 : .35);
+  const { kneel, lean } = state === 'bow' ? bowPhases(t) : { kneel: 0, lean: 0 }, bow = lean, breathe = Math.sin(t * TAU) * (state === 'meditate' ? .9 : .35);
   const style = look.outfitStyle, outfit = look.outfitColor, dark = shade(outfit, .7);
   const trousers = style === 'robe' ? '#4e453b' : style === 'tunic' ? '#3a3730' : '#ece3cc';
   const sit = state === 'sit', meditate = state === 'meditate';
@@ -77,8 +84,8 @@ export function drawCharacter(c, state, frame, dir, look) {
   ellipse(c, 0, 0, sit ? 18 : meditate ? 19 : 14, 4.2, 'rgba(8,29,33,.38)');
   c.translate(0, walk ? -Math.abs(swing) * 1.3 : 0);
 
-  const hip = sit ? -25 : meditate ? -8 : -34;
-  const shoulder = (sit ? -46 : meditate ? -29 : -55) - breathe * .6 + bow * (back ? -2 : 15);
+  const hip = sit ? -25 : meditate ? -8 : -34 + kneel * 20;
+  const shoulder = (sit ? -46 : meditate ? -29 : -55) - breathe * .6 + kneel * 20 + bow * (back ? -2 : 17);
   const headY = shoulder - 11 + bow * (back ? -3 : 9);
 
   backHair(c, look, headY, shoulder, back);
@@ -87,6 +94,10 @@ export function drawCharacter(c, state, frame, dir, look) {
   if (meditate) {
     ellipse(c, 0, -5, 17, 6, dark); ellipse(c, 0, -6.5, 15, 4.6, cloth(c, outfit, -15, 15));
     ellipse(c, -12, -5.5, 4.5, 3, shade(outfit, .85)); ellipse(c, 12, -5.5, 4.5, 3, shade(outfit, .85));
+  } else if (kneel > .05) {
+    // Kneeling: knees on the floor in front, feet tucked behind.
+    for (const s of [-1, 1]) { ellipse(c, s * 5, hip + 3, 4.6, 4.6, style === 'robe' ? dark : trousers); limb(c, [s * 5.5, hip + 5], [s * 6, -3], trousers, 4.8, 0); }
+    ellipse(c, -6, -1, 3.4, 2, '#3a2a1e'); ellipse(c, 6, -1, 3.4, 2, '#3a2a1e');
   } else if (sit) {
     for (const s of [-1, 1]) { ellipse(c, s * 5, hip + 4, 4.6, 5, style === 'robe' ? dark : trousers); limb(c, [s * 5.5, hip + 7], [s * 6, -3], trousers, 4.8, 0); }
     shoes(c, [[-6, 0], [6, 0]], 0);
@@ -125,6 +136,8 @@ export function drawCharacter(c, state, frame, dir, look) {
   let hl = [-12 * w, hip + 1 - swing * 2.4], hr = [12 * w, hip + 1 + swing * 2.4];
   if (side && walk) { hl = [side * swing * 6 - 2, hip + 1]; hr = [-side * swing * 6 + 2, hip + 1]; }
   if (joined) { hl = [-1.2, shoulder + 9]; hr = [1.2, shoulder + 9]; }
+  // Bowing to the floor: joined hands open and rest on the ground in front.
+  if (lean > 0 && !back) { hl = [hl[0] + (-7 - hl[0]) * lean, hl[1] + (-2 - hl[1]) * lean]; hr = [hr[0] + (7 - hr[0]) * lean, hr[1] + (-2 - hr[1]) * lean]; }
   if (meditate) { hl = [-2.5, hip + 1]; hr = [2.5, hip + 1]; }
   if (sit) { hl = [-6, hip + 3]; hr = [6, hip + 3]; }
   if (state === 'wave') hr = [15 + Math.sin(t * TAU * 2) * 3, shoulder - 13];

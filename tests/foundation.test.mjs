@@ -28,7 +28,7 @@ test('bow counts on completion only, rejects spam, cancels on movement',()=>{
   p.act('bow');p.update(DURATIONS.bow,{x:0,y:0},collision);assert.equal(p.bows,1);assert.equal(completed,1);assert.equal(p.state,'idle');
 });
 test('108 bows and beads complete without overflow; sitting cancels on movement',()=>{
-  const p=new Player();for(let i=0;i<109;i++){p.act('bow');p.update(2.4,{x:0,y:0},collision);p.act('bead');p.update(.65,{x:0,y:0},collision);}assert.equal(p.bows,108);assert.equal(p.beads,108);
+  const p=new Player();for(let i=0;i<109;i++){p.act('bow');p.update(DURATIONS.bow,{x:0,y:0},collision);p.act('bead');p.update(.65,{x:0,y:0},collision);}assert.equal(p.bows,108);assert.equal(p.beads,108);
   p.act('sit');p.update(60,{x:0,y:0},collision);assert.equal(p.state,'sit');p.update(.1,{x:0,y:1},collision);assert.equal(p.state,'walk');
 });
 test('camera maintains limits and inverse screen mapping for desktop/mobile',()=>{

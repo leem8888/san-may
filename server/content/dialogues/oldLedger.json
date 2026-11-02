@@ -1,0 +1,38 @@
+{
+  "npc": "oldLedger",
+  "kind": "object",
+  "name": "SỔ GHI CHÉP CỦA CHÙA",
+  "title": "Cuốn sổ ghi chép",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 2,
+            "step": "ledger"
+          }
+        }
+      },
+      "node": "bell-clue"
+    },
+    {
+      "node": "read"
+    }
+  ],
+  "nodes": {
+    "read": {
+      "lines": [
+        "Sổ ghi việc chùa qua nhiều đời: ngày dựng cổng, mùa sen nở, tên những người đến giúp.",
+        "Chữ viết tay, có trang loang mực vì mưa."
+      ]
+    },
+    "bell-clue": {
+      "mood": "calm",
+      "lines": [
+        "Bạn lật tới trang có góc gấp…",
+        "“Năm ấy gió bão, chuông nhỏ ở cổng được gỡ xuống, cất trong hộc gỗ dưới chân Tháp Chuông.”",
+        "“Nắp hộc khắc ba bông sen. Mở theo đời hoa: nụ, hé, nở.”"
+      ]
+    }
+  }
+}

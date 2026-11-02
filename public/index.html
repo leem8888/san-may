@@ -33,6 +33,14 @@
     <span class="dot" id="statusDot"></span><span id="roomLabel">PHÒNG</span><button id="online" class="link-button" data-panel="peoplePanel" title="Xem người trong khu">Chưa vào phòng</button><small id="connection">Sẵn sàng</small><small id="skyLabel"></small>
   </div>
 
+  <div id="storyObjective" class="story-objective" hidden>
+    <button type="button" class="objective-open" data-panel="journalPanel" title="Mở nhật ký câu chuyện"><span class="eyebrow" id="storyChapter"></span><span id="storyGoal"></span></button>
+    <small id="storyHint" hidden></small>
+    <button type="button" id="journeyPause" class="link" hidden>Tạm dừng hành trình</button>
+  </div>
+  <div id="journeyPaused" class="story-objective paused" hidden><span>Hành trình đang tạm dừng.</span> <button type="button" id="journeyResume" class="link">Tiếp tục</button></div>
+  <section id="journeyCard" class="journey-card" hidden aria-live="polite"><span class="eyebrow" id="journeyStage"></span><h2 id="journeyTitle"></h2><p id="journeySummary"></p><small>Chạm để đóng</small></section>
+
   <div id="areaTitle" class="area-title" aria-live="polite"><span class="eyebrow" id="areaSubtitle"></span><strong id="areaName"></strong></div>
 
   <section class="intro" id="intro" aria-label="Vào Sân Mây">
@@ -67,6 +75,7 @@
     <div class="panel-head"><div><span class="eyebrow">TÁM KHU VỰC</span><h2 id="mapTitle">Bản đồ</h2></div><button class="close" data-close aria-label="Đóng bản đồ">×</button></div>
     <svg id="worldMap" viewBox="0 0 320 300" role="img" aria-label="Sơ đồ các khu vực"></svg>
     <p class="hint" id="mapHint"></p>
+    <div id="whereabouts" class="whereabouts" aria-live="polite"></div>
   </aside>
 
   <aside id="wishPanel" class="panel" hidden aria-labelledby="wishTitle">
@@ -105,6 +114,9 @@
     <p>Chọn thời lượng. Đồng hồ do máy chủ giữ, nên bạn có thể chuyển tab mà phiên vẫn chạy. Di chuyển hoặc chọn “Kết thúc” để dừng sớm; thời gian thực tế vẫn được lưu.</p>
     <div id="meditationMinutes" class="choice-row" role="group" aria-label="Thời lượng"></div>
     <label class="check"><input type="checkbox" id="meditationMusic" checked>Nhạc thiền nhẹ</label>
+    <label>Âm thanh thiên nhiên <select id="meditationNature"><option value="">Không</option><option value="rain">Mưa nhẹ</option><option value="stream">Suối chảy</option><option value="wind">Gió qua trúc</option></select></label>
+    <label>Âm lượng <input type="range" id="meditationVolume" min="0" max="1" step="0.05"></label>
+    <label class="check"><input type="checkbox" id="meditationBell" checked>Kết thúc bằng một tiếng chuông nhẹ</label>
     <button id="startMeditation" class="primary">Bắt đầu thiền →</button>
   </aside>
 
@@ -136,6 +148,7 @@
 
   <aside id="peoplePanel" class="panel" hidden aria-labelledby="peopleTitle">
     <div class="panel-head"><div><span class="eyebrow">CÙNG KHU VỰC</span><h2 id="peopleTitle">Mọi người</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p class="hint">“Cùng chơi”: mời người đó thưởng trà, thiền chung, thỉnh chuông, làm vườn, giải đố, chào nhau, ngồi cạnh hoặc chụp ảnh chung. Họ có thể đồng ý hoặc từ chối.</p>
     <p class="hint">Ẩn một người: bạn sẽ không thấy nhân vật, lời chúc, hoa đăng và biểu cảm của họ nữa. Họ không được thông báo.</p>
     <div id="peopleList" class="entries"></div>
     <h3 class="sub">Đã ẩn</h3>
@@ -162,6 +175,10 @@
   <aside id="journalPanel" class="panel wide" hidden aria-labelledby="journalTitle">
     <div class="panel-head"><div><span class="eyebrow">NHỮNG NGÀY Ở CHÙA</span><h2 id="journalTitle">Nhật ký</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
     <div id="journalStats" class="stats"></div>
+    <h3 class="sub">Câu chuyện</h3>
+    <div id="storyJournal" class="entries"></div>
+    <h3 class="sub">Kỷ niệm chung</h3>
+    <div id="memoryJournal" class="entries"></div>
     <form id="noteForm" class="card-form">
       <label for="note">Ghi lại một suy nghĩ (chỉ mình bạn đọc)</label>
       <textarea id="note" maxlength="400" rows="2" placeholder="Hôm nay mình biết ơn…"></textarea>
@@ -217,13 +234,28 @@
       <div class="row"><button id="meditationSound">Nhạc: bật</button><button id="endMeditation">Kết thúc thiền</button></div>
   </section>
 
+  <dialog id="journeyFinale" class="journey-finale" aria-labelledby="finaleTitle">
+    <span class="eyebrow">KẾT THÚC HÀNH TRÌNH</span>
+    <h2 id="finaleTitle"></h2>
+    <p id="finaleText" class="finale-text"></p>
+    <p id="finaleGifts" class="finale-gifts"></p>
+    <p id="finaleTeaser" class="hint"></p>
+    <button class="primary" id="finaleClose">Tiếp tục dạo chùa</button>
+  </dialog>
+
+  <aside id="hallPanel" class="panel" hidden aria-labelledby="hallTitle">
+    <div class="panel-head"><div><span class="eyebrow">CHÁNH ĐIỆN</span><h2 id="hallTitle"></h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div id="hallBody"></div>
+  </aside>
+
   <dialog id="dialogue">
     <div class="panel-head"><span class="eyebrow" id="dialogueName"></span><button class="close" id="dialogueClose" aria-label="Đóng hội thoại">×</button></div>
     <div class="dialogue-speaker">
       <canvas id="dialoguePortrait" width="240" height="240" role="img" hidden></canvas>
       <div><h2 id="dialogueTitle"></h2><small id="dialogueGesture" hidden></small></div>
     </div>
-    <p id="dialogueText"></p>
+    <p id="dialogueText" aria-live="polite"></p>
+    <div id="dialogueChoices" class="dialogue-choices" role="group" aria-label="Lựa chọn trả lời"></div>
     <div class="dialogue-foot"><small id="dialoguePage"></small><button class="primary" id="dialogueNext">Tiếp tục →</button></div>
   </dialog>
 
@@ -246,6 +278,61 @@
     <button id="petCat" class="primary">Xoa đầu · một chút dịu dàng</button>
     <button id="playCat" class="ghost">Chơi với mèo · lăn quả bóng nhỏ</button>
   </section>
+
+  <aside id="bowPanel" class="panel" hidden aria-labelledby="bowTitle">
+    <div class="panel-head"><div><span class="eyebrow">CHÁNH ĐIỆN · LẠY PHẬT</span><h2 id="bowTitle">Một phiên lạy</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p>Chọn số lần. Nhân vật sẽ chắp tay, quỳ, cúi lạy rồi đứng dậy theo nhịp chậm. Có thể tạm dừng, tiếp tục hoặc dừng sớm bất cứ lúc nào; chỉ những lần lạy trọn vẹn mới được ghi nhận.</p>
+    <div id="bowTargets" class="choice-row" role="group" aria-label="Số lần lạy"></div>
+    <small id="bowCurrent" class="hint"></small>
+  </aside>
+
+  <aside id="beadPanel" class="panel" hidden aria-labelledby="beadTitle">
+    <div class="panel-head"><div><span class="eyebrow">CHÁNH ĐIỆN · CHUỖI 108 HẠT</span><h2 id="beadTitle">Lần chuỗi</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <canvas id="beadCanvas" width="280" height="300" role="img" aria-label="Chuỗi 108 hạt, hạt đang lần ở trên cùng"></canvas>
+    <button type="button" id="beadNext" class="primary">Lần một hạt</button>
+    <small id="beadStatus" class="hint" role="status"></small>
+  </aside>
+
+  <aside id="readingPanel" class="panel wide" hidden aria-labelledby="readingHeading">
+    <div class="panel-head"><div><span class="eyebrow">GÓC ĐỌC VÀ TỤNG KINH</span><h2 id="readingHeading">Đọc chậm</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div id="readingList"><p id="readingNote" class="hint"></p><div id="readingItems" class="entries"></div></div>
+    <div id="readingView" hidden>
+      <div class="reading-tools">
+        <button type="button" id="readingBack" class="link">← Danh sách</button>
+        <label>Cỡ chữ <input type="range" id="readingSize" min="14" max="26" step="1"></label>
+        <label class="check"><input type="checkbox" id="readingMode">Từng đoạn một</label>
+        <label>Tự lật <select id="readingSpeed"><option value="0">Tắt</option><option value="12">Chậm</option><option value="8">Vừa</option><option value="5">Nhanh</option></select></label>
+      </div>
+      <h3 id="readingTitle"></h3>
+      <div id="readingText" class="reading-text" tabindex="0"></div>
+      <div class="reading-foot"><button type="button" id="readingPrev">← Đoạn trước</button><small id="readingPos"></small><button type="button" id="readingMark" class="link"></button><button type="button" id="readingNext">Đoạn tiếp →</button></div>
+      <small id="readingSource" class="hint"></small>
+      <details id="readingGlossaryBox"><summary>Giải thích thuật ngữ</summary><dl id="readingGlossary"></dl></details>
+      <p class="hint">Nghe đọc: chưa có bản thu được cấp phép sử dụng, nên tính năng này chưa triển khai.</p>
+    </div>
+  </aside>
+
+  <aside id="prayerPanel" class="panel wide" hidden aria-labelledby="prayerTitle">
+    <div class="panel-head"><div><span class="eyebrow">CHÁNH ĐIỆN</span><h2 id="prayerTitle">Sổ cầu nguyện</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <form id="prayerForm" class="card-form">
+      <label for="prayerText">Viết một lời nguyện</label>
+      <textarea id="prayerText" maxlength="300" rows="3" placeholder="Con nguyện cho…"></textarea>
+      <div class="row"><label class="check"><input type="checkbox" id="prayerPublicCheck">Cho mọi người trong phòng cùng đọc</label><small id="prayerCount">0/300</small></div>
+      <small class="hint">Mặc định chỉ mình bạn đọc được. Lời nguyện công khai có thể bị ẩn nếu bị báo cáo.</small>
+      <button id="prayerSend" class="primary">Ghi vào sổ</button>
+    </form>
+    <h3 class="sub">Của bạn</h3><div id="prayerMine" class="entries"></div>
+    <h3 class="sub">Lời nguyện công khai trong phòng</h3><div id="prayerPublic" class="entries"></div>
+  </aside>
+
+  <section id="practiceCard" class="practice-card" hidden aria-live="polite">
+    <span class="eyebrow">ĐANG LẠY</span><strong id="practiceTitle"></strong>
+    <div class="practice-bar"><span id="practiceBar"></span></div><small id="practiceCount"></small>
+    <div class="coop-row"><button type="button" id="practicePause"></button><button type="button" id="practiceEnd">Kết thúc</button></div>
+    <button type="button" id="practiceFocus" class="link">Chế độ tập trung</button>
+  </section>
+
+  <aside id="coop" class="coop" hidden aria-live="polite" aria-label="Cùng chơi"></aside>
 
   <form id="chatForm" class="chat" hidden autocomplete="off">
     <input id="chatInput" maxlength="100" placeholder="Nhấn Enter để trò chuyện với người cùng khu…" aria-label="Tin nhắn cho người cùng khu">

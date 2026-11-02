@@ -93,8 +93,11 @@ File ghi chú riêng giúp tránh cùng sửa tài liệu, **không bảo đảm
 
 ## Kiểm tra gần nhất
 
-- `npm run check`: đạt (126 file JavaScript).
-- `npm test`: **59/59 đạt**, gồm nhạc ngoài trời theo thời tiết, đóng popup khi đổi map, hình học tường cổng, mua/cho cá ăn, cách ly phòng, retry không trừ thêm túi, cá tụ lại, 8 khách trang trí, luồng pha trà và khả năng đi tới mọi cổng/vật tương tác.
+- Ngày 2026-11-03: merge `origin/main` tại `239801d` vào nhánh phụ, giải quyết 14 file conflict. Giữ toàn bộ object ID và dữ liệu truyện/lịch NPC/hợp tác của main; quầy vẫn ở bên phải (1120, 860), có điểm cho cá ăn và các lớp trang trí riêng.
+- Giữ cả pipeline WorldState/Narrative/Coop và fish feeding, cả NPC theo lịch và 8 nhân vật trang trí. Hội thoại giữ lựa chọn/hiệu ứng gõ chữ của main cùng cơ chế hủy request khi đổi map; kết thúc cả hội thoại server đang chờ và bỏ phản hồi cũ.
+- Cập nhật test registry NPC để phân biệt cư dân cố định với NPC có lịch; thêm regression test hội thoại server trả lời muộn sau khi đổi map.
+- `npm run check`: đạt (157 file JavaScript).
+- `npm test`: **90/90 đạt**, gồm cả Parse 2 (truyện, hợp tác, world state, hành trình, chánh điện) và các kiểm tra của nhánh phụ (cho cá ăn, khách trang trí, popup, nhạc, đường đi).
 - Chưa kiểm chứng trực quan bản mới trên điện thoại thật. Automated tests không thay thế kiểm tra hình ảnh và trải nghiệm thực tế.
 
 Tiếp tục ghi thay đổi của nhánh phụ vào file này; không ghi đè `IMPLEMENTATION_Parse2.md`, `IMPLEMENTATION_PROGRESS.md` hoặc `HANDOFF.md` mà main đang cập nhật.

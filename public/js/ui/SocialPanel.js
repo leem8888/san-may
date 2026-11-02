@@ -2,8 +2,8 @@ import { $, el, timeAgo, toast } from './dom.js';
 
 // Rooms (on the intro card), people in the current area (hide/unhide), and reporting lanterns.
 export class SocialPanel {
-  constructor({ api, net, game, panels, room, blocked, onBlockChange }) {
-    Object.assign(this, { api, net, game, panels, room, blocked, onBlockChange });
+  constructor({ api, net, game, panels, room, blocked, onBlockChange, onCoop }) {
+    Object.assign(this, { api, net, game, panels, room, blocked, onBlockChange, onCoop });
     $('#introRoom').textContent = room;
     $('#roomChooser').addEventListener('toggle', () => { if ($('#roomChooser').open) this.rooms(); });
     $('#joinRoomForm').addEventListener('submit', event => { event.preventDefault(); this.go($('#roomInput').value); });
@@ -34,7 +34,7 @@ export class SocialPanel {
   }
   async people() {
     const remotes = [...this.net.remotes.values()].filter(p => !this.blocked.has(p.id));
-    $('#peopleList').replaceChildren(...(remotes.length ? remotes.map(p => el('article', { class: 'entry person' }, el('p', { text: p.name }), el('button', { type: 'button', class: 'link', text: 'Ẩn người này', onclick: () => this.block(p.id, p.name) }))) : [el('p', { class: 'empty', text: 'Chưa có ai khác ở khu này.' })]));
+    $('#peopleList').replaceChildren(...(remotes.length ? remotes.map(p => el('article', { class: 'entry person' }, el('p', { text: p.name }), el('button', { type: 'button', class: 'link', text: 'Cùng chơi', onclick: () => this.onCoop?.(p) }), el('button', { type: 'button', class: 'link', text: 'Ẩn người này', onclick: () => this.block(p.id, p.name) }))) : [el('p', { class: 'empty', text: 'Chưa có ai khác ở khu này.' })]));
     try {
       const { blocked } = await this.api.get('/blocks');
       $('#blockedList').replaceChildren(...(blocked.length ? blocked.map(p => el('article', { class: 'entry person' }, el('p', { text: p.name }), el('button', { type: 'button', class: 'link', text: 'Bỏ ẩn', onclick: () => this.unblock(p.id, p.name) }))) : [el('small', { text: 'Bạn chưa ẩn ai.' })]));

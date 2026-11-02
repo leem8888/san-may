@@ -1,0 +1,62 @@
+{
+  "npc": "lakeStone",
+  "kind": "object",
+  "name": "PHIẾN ĐÁ BÊN HỒ",
+  "title": "Phiến đá phẳng",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "minh-letters": {
+            "chapter": 2,
+            "step": "read2"
+          }
+        }
+      },
+      "node": "letter2"
+    },
+    {
+      "node": "stone"
+    }
+  ],
+  "nodes": {
+    "stone": {
+      "lines": [
+        "Một phiến đá phẳng bên hồ, ngồi vừa một người. Mặt đá mát lạnh."
+      ]
+    },
+    "letter2": {
+      "mood": "calm",
+      "lines": [
+        "Dưới phiến đá có một gói giấy bọc kỹ.",
+        "“Thưa thầy. Ngày con mới đến, thầy chỉ bảo con ngồi yên nhìn hồ sen. Con tưởng thầy không muốn dạy.”",
+        "“Bây giờ con mới hiểu, thầy đã dạy con điều khó nhất.” — Người trồng sen."
+      ],
+      "choices": [
+        {
+          "id": "still",
+          "text": "Ngồi yên cũng là một bài học.",
+          "remember": {
+            "key": "letter2",
+            "value": "still"
+          },
+          "next": "letter2-reply"
+        },
+        {
+          "id": "thanks",
+          "text": "Mình cũng muốn cảm ơn một người thầy của mình.",
+          "remember": {
+            "key": "letter2",
+            "value": "thanks"
+          },
+          "next": "letter2-reply"
+        }
+      ]
+    },
+    "letter2-reply": {
+      "lines": [
+        "Bạn bọc lá thư lại như cũ, ngồi thêm một lúc bên hồ."
+      ]
+    }
+  }
+}

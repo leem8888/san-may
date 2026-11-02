@@ -12,6 +12,7 @@ import { seeded } from '../public/js/rendering/ground.js';
 test('exactly eight decorative visitors stay walkable and leave real NPC registries unchanged', () => {
   const maps=new Map(SCENE_IDS.map(id=>[id,JSON.parse(fs.readFileSync(new URL(`../public/data/maps/${id}.json`,import.meta.url),'utf8'))]));
   const scenes=new SceneManager(maps),crowd=new AmbientVisitors(scenes);
+  const registries=new Map(SCENE_IDS.map(id=>[id,[...scenes.get(id).npcs]]));
   assert.equal(crowd.people.length,8);
   assert.deepEqual(crowd.people.map(p=>p.name),VISITOR_NAMES);
   for(const p of crowd.people){
@@ -24,7 +25,10 @@ test('exactly eight decorative visitors stay walkable and leave real NPC registr
     for(const p of crowd.inScene(id))assert.equal(scenes.get(id).collision.blocked(p.x,p.y),false);
   }
   assert.equal(crowd.people.length,8);
-  for(const id of SCENE_IDS)assert.equal(scenes.get(id).npcs.length,maps.get(id).objects.filter(o=>o.type==='npc').length);
+  for(const id of SCENE_IDS){
+    assert.deepEqual(scenes.get(id).npcs,registries.get(id));
+    assert.equal(scenes.get(id).residents.length,maps.get(id).objects.filter(o=>o.type==='npc'&&!o.schedule).length);
+  }
 });
 
 test('visitor names persist across maps and random chat/icons expire without consecutive repeated lines', () => {

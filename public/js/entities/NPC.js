@@ -17,13 +17,17 @@ export class NPC {
     // Standing greeters occasionally bow as well as making their usual gestures.
     if (this.rest === 'idle' && this.gestures.length) this.gestures = [...new Set([...this.gestures, 'bow'])];
   }
+  // Turn toward something that just happened (a bell) for a few seconds.
+  look(at, seconds) { this.lookAt = at; this.lookFor = seconds; }
+  face(x, y) { this.direction = Math.abs(x - this.x) > Math.abs(y - this.y) ? (x > this.x ? 'right' : 'left') : (y > this.y ? 'down' : 'up'); }
   update(dt, player) {
     this.elapsed += dt;
+    if (this.lookFor > 0) { this.lookFor -= dt; this.face(this.lookAt.x, this.lookAt.y); }
     if (this.chat && !this.chat.chant && (this.chat.age += dt) >= CHAT_SECONDS) this.chat = null;
     if (Number.isFinite(DURATIONS[this.state]) && this.elapsed >= DURATIONS[this.state]) { this.state = this.rest; this.elapsed = 0; }
     const resting = this.state === this.rest;
     // Standing NPCs face a nearby visitor; seated ones keep facing the room.
-    if (this.rest === 'idle' && player && Math.hypot(player.x - this.x, player.y - this.y) < 160 && resting) this.direction = Math.abs(player.x - this.x) > Math.abs(player.y - this.y) ? (player.x > this.x ? 'right' : 'left') : (player.y > this.y ? 'down' : 'up');
+    if (!(this.lookFor > 0) && this.rest === 'idle' && player && Math.hypot(player.x - this.x, player.y - this.y) < 160 && resting) this.direction = Math.abs(player.x - this.x) > Math.abs(player.y - this.y) ? (player.x > this.x ? 'right' : 'left') : (player.y > this.y ? 'down' : 'up');
     if ((this.next -= dt) <= 0 && resting && this.gestures.length) { this.state = this.gestures[Math.floor(Math.random() * this.gestures.length)]; this.elapsed = 0; this.next = 7 + Math.random() * 8; }
     this.nextChat -= dt;
     if (this.nextChat <= 0 && !this.chat && this.lines.length && player && Math.hypot(player.x - this.x, player.y - this.y) < 340) {

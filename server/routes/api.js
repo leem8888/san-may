@@ -8,6 +8,9 @@ import { cleanName, cleanText, isObject, number, oneOf, roomCode } from '../vali
 import { isOffensive } from '../services/moderation.js';
 import { roomChannel } from '../services/rooms.js';
 import { noStore, rateLimit, requireAuth } from '../middleware/index.js';
+import { passages } from '../../public/js/shared/reading.js';
+// Reading texts, so positions and bookmarks are validated against real passages.
+const READING = new Map(JSON.parse(fs.readFileSync(path.join(PUBLIC_DIR, 'data', 'stories.json'), 'utf8')).items.map(i => [i.id, i]));
 
 const HIDE_AFTER_REPORTS = 3;
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -76,7 +79,8 @@ export function createApiRouter(ctx) {
     if (!room) return res.status(400).json({ error: 'Mã phòng không hợp lệ.' });
     const before = number(Number(req.query.before), 0, Number.MAX_SAFE_INTEGER) || Number.MAX_SAFE_INTEGER;
     const limit = number(Number(req.query.limit), 1, 30) || 15;
-    const wishes = repos.content.wishes({ room, viewer: req.playerId, before, limit });
+    const kind = req.query.kind === 'prayer' ? 'prayer' : 'wish';
+    const wishes = repos.content.wishes({ room, viewer: req.playerId, before, limit, kind });
     res.json({ wishes, more: wishes.length === limit });
   });
 
@@ -91,6 +95,24 @@ export function createApiRouter(ctx) {
       res.json({ ok: true, hidden: count >= HIDE_AFTER_REPORTS });
     };
   }
+  // Authors can delete their own wishes and prayers (public ones disappear for the room too).
+  router.delete('/wishes/:id', auth, (req, res) => {
+    const target = repos.content.wish(req.params.id);
+    if (!target || target.player_id !== req.playerId || !repos.content.deleteWish(target.id, req.playerId)) return res.status(404).json({ error: 'Không tìm thấy nội dung của bạn.' });
+    if (target.visibility === 'public') ctx.io.to(roomChannel(target.room)).emit('wish:hidden', { id: target.id });
+    res.json({ ok: true });
+  });
+  // Reading positions and bookmarks for the texts in /data/stories.json.
+  router.get('/reading', auth, (req, res) => res.json({ marks: repos.practice.marks(req.playerId) }));
+  router.put('/reading/:itemId', auth, rateLimit(30, 1), (req, res) => {
+    const item = READING.get(req.params.itemId), count = passages(item).length;
+    if (!item) return res.status(404).json({ error: 'Không tìm thấy bài đọc.' });
+    const position = Number.isInteger(req.body?.position) && req.body.position >= 0 && req.body.position < count ? req.body.position : null;
+    const bookmarks = Array.isArray(req.body?.bookmarks) ? [...new Set(req.body.bookmarks.map(Number).filter(n => Number.isInteger(n) && n >= 0 && n < count))].slice(0, 20) : [];
+    if (position === null) return res.status(400).json({ error: 'Vị trí không hợp lệ.' });
+    repos.practice.saveMark(req.playerId, item.id, position, bookmarks, Date.now());
+    res.json({ ok: true, position, bookmarks });
+  });
   router.post('/wishes/:id/report', auth, report('wish', repos.content.wish, repos.content.hideWish, 'wish:hidden'));
   router.post('/lanterns/:id/report', auth, report('lantern', repos.content.lantern, repos.content.hideLantern, 'lantern:hidden'));
 
@@ -109,6 +131,17 @@ export function createApiRouter(ctx) {
     res.json({ ...result, quests: progression.questList(req.playerId), items: [...repos.players.items(req.playerId)] });
   });
   router.get('/achievements', auth, (req, res) => res.json({ achievements: progression.achievementList(req.playerId) }));
+
+  // Stories the player has lived through, chapter by chapter, plus how well they know each NPC.
+  // Owner-only journey statistics: aggregate numbers, no player names or content. Requires OWNER_TOKEN.
+  router.get('/owner/journey', (req, res) => {
+    const token = req.get('x-owner-token') || '';
+    if (!ctx.config.ownerToken) return res.status(404).json({ error: 'Không tìm thấy.' });
+    const a = Buffer.from(token), b = Buffer.from(ctx.config.ownerToken);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(403).json({ error: 'Không có quyền.' });
+    res.json(ctx.journey.stats());
+  });
+  router.get('/stories', auth, (req, res) => res.json({ ...ctx.narrative.journal({ id: req.playerId }), memories: repos.coop.memories(req.playerId, 30) }));
 
   router.get('/journal', auth, (req, res) => {
     const before = number(Number(req.query.before), 0, Number.MAX_SAFE_INTEGER) || Number.MAX_SAFE_INTEGER;

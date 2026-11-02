@@ -37,10 +37,11 @@ export class NpcPortrait {
     const glow = c.createRadialGradient(112, 110, 10, 120, 120, 130);
     glow.addColorStop(0, '#d2b57833'); glow.addColorStop(1, '#18333000'); c.fillStyle = glow; c.fillRect(0, 0, 240, 240);
     c.scale(this.canvas.width / this.logicalSize, this.canvas.height / this.logicalSize); this.sprites.draw(c, this.person); c.restore();
-    this.caption.textContent = GESTURES[this.person.state] || 'Đang trò chuyện cùng bạn';
+    // A mood set by the conversation (server dialogue) wins over the idle gesture caption.
+    this.caption.textContent = this.moodText || GESTURES[this.person.state] || 'Đang trò chuyện cùng bạn';
   }
   stop() {
     if (this.raf) cancelAnimationFrame(this.raf);
-    this.raf = 0; this.person = null; this.canvas.hidden = true; this.caption.hidden = true;
+    this.raf = 0; this.person = null; this.moodText = ''; this.canvas.hidden = true; this.caption.hidden = true;
   }
 }

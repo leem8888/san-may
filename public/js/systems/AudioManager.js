@@ -57,7 +57,9 @@ export class AudioManager {
   schedule() {
     if (!this.running) return;
     const c = this.context, t = c.currentTime;
-    for (const [name, node] of Object.entries(this.loops)) node.gain.gain.setTargetAtTime((this.target[name] || 0) * { wind: .16, water: .2, rain: .1, leaves: .05, room: .12 }[name], t, 1.2);
+    // Meditation nature sound (rain / stream / wind) rides on the same synthesised loops.
+    const nature = { rain: 'rain', stream: 'water', wind: 'wind' }[this.nature];
+    for (const [name, node] of Object.entries(this.loops)) node.gain.gain.setTargetAtTime(((this.target[name] || 0) + (name === nature ? 1.2 : 0)) * { wind: .16, water: .2, rain: .1, leaves: .05, room: .12 }[name], t, 1.2);
     this.loops.wind.filter.frequency.setTargetAtTime(320 + Math.sin(t * .3) * 140 + Math.sin(t * 1.1) * 60, t, .5);
     if ((this.target.birds || 0) > .05 && t > this.nextChirp) { this.chirp(this.target.birds); this.nextChirp = t + 1.5 + Math.random() * 5; }
     if ((this.target.water || 0) > .3 && Math.random() < .08) this.tone(900 + Math.random() * 600, .08, .015 * this.target.water, 'ambient', 'sine', 1.6);
@@ -93,7 +95,8 @@ export class AudioManager {
     o.connect(g).connect(this.bus[bus]); o.start(start); o.stop(start + duration + .05); o.onended = () => { o.disconnect(); g.disconnect(); };
   }
   click() { this.tone(880, .07, .03, 'ui', 'triangle'); }
-  step() { if (!this.running) return; const c = this.context, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = this.noise; f.type = 'lowpass'; f.frequency.value = 420; g.gain.setValueAtTime(.05, c.currentTime); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .09); s.connect(f).connect(g).connect(this.bus.sfx); s.start(c.currentTime, Math.random()); s.stop(c.currentTime + .1); }
+  // Footsteps: soft stone outdoors, a lower, hollower knock on the wooden floors indoors.
+  step(surface = 'stone') { if (!this.running) return; const c = this.context, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = this.noise; f.type = 'lowpass'; f.frequency.value = surface === 'wood' ? 260 : 420; if (surface === 'wood') this.tone(118 + Math.random() * 12, .07, .02, 'sfx', 'triangle', .8); g.gain.setValueAtTime(.05, c.currentTime); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .09); s.connect(f).connect(g).connect(this.bus.sfx); s.start(c.currentTime, Math.random()); s.stop(c.currentTime + .1); }
   chirp(level) { const base = 2200 + Math.random() * 1400; for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) this.tone(base, .09, .018 * level, 'ambient', 'sine', 1.3 + Math.random() * .3, this.context.currentTime + i * .13); }
   bell() { [174, 348, 522, 705].forEach((f, i) => this.tone(f, 4 - i * .45, .1 / (i + 1))); }
   bigBell() { [73, 110, 146, 220, 293].forEach((f, i) => this.tone(f, 9 - i * 1.2, .14 / (i + 1))); }
@@ -110,6 +113,7 @@ export class AudioManager {
     const roots = [146.8, 164.8, 196, 220], root = roots[Math.floor(Math.random() * roots.length)];
     for (const [ratio, gain] of [[1, .05], [1.5, .032], [2, .022], [3, .009]]) this.tone(root * ratio, 7.5, gain * level, 'music', 'sine', 1, when);
   }
+  setNature(kind) { this.nature = kind || null; }
   setChant(on) { this.chanting = on; if (on && this.running) { this.nextBeat = this.context.currentTime + .1; this.beat = 0; } }
   setMeditationMusic(on) { this.meditationMusic = on; if (on && this.running) this.nextNote = this.context.currentTime + .1; }
   destroy() { clearInterval(this.timer); this.context?.close(); }

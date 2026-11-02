@@ -29,3 +29,15 @@ test('a pending dialogue cannot open after scene cleanup', async () => {
   const pending=panel.open('novice');panel.close();panel.game.scene={id:'courtyard'};
   resolve({pages:['Hello']});await pending;assert.equal(panel.entry,undefined);assert.equal(stopped,1);
 });
+
+test('scene cleanup ends a pending server conversation and ignores its late reply', async () => {
+  let resolve; const calls=[];
+  const panel=Object.assign(Object.create(DialoguePanel.prototype),{
+    request:0,game:{scene:{id:'gate'}},portrait:{stop(){}},dialog:{open:false},
+    net:{request(event){calls.push(event);return event==='dialogue:start'?new Promise(r=>{resolve=r;}):Promise.resolve({});}},
+    begin(){assert.fail('late conversation reopened');},render(){assert.fail('late conversation rendered');},
+  });
+  const pending=panel.openServer({id:'novice'});panel.close();panel.game.scene={id:'courtyard'};
+  resolve({view:{name:'An'},story:{}});await pending;
+  assert.deepEqual(calls,['dialogue:start','dialogue:end']);assert.equal(panel.server,undefined);
+});

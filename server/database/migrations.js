@@ -221,4 +221,152 @@ export const MIGRATIONS = [
       CREATE INDEX temple_offerings_room_time ON temple_offerings(room, created_at);
     `,
   },
+  {
+    version: 4,
+    name: 'world state, stories, dialogue memory and npc relationships',
+    up: `
+      -- One row per (scope, owner, scene, object, type). owner is a player id (personal), a room code (room) or 'world' (shared).
+      CREATE TABLE world_state (
+        id TEXT PRIMARY KEY,
+        scope TEXT NOT NULL CHECK (scope IN ('personal', 'room', 'shared')),
+        owner TEXT NOT NULL,
+        scene_id TEXT NOT NULL,
+        object_id TEXT NOT NULL,
+        state_type TEXT NOT NULL,
+        value TEXT NOT NULL,
+        version INTEGER NOT NULL DEFAULT 1,
+        updated_at INTEGER NOT NULL,
+        expires_at INTEGER
+      );
+      CREATE INDEX world_state_lookup ON world_state (scope, owner, scene_id);
+      CREATE INDEX world_state_expiry ON world_state (expires_at) WHERE expires_at IS NOT NULL;
+      CREATE TABLE story_progress (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        story_id TEXT NOT NULL,
+        chapter INTEGER NOT NULL,
+        step TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('active', 'completed')),
+        started_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        completed_at INTEGER,
+        PRIMARY KEY (player_id, story_id)
+      );
+      CREATE TABLE story_flags (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        flag TEXT NOT NULL,
+        value TEXT NOT NULL,
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (player_id, flag)
+      );
+      CREATE TABLE dialogue_choices (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        npc_id TEXT NOT NULL,
+        choice_key TEXT NOT NULL,
+        value TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        PRIMARY KEY (player_id, npc_id, choice_key)
+      );
+      CREATE TABLE npc_relationships (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        npc_id TEXT NOT NULL,
+        met_at INTEGER NOT NULL,
+        talks INTEGER NOT NULL DEFAULT 0,
+        familiarity INTEGER NOT NULL DEFAULT 0,
+        last_talk_day TEXT,
+        activities TEXT NOT NULL DEFAULT '[]',
+        PRIMARY KEY (player_id, npc_id)
+      );
+      -- Story beats the player has lived through, so the journal can retell each chapter.
+      CREATE TABLE story_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        story_id TEXT NOT NULL,
+        chapter INTEGER NOT NULL,
+        text TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX story_log_player ON story_log (player_id, story_id, id);
+    `,
+  },
+  {
+    version: 5,
+    name: 'cooperative sessions and shared memories',
+    up: `
+      -- Finished two-person activities (live sessions stay in memory; only the outcome is kept).
+      CREATE TABLE coop_sessions (
+        id TEXT PRIMARY KEY,
+        room_code TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        host_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        guest_id TEXT REFERENCES players(id) ON DELETE SET NULL,
+        status TEXT NOT NULL,
+        result TEXT NOT NULL DEFAULT '{}',
+        created_at INTEGER NOT NULL,
+        started_at INTEGER,
+        ended_at INTEGER NOT NULL
+      );
+      CREATE INDEX coop_sessions_host ON coop_sessions (host_id, ended_at);
+      CREATE INDEX coop_sessions_guest ON coop_sessions (guest_id, ended_at);
+      -- A memory each participant keeps of a completed activity.
+      CREATE TABLE shared_memories (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL REFERENCES coop_sessions(id) ON DELETE CASCADE,
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        partner_name TEXT,
+        kind TEXT NOT NULL,
+        text TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX shared_memories_player ON shared_memories (player_id, created_at);
+    `,
+  },
+  {
+    version: 6,
+    name: 'journey telemetry',
+    up: `
+      -- Privacy-first journey telemetry: a one-way player key, event names, stage numbers and active seconds only.
+      -- Never chat, prayers, written answers or names.
+      CREATE TABLE journey_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        journey TEXT NOT NULL,
+        player_key TEXT NOT NULL,
+        event TEXT NOT NULL,
+        stage INTEGER,
+        seconds INTEGER,
+        solo INTEGER,
+        created_at INTEGER NOT NULL
+      );
+      CREATE INDEX journey_events_key ON journey_events (journey, player_key, created_at);
+    `,
+  },
+  {
+    version: 7,
+    name: 'main hall: bow sessions, reading marks, prayer book',
+    up: `
+      -- A chosen bowing session (9/27/54/108); the existing 108 round counters keep working alongside it.
+      CREATE TABLE practice_sessions (
+        id TEXT PRIMARY KEY,
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        type TEXT NOT NULL CHECK (type IN ('bow', 'bead')),
+        target INTEGER NOT NULL,
+        done INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL CHECK (status IN ('active', 'paused', 'completed', 'ended')),
+        started_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE INDEX practice_sessions_player ON practice_sessions (player_id, status);
+      -- Where the reader stopped in each text, and their bookmarks.
+      CREATE TABLE reading_marks (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        item_id TEXT NOT NULL,
+        position INTEGER NOT NULL DEFAULT 0,
+        bookmarks TEXT NOT NULL DEFAULT '[]',
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (player_id, item_id)
+      );
+      -- The Main Hall prayer book reuses wishes: same privacy, moderation and reports, a different kind.
+      ALTER TABLE wishes ADD COLUMN kind TEXT NOT NULL DEFAULT 'wish';
+      CREATE INDEX wishes_room_kind ON wishes (room, kind, created_at);
+    `,
+  },
 ];

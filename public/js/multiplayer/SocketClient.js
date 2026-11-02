@@ -1,7 +1,7 @@
 import { RemotePlayer } from './RemotePlayer.js';
 import { Clock, RENDER_DELAY } from './Interpolation.js';
 
-const FORWARDED = ['bell:ring', 'wish:new', 'wish:reaction', 'wish:hidden', 'lantern:new', 'lantern:hidden', 'progress:events', 'meditation:ended', 'player:correct', 'player:emote', 'session:replaced', 'garden:update', 'chat:message', 'incense:new', 'sand:update', 'offering:update', 'fish:fed'];
+const FORWARDED = ['bell:ring', 'wish:new', 'wish:reaction', 'wish:hidden', 'lantern:new', 'lantern:hidden', 'progress:events', 'meditation:ended', 'player:correct', 'player:emote', 'session:replaced', 'garden:update', 'chat:message', 'world:delta', 'story:update', 'coop:invite', 'coop:state', 'coop:complete', 'coop:sit', 'coop:photo', 'meditation:begin', 'sand:update', 'offering:update', 'fish:fed', 'incense:new'];
 const SEND_INTERVAL = 80; // ~12 position updates per second while moving, nothing while still
 
 // `connect` is the socket.io `io` factory (injected so Node tests can pass socket.io-client).
@@ -10,6 +10,7 @@ export class SocketClient {
     this.connect = connect; this.handlers = handlers; this.socket = null; this.room = null; this.sceneId = null; this.selfId = null;
     this.remotes = new Map(); this.clock = new Clock(); this.last = { at: -Infinity, x: NaN, y: NaN, direction: '', state: '' };
   }
+  on(event, handler) { this.handlers[event] = handler; }
   get connected() { return Boolean(this.socket?.connected); }
   start(token) {
     this.stop();

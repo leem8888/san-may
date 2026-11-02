@@ -20,6 +20,7 @@ export function loadWorld(dir) {
   const base = id => scenes.get(String(id).split(':')[0]);
   return {
     ids: [...scenes.keys()],
+    maps: new Map([...scenes].map(([id, scene]) => [id, scene.map])),
     has: id => Boolean(base(id)),
     map: id => base(id)?.map,
     spawn(id, name = 'default') { const map = base(id).map, [x, y] = map.spawns[name] || map.spawns.default; return { x, y }; },

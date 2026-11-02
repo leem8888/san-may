@@ -3,7 +3,8 @@ import { drawCharacter } from './CharacterArt.js';
 export function ellipse(c, x, y, rx, ry, color) { c.fillStyle = color; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); c.fill(); }
 export function polygon(c, points, color, stroke) { c.beginPath(); points.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = color; c.fill(); if (stroke) { c.strokeStyle = stroke; c.stroke(); } }
 export const SPRITE_FRAME = { width: 96, height: 128, paddingX: 16, paddingY: 24, footY: 104 };
-const FRAMES = 8, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
+// Most states use 8 frames; the full prostration (stand, join hands, kneel, bow, rise) needs more to stay smooth.
+const FRAMES = 8, FRAMES_BY_STATE = { bow: 24 }, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
 
 const STATES = Object.keys(DURATIONS), DIRS = ['down', 'left', 'right', 'up'];
 export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.characterStyle || 'adult'].join('|');
@@ -16,11 +17,12 @@ export class SpriteRenderer {
     const key = `${appearanceKey(look)}|${state}|${dir}`;
     let strip = this.cache.get(key);
     if (strip) { this.cache.delete(key); this.cache.set(key, strip); return strip; }
-    strip = document.createElement('canvas'); strip.width = CELL_W * FRAMES; strip.height = CELL_H;
+    const frames = FRAMES_BY_STATE[state] || FRAMES;
+    strip = document.createElement('canvas'); strip.width = CELL_W * frames; strip.height = CELL_H;
     const c = strip.getContext('2d');
-    for (let f = 0; f < FRAMES; f++) {
+    for (let f = 0; f < frames; f++) {
       c.save(); c.beginPath(); c.rect(f * CELL_W, 0, CELL_W, CELL_H); c.clip();
-      c.translate(f * CELL_W + SPRITE_FRAME.paddingX, SPRITE_FRAME.paddingY); drawCharacter(c, state, f, dir, look); c.restore();
+      c.translate(f * CELL_W + SPRITE_FRAME.paddingX, SPRITE_FRAME.paddingY); drawCharacter(c, state, f, dir, look, frames); c.restore();
     }
     this.cache.set(key, strip);
     if (this.cache.size > this.limit) this.cache.delete(this.cache.keys().next().value);
@@ -28,7 +30,7 @@ export class SpriteRenderer {
   }
   frame(p) {
     const state = STATES.includes(p.state) ? p.state : 'idle', duration = DURATIONS[state];
-    return { state, index: Math.floor((Number.isFinite(duration) ? Math.min(.999, p.elapsed / duration) : p.elapsed / (state === 'meditate' ? 4 : 1.2) % 1) * FRAMES) };
+    return { state, index: Math.floor((Number.isFinite(duration) ? Math.min(.999, p.elapsed / duration) : p.elapsed / (state === 'meditate' ? 4 : 1.2) % 1) * (FRAMES_BY_STATE[state] || FRAMES)) };
   }
   draw(c, p) {
     const { state, index } = this.frame(p), look = p.appearance || DEFAULT_APPEARANCE;
@@ -43,6 +45,8 @@ export class SpriteRenderer {
     const width = c.measureText(p.name).width + 18;
     c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, 20, 8); c.fill();
     c.fillStyle = self ? '#ffe2a4' : p.npc ? '#f1d9a8' : '#d1e5ce'; c.fillText(p.name, p.x, top + 14);
+    // A gold mark beside the name: this NPC has a new part of a story for the player.
+    if (p.highlight) { const bx = p.x + width / 2 + 9, by = top + 10, pulse = 1 + Math.sin(performance.now() / 300) * .08; c.fillStyle = '#e9c47a'; c.beginPath(); c.arc(bx, by, 8 * pulse, 0, Math.PI * 2); c.fill(); c.fillStyle = '#21352b'; c.font = 'bold 12px system-ui'; c.fillText('!', bx, by + 4); }
     const above = p.chat ? chatBubble(c, p.x, top - 6, p.chat.text, p.chat.age) : 0;
     if (p.emote) emoteBubble(c, p.x, top - 6 - above, p.emote.emote, p.emote.age);
   }
