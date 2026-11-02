@@ -11,6 +11,7 @@ const DIRECTIONS = ['up', 'down', 'left', 'right'];
 const minutes = seconds => seconds >= 60 ? `${Math.round(seconds / 60)} phút` : `${seconds} giây`;
 const reply = ack => typeof ack === 'function' ? ack : () => {};
 const ACTIVITY_TEXT = {
+  fortune: data => `Xin một quẻ ở Chánh Điện: ${cleanText(data?.title, 60) || 'quẻ không tên'}.`,
   sand: () => 'Cào một khu vườn cát.', sweep: () => 'Quét sạch lá trong sân chùa.', chant: () => 'Ngồi nghe tụng kinh trong Chánh Điện.',
   tea: data => `Pha và thưởng một chén trà${data?.tea ? ` ${cleanText(data.tea, 20)}` : ''}.`, stories: data => `Đọc “${cleanText(data?.title, 60) || 'một trang sách'}” ở Thư Viện.`,
 };
@@ -29,6 +30,7 @@ const ACTIVITY_TEXT = {
  *   wish:react {wishId, emoji|null}        → {ok}; broadcast wish:reaction
  *   lantern:release {objectId, text, style, clientId} → {ok, lantern}; broadcast lantern:new
  *   meditation:start {minutes} / meditation:finish {} → session / result
+ *   chat:send {text}                       → {ok}; broadcast chat:message {id, name, text, at} to the same area (not stored)
  *   activity:complete {objectId, title?, tea?} → {ok}; journal entry for sand/sweep/tea/stories/chant, proximity + 20 s rate limit
  * Server → client: room:state {sceneId, t, full, players[]}, room:online, player:join, player:leave,
  *   player:update, player:correct, progress:events, meditation:ended, session:replaced.
@@ -159,7 +161,7 @@ export function attachSockets(io, ctx) {
       self = {
         id: playerId, socketId: socket.id, room: code, name: profile.name, appearance: profile.appearance, sceneId, ...position,
         direction: 'down', state: 'idle', actionAt: now, moved: false, lastMoveAt: now, dirty: true, locationDirty: false,
-        historyId: repos.rooms.recordJoin(code, playerId, now), meditation: null, lastWishAt: 0, lastLanternAt: 0, lastEmoteAt: 0, recent: new Map(), activities: new Map(),
+        historyId: repos.rooms.recordJoin(code, playerId, now), meditation: null, lastWishAt: 0, lastLanternAt: 0, lastEmoteAt: 0, lastChatAt: 0, recent: new Map(), activities: new Map(),
       };
       room.players.set(playerId, self);
       socket.join(roomChannel(code)); socket.join(scene(self));
@@ -222,6 +224,19 @@ export function attachSockets(io, ctx) {
       if (!p || !emote || now - p.lastEmoteAt < COOLDOWNS.emote) return;
       p.lastEmoteAt = now;
       io.to(scene(p)).emit('player:emote', { id: p.id, emote, at: now });
+    });
+
+    // Speech bubbles for people in the same area. Realtime only: chat is never written to the database.
+    socket.on('chat:send', (data, ack) => {
+      ack = reply(ack);
+      const p = self, text = cleanText(data?.text, LIMITS.chat), now = Date.now();
+      if (!p) return ack({ error: 'Hãy vào phòng trước.' });
+      if (!text) return ack({ error: 'Tin nhắn trống.' });
+      if (isOffensive(text)) return ack({ error: 'Tin nhắn có từ ngữ chưa phù hợp.' });
+      if (now - p.lastChatAt < COOLDOWNS.chat) return ack({ error: 'Chậm lại một chút nhé.' });
+      p.lastChatAt = now;
+      io.to(scene(p)).emit('chat:message', { id: p.id, name: p.name, text, at: now });
+      ack({ ok: true, text });
     });
 
     socket.on('practice:complete', (data, ack) => {

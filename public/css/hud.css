@@ -16,7 +16,7 @@ nav button[aria-expanded=true]{background:#3c5e4d;border-color:#d9b77e88}
 .area-title{position:absolute;left:50%;top:22%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;z-index:2;text-shadow:0 3px 14px #061c21;white-space:nowrap}
 .area-title strong{display:block;font:normal 44px "Palatino Linotype","Book Antiqua",Georgia,serif;margin-top:8px;color:#f6ecd2}
 .area-title.show{animation:title 4.2s ease-out forwards}
-.world-caption{position:absolute;bottom:38px;left:30px;pointer-events:none;text-shadow:0 2px 6px #102625}
+.world-caption{position:absolute;bottom:72px;left:30px;pointer-events:none;text-shadow:0 2px 6px #102625}
 .world-caption p{font:italic 17px "Palatino Linotype","Book Antiqua",Georgia,serif;margin:7px 0}
 .hud-bottom{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2}
 .actions{display:flex;padding:5px;gap:4px;background:#102625e8;border:1px solid #b6b68a55;border-radius:17px;box-shadow:0 10px 30px #10262555;backdrop-filter:blur(12px)}
@@ -35,3 +35,6 @@ nav button[aria-expanded=true]{background:#3c5e4d;border-color:#d9b77e88}
 #toast.show{opacity:1}
 #joystick{display:none;position:absolute;left:22px;bottom:34px;width:110px;height:110px;border-radius:50%;border:1px solid #c2c8a977;background:#183c3066;touch-action:none;place-items:center;z-index:2}
 #joystick span{display:block;width:46px;height:46px;background:#d5c09488;border:1px solid #dfcc9d;border-radius:50%;pointer-events:none}
+.chat{position:absolute;left:24px;bottom:20px;width:min(340px,calc(50vw - 230px));display:flex;gap:6px;z-index:2}
+.chat input{padding:9px 12px;font-size:13px;background:#102625dd;backdrop-filter:blur(10px)}
+.chat button{font-size:12px;padding:8px 12px}

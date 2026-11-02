@@ -23,7 +23,7 @@ Mở http://localhost:43127/?room=MAY-01.
 
 ```powershell
 npm run check   # cú pháp mọi file JS + JSON hợp lệ
-npm test        # 24 test: logic, REST, Socket.IO thật, SQLite in-memory, thế giới
+npm test        # 26 test: logic, REST, Socket.IO thật, SQLite in-memory, thế giới
 ```
 
 `npm test` chạy trong một tiến trình (tương thích môi trường Windows chặn tạo test worker). Test thế giới đi bộ thử trên lưới với bán kính nhân vật thật để chắc mọi cổng và vật tương tác đều tới được.
@@ -37,12 +37,13 @@ Thử nhiều người trên một máy: mở thêm cửa sổ ẩn danh/trình 
 | WASD / mũi tên, chạm vào cảnh, joystick | Di chuyển |
 | E hoặc chạm vào vật/người | Tương tác (đi tới rồi tương tác) |
 | 1 / 2 / 3 / 4 | Lạy / lần chuỗi / chắp tay / vẫy chào |
+| Enter | Mở ô chat; Enter để gửi (bong bóng hiện trên tên 6 giây cho người cùng khu); Esc để quay lại |
 | M / J / Q | Bản đồ / Nhật ký / Nhiệm vụ |
 | Esc | Đóng bảng |
 
 Tám khu: Cổng Tam Quan → Sân Chùa; từ sân đi Chánh Điện (bắc), Vườn Thiền (tây), Hồ Sen (đông); Hồ Sen → Tháp Chuông; Vườn Thiền → Rừng Trúc → Thư Viện. Vườn Thiền có cổng vào **vườn riêng** của mỗi người.
 
-Hoạt động: lạy và lần chuỗi 108 (chỉ tính khi động tác trọn vẹn, server xác nhận), thiền 3–30 phút (đồng hồ do server giữ, chạy cả khi chuyển tab), thỉnh chuông nhỏ và đại hồng chung, thả hoa đăng, lời chúc công khai/riêng tư có cảm xúc và báo cáo, vẽ vườn cát (lưu mẫu), quét lá, pha trà, đọc truyện và lời kinh có ghi nguồn, nghe tụng kinh, trồng và tưới cây, sắp đặt vườn, nhiệm vụ ngày/tuần, 10 thành tựu, nhật ký, hồ sơ và đổi trang phục bằng vật phẩm đã nhận. Ngày đêm theo giờ thật (hoặc chu kỳ nhanh/cố định) và thời tiết thay đổi theo phòng.
+Hoạt động: lạy và lần chuỗi 108 (chỉ tính khi động tác trọn vẹn, server xác nhận), thiền 3–30 phút (đồng hồ do server giữ, chạy cả khi chuyển tab), thỉnh chuông nhỏ và đại hồng chung, thả hoa đăng, lời chúc công khai/riêng tư có cảm xúc và báo cáo, vẽ vườn cát (lưu mẫu), quét lá, pha trà, đọc truyện và lời kinh có ghi nguồn, nghe thầy trụ trì kể chuyện, xin quẻ, ngồi thiền và nghe tụng kinh trong Chánh Điện, tiếng chuông chùa vọng lại vài phút một lần, trồng và tưới cây, sắp đặt vườn, nhiệm vụ ngày/tuần, 10 thành tựu, nhật ký, hồ sơ và đổi trang phục bằng vật phẩm đã nhận. Ngày đêm theo giờ thật (hoặc chu kỳ nhanh/cố định) và thời tiết thay đổi theo phòng.
 
 ## Danh tính và dữ liệu
 

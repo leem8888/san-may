@@ -50,10 +50,22 @@ Thứ tự đã chọn: **M1 backend (Phase 4 + lõi Phase 5) → M2 world (Phas
 - `README.md` viết lại (chạy, cấu hình, triển khai sau reverse proxy, kiến trúc, 12 bước kiểm thử thủ công, giới hạn). Đầu `IMPLEMENTATION_PROGRESS.md` cập nhật.
 - `npm test` **24/24**.
 
+### Bổ sung sau M5 — chat bong bóng
+- `chat:send {text}` → server làm sạch, tối đa 100 ký tự (`LIMITS.chat`), lọc từ, 1,2s/lần, phát `chat:message` cho người **cùng phòng và cùng khu**; không lưu DB. Client vẽ bong bóng (`chatBubble` trong `SpriteRenderer.js`, tự xuống dòng tối đa 4 dòng) trên tên trong `CHAT_SECONDS` = 6 giây, mờ dần; người đã ẩn không hiện. Enter mở ô chat (`InputManager` chặn hành vi mặc định của Enter để không tự gửi form rỗng), Esc/Enter rỗng quay lại game.
+- Test: `npm test` 25/25 (thêm test chat). Browser: hai phiên Edge, bong bóng hiện ở phiên kia và biến mất sau 6 giây.
+
+### Bổ sung — Chánh Điện và chuông chùa
+- **Chuông chùa thỉnh thoảng**: `AudioManager.schedule()` phát `templeBell()` (tổng hợp, kênh môi trường) lần đầu sau 40–90 giây, sau đó mỗi 2–5 phút; `onTempleBell` hiện thông báo ngắn và làm đại hồng chung đung đưa nếu đang ở Tháp Chuông. Chỉ phía client, không đồng bộ giữa người chơi.
+- **Thầy Viên Minh · Trụ trì** (NPC `abbot` ở Chánh Điện): `dialogues.json` có `randomStory: true` → `JsonDialogueProvider` chèn một truyện ngẫu nhiên từ `stories.json` (kèm câu suy ngẫm + nguồn), không lặp truyện ngay trước đó. Thêm 4 truyện: Chiếc bè (MN 22), Người mù xem voi (Udāna 6.4), Chén trà đầy, Vẫn còn cõng (giai thoại Thiền) — tổng 13.
+- **Thiền trong Chánh Điện**: bồ đoàn `hallZen1`, `hallZen2` (`action: meditate`).
+- **Xin quẻ**: object `fortune` (prop ống xăm, rung khi lắc qua `game.fortuneShake`), `ui/FortunePanel.js`, `public/data/fortunes.json` (12 quẻ tự viết, ghi rõ là lời suy ngẫm). Rút ngẫu nhiên ở client, 30 giây/lần; server chỉ ghi nhật ký qua `activity:complete` khi đứng cạnh ống xăm.
+- **Âm lượng Chánh Điện**: mõ và chuông gõ to gấp đôi; nhạc nền (pad) tự phát nhẹ khi ở trong Chánh Điện (`hallMusic`).
+- `AssetLoader` nạp thêm `stories.json`, `fortunes.json`. `npm test` 26/26. Browser: nghe chuyện thầy trụ trì (truyện ngẫu nhiên + nguồn), chạm ống xăm → đi tới → rút quẻ; thông báo chuông chùa tự xuất hiện. **Âm thanh mới vẫn chưa được nghe thử bằng tai.**
+
 ## Đọc trước khi sửa
 
 1. `README.md` (chạy, kiến trúc) rồi các mục M1–M5 ở trên.
-2. `npm install`, `npm run check`, `npm test` để xác nhận baseline (24/24).
+2. `npm install`, `npm run check`, `npm test` để xác nhận baseline (26/26).
 3. `npm start`, mở `http://localhost:43127/?room=MAY-01`. Thử nhiều người: cửa sổ ẩn danh hoặc `&slot=2`. QA chụp hình: `&debug=1`.
 4. Bản đồ JSON trong `public/data/maps/` là nguồn chính (script sinh ban đầu không nằm trong repo). Sau khi sửa bản đồ, chạy `npm test` — `tests/world.test.mjs` sẽ báo nếu cổng/vật không còn đi tới được.
 5. Thêm migration mới thì nối vào cuối `server/database/migrations.js`, không sửa migration cũ.

@@ -5,6 +5,9 @@ export class InputManager {
     window.addEventListener('keydown', e => {
       if (!this.active || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
       const key = e.key.toLowerCase(); if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)) e.preventDefault();
+      // Enter on a focused button keeps its normal click; elsewhere it opens chat, so its default must not
+      // follow the focus into the chat box (it would submit the still-empty form straight away).
+      if (key === 'enter') { if (e.target.tagName === 'BUTTON') return; e.preventDefault(); }
       this.keys.add(key); if (!e.repeat) onAction(key);
     }, opts);
     window.addEventListener('keyup', e => this.keys.delete(e.key.toLowerCase()), opts);

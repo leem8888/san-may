@@ -11,15 +11,17 @@ export class AssetLoader {
   }
   async load(onProgress = () => {}) {
     if (this.cache.has('maps')) return this;
-    const files = [...[...SCENE_IDS, 'garden'].map(id => `/data/maps/${id}.json`), '/data/dialogues.json'], total = files.length;
+    const content = ['dialogues', 'stories', 'fortunes'];
+    const files = [...[...SCENE_IDS, 'garden'].map(id => `/data/maps/${id}.json`), ...content.map(name => `/data/${name}.json`)], total = files.length;
     let done = 0;
     const results = await Promise.all(files.map(url => this.json(url).then(data => { onProgress(++done, total); return data; })));
     const maps = new Map();
-    for (const map of results.slice(0, -1)) {
+    for (const map of results.slice(0, -content.length)) {
       if (!map.id || !map.width || !Array.isArray(map.obstacles) || !map.spawns?.default) throw Error(`Dữ liệu bản đồ không hợp lệ: ${map.id || '?'}`);
       maps.set(map.id, map);
     }
-    this.cache.set('maps', maps); this.cache.set('dialogues', results.at(-1));
+    this.cache.set('maps', maps);
+    content.forEach((name, i) => this.cache.set(name, results[results.length - content.length + i]));
     return this;
   }
 }

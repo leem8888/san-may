@@ -2,8 +2,16 @@ import { $ } from './dom.js';
 
 // Dialogue content comes from a provider so a future AI-backed NPC can replace the JSON one.
 export class JsonDialogueProvider {
-  constructor(data) { this.data = data; }
-  async get(id) { const entry = this.data[id]; if (!entry) throw Error('Chưa có lời thoại.'); return entry; }
+  constructor(data, stories = []) { this.data = data; this.stories = stories; this.lastStory = null; }
+  async get(id) {
+    const entry = this.data[id];
+    if (!entry) throw Error('Chưa có lời thoại.');
+    if (!entry.randomStory || !this.stories.length) return entry;
+    // Storytellers pick a different sourced story each time (never the same one twice in a row).
+    const choices = this.stories.filter(s => s.id !== this.lastStory), story = choices[Math.floor(Math.random() * choices.length)];
+    this.lastStory = story.id;
+    return { ...entry, pages: [...entry.pages, `“${story.title}”\n\n${story.text}`, `${story.reflect}\n\nNguồn: ${story.source}`, entry.closing].filter(Boolean) };
+  }
 }
 
 export class DialoguePanel {

@@ -135,6 +135,16 @@ export const PROPS = {
   },
   mo(c, o, env) { const { x, y } = o; shadow(c, x, y, 34, 8, env); ellipse(c, x - 12, y - 6, 20, 8, '#7a3e30'); ellipse(c, x - 12, y - 14, 16, 11, '#a0643a'); ellipse(c, x - 16, y - 16, 5, 3, '#5a3020'); line(c, x - 2, y - 26, x + 6, y - 38, '#8a6a46', 3); ellipse(c, x + 16, y - 6, 14, 6, '#5a3020'); ellipse(c, x + 16, y - 12, 12, 8, '#c4a256'); ellipse(c, x + 16, y - 14, 8, 3, '#7d6232'); },
   broom(c, o, env) { const { x, y } = o; shadow(c, x, y, 30, 7, env); for (let i = 0; i < 9; i++) ellipse(c, x - 22 + (i * 13) % 34, y - 4 - (i % 3) * 3, 5, 2.5, ['#c6b278', '#b98d55', '#d7c48e'][i % 3]); line(c, x + 14, y - 2, x + 2, y - 70, '#8a6a46', 3); polygon(c, [[x + 8, y - 4], [x + 24, y - 4], [x + 18, y - 26], [x + 12, y - 26]], '#c9b07a', '#a08650'); },
+  // Small table with a bamboo fortune tube; it rattles while someone draws a stick (env.shake > 0).
+  fortune(c, o, env) {
+    const { x, y } = o, shake = env.fortuneShake > 0 && !env.reduced ? Math.sin(env.time * 40) * .12 * env.fortuneShake : 0;
+    shadow(c, x, y, 44, 9, env); box(c, x - 40, y - 26, 80, 26, '#6e2f26', 4); box(c, x - 46, y - 32, 92, 9, '#a8763f', 3);
+    c.save(); c.translate(x - 10, y - 32); c.rotate(shake);
+    for (let i = 0; i < 7; i++) line(c, -8 + i * 2.6, -34, -9 + i * 3, -62 - (i % 3) * 5, '#d9c48f', 2);
+    box(c, -12, -40, 24, 40, '#9c7a3e', 4); box(c, -12, -32, 24, 4, '#6b5228'); box(c, -12, -14, 24, 4, '#6b5228');
+    c.restore();
+    box(c, x + 10, y - 44, 22, 13, '#e9dcbc', 2); line(c, x + 13, y - 39, x + 28, y - 39, '#b8604c', 1);
+  },
   gardenGate(c, o, env) {
     const { x, y } = o; shadow(c, x, y, 50, 9, env);
     for (const dx of [-38, 30]) box(c, x + dx, y - 92, 8, 94, '#7d5f40', 2);

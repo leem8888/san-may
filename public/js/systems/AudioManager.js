@@ -47,6 +47,7 @@ export class AudioManager {
   // Called every frame with the current place and weather; loops cross-fade towards their targets.
   setScene(ambient, weather, indoor) {
     const mix = { ...AMBIENT_MIX[ambient] };
+    if ((ambient === 'hall') !== this.hallMusic) { this.hallMusic = ambient === 'hall'; if (this.hallMusic && this.running) this.nextNote = this.context.currentTime + .5; }
     if (weather) { mix.rain = (mix.rain || 0) + weather.levels.rain * (indoor ? .25 : .9); mix.wind = (mix.wind || 0) + weather.wind * (indoor ? .05 : .5); mix.leaves = (mix.leaves || 0) + weather.levels.leaves * .3; }
     this.target = mix;
   }
@@ -58,8 +59,13 @@ export class AudioManager {
     if ((this.target.birds || 0) > .05 && t > this.nextChirp) { this.chirp(this.target.birds); this.nextChirp = t + 1.5 + Math.random() * 5; }
     if ((this.target.water || 0) > .3 && Math.random() < .08) this.tone(900 + Math.random() * 600, .08, .015 * this.target.water, 'ambient', 'sine', 1.6);
     if (this.chanting) while (this.nextBeat < t + .3) { this.woodfish(Math.max(this.nextBeat, t)); if (++this.beat % 8 === 0) this.bowl(Math.max(this.nextBeat, t) + .05); this.nextBeat = Math.max(this.nextBeat, t) + .92; }
-    if (this.meditationMusic) while (this.nextNote < t + .3) { this.pad(Math.max(this.nextNote, t)); this.nextNote = Math.max(this.nextNote, t) + 6; }
+    // The pad plays while meditating and, a little softer, as background music inside the main hall.
+    if (this.meditationMusic || this.hallMusic) while (this.nextNote < t + .3) { this.pad(Math.max(this.nextNote, t), this.meditationMusic ? 1 : .8); this.nextNote = Math.max(this.nextNote, t) + 6; }
+    // Now and then a distant temple bell, wherever the player is.
+    if (!this.nextTempleBell) this.nextTempleBell = t + 40 + Math.random() * 50;
+    else if (t > this.nextTempleBell) { this.templeBell(); this.onTempleBell?.(); this.nextTempleBell = t + 120 + Math.random() * 180; }
   }
+  templeBell() { [98, 196, 294, 392].forEach((f, i) => this.tone(f, 8 - i * 1.4, .07 / (i + 1), 'ambient')); }
   tone(frequency = 440, duration = .4, gain = .08, bus = 'sfx', type = 'sine', glide = 1, when = 0) {
     if (!this.running) return;
     const c = this.context, start = Math.max(c.currentTime, when), o = c.createOscillator(), g = c.createGain();
@@ -72,18 +78,18 @@ export class AudioManager {
   chirp(level) { const base = 2200 + Math.random() * 1400; for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) this.tone(base, .09, .018 * level, 'ambient', 'sine', 1.3 + Math.random() * .3, this.context.currentTime + i * .13); }
   bell() { [174, 348, 522, 705].forEach((f, i) => this.tone(f, 4 - i * .45, .1 / (i + 1))); }
   bigBell() { [73, 110, 146, 220, 293].forEach((f, i) => this.tone(f, 9 - i * 1.2, .14 / (i + 1))); }
-  bowl(when) { [528, 1056, 1584].forEach((f, i) => this.tone(f, 5 - i, .05 / (i + 1), 'music', 'sine', 1, when)); }
+  bowl(when) { [528, 1056, 1584].forEach((f, i) => this.tone(f, 5 - i, .11 / (i + 1), 'music', 'sine', 1, when)); }
   woodfish(when) {
     const c = this.context, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     s.buffer = this.noise; f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 6;
-    g.gain.setValueAtTime(.0001, when); g.gain.exponentialRampToValueAtTime(.35, when + .004); g.gain.exponentialRampToValueAtTime(.0001, when + .12);
+    g.gain.setValueAtTime(.0001, when); g.gain.exponentialRampToValueAtTime(.75, when + .004); g.gain.exponentialRampToValueAtTime(.0001, when + .12);
     s.connect(f).connect(g).connect(this.bus.music); s.start(when, Math.random()); s.stop(when + .15);
-    this.tone(196, .14, .06, 'music', 'sine', .8, when);
+    this.tone(196, .14, .13, 'music', 'sine', .8, when);
   }
-  // Slow pentatonic drone for meditation: original, generated on the fly.
-  pad(when) {
+  // Slow pentatonic drone for meditation and the hall: original, generated on the fly.
+  pad(when, level = 1) {
     const roots = [146.8, 164.8, 196, 220], root = roots[Math.floor(Math.random() * roots.length)];
-    for (const [ratio, gain] of [[1, .035], [1.5, .022], [2, .016], [3, .006]]) this.tone(root * ratio, 7.5, gain, 'music', 'sine', 1, when);
+    for (const [ratio, gain] of [[1, .05], [1.5, .032], [2, .022], [3, .009]]) this.tone(root * ratio, 7.5, gain * level, 'music', 'sine', 1, when);
   }
   setChant(on) { this.chanting = on; if (on && this.running) { this.nextBeat = this.context.currentTime + .1; this.beat = 0; } }
   setMeditationMusic(on) { this.meditationMusic = on; if (on && this.running) this.nextNote = this.context.currentTime + .1; }

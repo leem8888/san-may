@@ -48,6 +48,10 @@
   "objects": [
     {"id":"bowCushion","type":"cushion","x":700,"y":650,"color":"#b8603f","label":"Lạy Phật tại bồ đoàn","action":"bow","radius":90},
     {"id":"beadSpot","type":"cushion","x":440,"y":640,"color":"#7d5b3a","label":"Lần chuỗi","action":"bead","radius":80},
-    {"id":"chant","type":"mo","x":980,"y":560,"label":"Nghe tụng kinh","action":"chant","radius":100}
+    {"id":"chant","type":"mo","x":980,"y":560,"label":"Nghe tụng kinh","action":"chant","radius":100},
+    {"id":"abbot","type":"npc","x":530,"y":500,"name":"Thầy Viên Minh · Trụ trì","appearance":{"hairStyle":"shaved","hairColor":"#2b2823","outfitStyle":"robe","outfitColor":"#9a5b33","accessory":"beads"},"gestures":["pray","bow"],"label":"Thưa chuyện với thầy trụ trì","action":"dialogue","dialogue":"abbot","radius":100},
+    {"id":"hallZen1","type":"cushion","x":930,"y":730,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
+    {"id":"hallZen2","type":"cushion","x":1030,"y":730,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
+    {"id":"fortune","type":"fortune","x":460,"y":790,"label":"Xin một quẻ · lắc ống xăm","action":"fortune","radius":95}
   ]
 }

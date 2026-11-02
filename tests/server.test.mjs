@@ -340,3 +340,54 @@ test('Blocking lists names and lantern reports hide a lantern after three report
   assert.deepEqual((await s.http('GET', '/api/blocks', undefined, b.token)).data.blocked, [{ id: a.id, name: 'An' }]);
   assert.deepEqual((await s.http('DELETE', `/api/blocks/${a.id}`, undefined, b.token)).data.blocks, []);
 });
+
+test('Chat reaches only players in the same room and area, with length, moderation and pace limits', async t => {
+  const s = await startServer(); t.after(s.close);
+  const [a, b, c, d] = ['An', 'Bình', 'Chi', 'Dũng'].map(name => guest(s.game, name));
+  const repo = s.game.ctx.repos.players;
+  repo.saveLocation(a.id, 'courtyard', 900, 790); repo.saveLocation(b.id, 'courtyard', 950, 790); repo.saveLocation(c.id, 'mainHall', 700, 820); repo.saveLocation(d.id, 'courtyard', 900, 790);
+  const sockets = await Promise.all([a, b, c, d].map(g => connect(s.base, g.token)));
+  t.after(() => sockets.forEach(socket => socket.close()));
+  const [sa, sb, sc, sd] = sockets;
+  for (const socket of [sa, sb, sc]) await ask(socket, 'room:join', { room: 'CHAT' });
+  await ask(sd, 'room:join', { room: 'OTHER' });
+  const leaks = []; sc.on('chat:message', m => leaks.push(m)); sd.on('chat:message', m => leaks.push(m));
+  const heardByB = nextEvent(sb, 'chat:message'), heardByA = nextEvent(sa, 'chat:message');
+  const sent = await ask(sa, 'chat:send', { text: `  Chào <b>mọi người</b> ${'x'.repeat(200)}` });
+  assert.equal(sent.ok, true);
+  const message = await heardByB;
+  assert.equal(message.id, a.id); assert.equal(message.name, 'An');
+  assert.ok(message.text.startsWith('Chào b mọi người'), 'markup characters are stripped'); assert.equal(message.text.length, 100, 'trimmed to 100 characters');
+  assert.equal((await heardByA).id, a.id, 'the sender sees their own bubble');
+  assert.match((await ask(sa, 'chat:send', { text: 'nhanh quá' })).error, /Chậm lại/);
+  assert.match((await ask(sb, 'chat:send', { text: 'vcl' })).error, /chưa phù hợp/);
+  assert.match((await ask(sb, 'chat:send', { text: '   ' })).error, /trống/);
+  await delay(150);
+  assert.deepEqual(leaks, [], 'other areas and other rooms hear nothing');
+});
+
+test('Main hall: fortune drawing is journaled only at the tube, and the abbot tells varied sourced stories', async t => {
+  const s = await startServer(); t.after(s.close);
+  const a = guest(s.game, 'An');
+  s.game.ctx.repos.players.saveLocation(a.id, 'mainHall', 460, 850);
+  const socket = await connect(s.base, a.token); t.after(() => socket.close());
+  await ask(socket, 'room:join', { room: 'HALL' });
+  assert.match((await ask(socket, 'activity:complete', { objectId: 'chant' })).error, /quay lại gần/);
+  assert.equal((await ask(socket, 'activity:complete', { objectId: 'fortune', title: 'Quẻ số 6 · Ấm trà chờ sôi' })).ok, true);
+  const entries = (await s.http('GET', '/api/journal', undefined, a.token)).data.entries.map(e => e.text);
+  assert.ok(entries.includes('Xin một quẻ ở Chánh Điện: Quẻ số 6 · Ấm trà chờ sôi.'));
+
+  const { JsonDialogueProvider } = await import('../public/js/ui/DialoguePanel.js');
+  const fs = await import('node:fs');
+  const read = name => JSON.parse(fs.readFileSync(new URL(`../public/data/${name}.json`, import.meta.url), 'utf8'));
+  const provider = new JsonDialogueProvider(read('dialogues'), read('stories').items), seen = new Set();
+  let previous = null;
+  for (let i = 0; i < 40; i++) {
+    const entry = await provider.get('abbot'), story = entry.pages[1];
+    assert.notEqual(story, previous, 'never the same story twice in a row'); previous = story;
+    assert.match(entry.pages[2], /Nguồn: /); seen.add(story);
+  }
+  assert.ok(seen.size >= 5, 'the abbot varies his stories');
+  const fortunes = read('fortunes').items;
+  assert.equal(fortunes.length, 12); assert.ok(fortunes.every(f => f.verse.split('\n').length === 4 && f.meaning));
+});

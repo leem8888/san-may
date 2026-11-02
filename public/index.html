@@ -121,6 +121,19 @@
     <div id="lanternList" class="entries"></div>
   </aside>
 
+  <aside id="fortunePanel" class="panel" hidden aria-labelledby="fortunePanelTitle">
+    <div class="panel-head"><div><span class="eyebrow">CHÁNH ĐIỆN</span><h2 id="fortunePanelTitle">Xin quẻ</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p>Chắp tay, nghĩ về điều mình đang băn khoăn, rồi lắc ống xăm.</p>
+    <button id="drawFortune" class="primary">Thành tâm lắc ống xăm</button>
+    <article id="fortuneResult" class="fortune-card" hidden>
+      <span class="eyebrow" id="fortuneRank"></span>
+      <h3 id="fortuneTitle"></h3>
+      <p id="fortuneVerse" class="verse"></p>
+      <p id="fortuneMeaning"></p>
+    </article>
+    <small id="fortuneNote" class="hint"></small>
+  </aside>
+
   <aside id="peoplePanel" class="panel" hidden aria-labelledby="peopleTitle">
     <div class="panel-head"><div><span class="eyebrow">CÙNG KHU VỰC</span><h2 id="peopleTitle">Mọi người</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
     <p class="hint">Ẩn một người: bạn sẽ không thấy nhân vật, lời chúc, hoa đăng và biểu cảm của họ nữa. Họ không được thông báo.</p>
@@ -209,6 +222,11 @@
     <p id="dialogueText"></p>
     <div class="dialogue-foot"><small id="dialoguePage"></small><button class="primary" id="dialogueNext">Tiếp tục →</button></div>
   </dialog>
+
+  <form id="chatForm" class="chat" hidden autocomplete="off">
+    <input id="chatInput" maxlength="100" placeholder="Nhấn Enter để trò chuyện với người cùng khu…" aria-label="Tin nhắn cho người cùng khu">
+    <button aria-label="Gửi tin nhắn">Gửi</button>
+  </form>
 
   <div class="world-caption"><span class="eyebrow" id="captionEyebrow">DƯỚI MÁI HIÊN YÊN BÌNH</span><p id="actionState">Một khoảng lặng giữa ngày</p></div>
   <div id="joystick" aria-label="Cần điều khiển cảm ứng"><span></span></div>

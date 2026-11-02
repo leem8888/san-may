@@ -120,3 +120,8 @@ body.meditating .topbar,body.meditating .room,body.meditating .hud-bottom,body.m
 .rooms form{margin:8px 0}
 .rooms .ghost{margin-top:4px}
 .person{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fortune-card{margin:12px 0;padding:16px;border-radius:12px;background:linear-gradient(160deg,#f3ead2,#e2d4b2);color:#2f3a2e;text-align:center;animation:open .3s ease-out}
+.fortune-card .eyebrow{color:#9a5b33}
+.fortune-card h3{font:normal 22px "Palatino Linotype","Book Antiqua",Georgia,serif;margin:6px 0 10px;color:#5a3020}
+.fortune-card p{color:#3a4636!important;font-size:13px!important}
+.fortune-card .verse{font:italic 15px/1.9 "Palatino Linotype","Book Antiqua",Georgia,serif!important;white-space:pre-line;color:#2f3a2e!important}

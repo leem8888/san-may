@@ -47,7 +47,7 @@ export class Game {
     return true;
   }
   view() { const w = this.camera.width / this.camera.zoom, h = this.camera.height / this.camera.zoom; return { left: this.camera.x - w / 2, top: this.camera.y - h / 2, width: w, height: h }; }
-  environment(dt) { return { time: this.time, dt, wind: this.weather.wind, reduced: this.reduced, bells: this.scene.bells, ...this.dayNight.sample() }; }
+  environment(dt) { return { time: this.time, dt, wind: this.weather.wind, reduced: this.reduced, bells: this.scene.bells, fortuneShake: Math.min(1, this.fortuneShake || 0), ...this.dayNight.sample() }; }
   spawnWeather(dt, view) {
     if (this.scene.indoor || this.reduced) return;
     const q = { low: .3, medium: .6, high: 1 }[this.renderer.quality], { levels, wind } = this.weather;
@@ -64,6 +64,7 @@ export class Game {
     if (this.approach && Math.hypot(this.approach.x - p.x, this.approach.y - p.y) < this.approach.radius * .75) { const o = this.approach; this.approach = null; this.input.target = null; this.onApproach(o); }
     this.camera.update(p, dt);
     this.weather.update(dt);
+    if (this.fortuneShake > 0) this.fortuneShake -= dt;
     this.env = this.environment(dt);
     scene.update(dt, this);
     const view = this.view();

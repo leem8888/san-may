@@ -40,6 +40,15 @@
       "Góc bên kia có ấm trà. Pha một chén cho mình — biết đợi nước sôi cũng là một cách tập."
     ]
   },
+  "abbot": {
+    "name": "THẦY VIÊN MINH · TRỤ TRÌ",
+    "title": "Mô Phật, con ngồi xuống đây.",
+    "randomStory": true,
+    "pages": [
+      "Chánh Điện lúc nào cũng mở. Con muốn ngồi thiền thì có hai bồ đoàn ở phía tay phải, muốn xin quẻ thì ống xăm ở góc trái. Còn bây giờ, thầy kể con nghe một chuyện."
+    ],
+    "closing": "Chuyện chỉ là chuyện. Con mang về được điều gì thì mang, không được thì cứ để lại đây. Lần sau ghé, thầy kể chuyện khác."
+  },
   "bell-verse": {
     "name": "BIA ĐÁ · KỆ THỈNH CHUÔNG",
     "title": "Nguyện thử chung thanh siêu pháp giới",

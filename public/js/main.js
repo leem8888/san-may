@@ -6,7 +6,7 @@ import { TIME_MODES } from './systems/DayNightSystem.js';
 import { WEATHER_MODES } from './systems/WeatherSystem.js';
 import { Api } from './multiplayer/Api.js';
 import { SocketClient } from './multiplayer/SocketClient.js';
-import { ROUND, EMOTES, COOLDOWNS } from './shared/rules.js';
+import { ROUND, EMOTES, COOLDOWNS, CHAT_SECONDS } from './shared/rules.js';
 import { emoteBubble } from './rendering/SpriteRenderer.js';
 import { $, el, store, toast } from './ui/dom.js';
 import { Panels } from './ui/Panels.js';
@@ -25,6 +25,7 @@ import { BUSES } from './systems/AudioManager.js';
 import { GardenPanel } from './ui/GardenPanel.js';
 import { ProgressPanels } from './ui/ProgressPanels.js';
 import { SocialPanel } from './ui/SocialPanel.js';
+import { FortunePanel } from './ui/FortunePanel.js';
 
 const params = new URLSearchParams(location.search);
 // ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
@@ -39,7 +40,7 @@ const savedVolumes = (() => { try { return JSON.parse(store.get('sanmay-volumes'
 const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolumes);
 const panels = new Panels(), creator = new CharacterCreator();
 const blocked = new Set();
-let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0;
+let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0;
 
 const STATE_TEXT = { idle: 'Một khoảng lặng giữa ngày', walk: 'Dạo bước thong thả', bow: 'Đang cúi lạy…', bead: 'Đang lần một hạt…', pray: 'Chắp tay · an lành', sit: 'Đang ngồi nghỉ', bell: 'Tiếng chuông ngân', wave: 'Vẫy chào bạn bè', meditate: 'Đang thiền', interact: 'Đang chạm khẽ' };
 
@@ -90,6 +91,12 @@ const net = new SocketClient(io, {
   error(error) { toast(error.message); },
   unauthorized() { api.setToken(''); toast('Phiên khách không còn hợp lệ. Đang tải lại…'); setTimeout(() => location.reload(), 1500); },
   'player:correct'(data) { if (data.sceneId === game.scene.id) game.player.place(data.x, data.y); },
+  'chat:message'(data) {
+    const target = data.id === net.selfId ? game.player : net.remotes.get(data.id);
+    if (!target || blocked.has(data.id)) return;
+    target.chat = { text: data.text, age: 0 };
+    if (data.id !== net.selfId) audio.tone(740, .12, .02, 'ui', 'triangle');
+  },
   'player:emote'(data) {
     const target = data.id === net.selfId ? game.player : net.remotes.get(data.id);
     if (target && !blocked.has(data.id)) target.emote = { emote: data.emote, age: 0 };
@@ -141,6 +148,7 @@ function interact(o = game.interactions.nearest) {
     case 'tea': return minigames.start(TeaGame, o);
     case 'chant': return toggleChant(o);
     case 'garden': return gardens.openGate();
+    case 'fortune': return fortunes.open(o);
     case 'water': return gardens.water(o);
     default: return toast('Không có gì để làm ở đây.');
   }
@@ -171,6 +179,7 @@ function keyAction(key) {
   if (minigames?.open) return;
   if (key === 'escape') { if (!panels.close()) { $('#emotes').hidden = true; } game.pauseInput(false); }
   if (key === 'e') interact();
+  if (key === 'enter') { game.input.clear(); $('#chatInput').focus(); }
   if (key === 'm') panels.toggle('mapPanel');
   if (key === 'j') panels.toggle('journalPanel');
   if (key === 'q') panels.toggle('questPanel');
@@ -180,6 +189,7 @@ function keyAction(key) {
 function tick(dt) {
   net.update(dt); game.remotes = [...net.remotes.values()];
   if (game.player.emote && (game.player.emote.age += dt) > 2.6) game.player.emote = null;
+  if (game.player.chat && (game.player.chat.age += dt) > CHAT_SECONDS) game.player.chat = null;
   if (entered && !game.scenes.busy) {
     net.sendMove(game.player);
     const portal = game.scene.portalAt(game.player.x, game.player.y);
@@ -251,13 +261,16 @@ async function boot() {
       net.request('practice:complete', { type: state }).then(res => { setProgress(res.progress); if (res.progress[`${state}sRound`] === ROUND) toast('Đã tròn 108. Chúc bạn bình an.'); })
         .catch(error => { setProgress(error.data?.progress || progress); toast(net.connected ? error.message : 'Mất kết nối nên lần này chưa được lưu.'); });
     };
-    dialogue = new DialoguePanel(new JsonDialogueProvider(assets.get('dialogues')), game);
+    dialogue = new DialoguePanel(new JsonDialogueProvider(assets.get('dialogues'), assets.get('stories').items), game);
+    // A distant temple bell every few minutes; at the bell tower the great bell visibly swings with it.
+    audio.onTempleBell = () => { if (game.scene.id === 'bellTower') game.scene.bells.bigBell = game.time; if (entered && !audio.muted) toast('Có tiếng chuông chùa vọng lại…', 2600); };
     wishes = new WishPanel({ api, net, room, getMe: () => me, blocked, onBlock: block });
     mapPanel = new MapPanel(assets.get('maps'));
     const shared = { net, game, api, audio, panels, celebrate };
     gardens = new GardenPanel({ ...shared, getMe: () => me, applyScene });
     new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render() });
     new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
+    fortunes = new FortunePanel({ ...shared, fortunes: assets.get('fortunes') });
     meditation = new MeditationPanel(shared); lanterns = new LanternPanel(shared); stories = new StoriesPanel(shared); minigames = new MinigameHost(shared);
     panels.on('mapPanel', () => mapPanel.render(game.scene.id, progress?.scenesVisited));
     panels.on('wishPanel', () => wishes.load());
@@ -290,10 +303,20 @@ $('#enter').onclick = async () => {
   store.set('sanmay-name', me.name); entered = true; creator.stop();
   game.player.appearance = me.appearance; game.enter(me.name); $('#intro').hidden = true;
   for (const id of ['#bow', '#bead', '#pray', '#wave', '#emoteToggle']) $(id).disabled = false;
+  $('#chatForm').hidden = false;
   net.room = room; net.start(api.token);
   if (!await audio.unlock()) toast('Không bật được âm thanh; bạn vẫn có thể chơi.');
   audio.tone(520, .8);
 };
+// Chat: Enter focuses the box, Enter sends (an empty Enter or Esc returns to the game).
+$('#chatForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const input = $('#chatInput'), text = input.value.trim();
+  if (!text) return input.blur();
+  try { await net.request('chat:send', { text }); input.value = ''; }
+  catch (error) { toast(error.message); }
+});
+$('#chatInput').addEventListener('keydown', event => { if (event.key === 'Escape') { event.stopPropagation(); event.target.blur(); } });
 $('#name').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#enter').disabled) $('#enter').click(); });
 $('#bow').onclick = () => act('bow'); $('#bead').onclick = () => act('bead'); $('#pray').onclick = () => act('pray'); $('#wave').onclick = () => act('wave'); $('#interact').onclick = () => interact();
 $('#restart').onclick = async () => { try { for (const type of ['bow', 'bead']) if (progress?.[`${type}sRound`] >= ROUND) setProgress((await api.post('/progress/restart', { type })).progress); toast('Đã bắt đầu vòng mới.'); } catch (error) { toast(error.message); } };

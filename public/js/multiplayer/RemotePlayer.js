@@ -1,4 +1,4 @@
-import { DEFAULT_APPEARANCE } from '../shared/rules.js';
+import { DEFAULT_APPEARANCE, CHAT_SECONDS } from '../shared/rules.js';
 import { sample, SNAP_DISTANCE } from './Interpolation.js';
 
 export class RemotePlayer {
@@ -24,5 +24,6 @@ export class RemotePlayer {
     if (point) { this.x = point.x; this.y = point.y; }
     this.elapsed += dt;
     if (this.emote && (this.emote.age += dt) > 2.6) this.emote = null;
+    if (this.chat && (this.chat.age += dt) > CHAT_SECONDS) this.chat = null;
   }
 }
