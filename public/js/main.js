@@ -1,0 +1,303 @@
+import { io } from '/socket.io/socket.io.esm.min.js';
+import { AssetLoader } from './core/AssetLoader.js';
+import { Game } from './core/Game.js';
+import { AudioManager } from './systems/AudioManager.js';
+import { TIME_MODES } from './systems/DayNightSystem.js';
+import { WEATHER_MODES } from './systems/WeatherSystem.js';
+import { Api } from './multiplayer/Api.js';
+import { SocketClient } from './multiplayer/SocketClient.js';
+import { ROUND, EMOTES, COOLDOWNS } from './shared/rules.js';
+import { emoteBubble } from './rendering/SpriteRenderer.js';
+import { $, el, store, toast } from './ui/dom.js';
+import { Panels } from './ui/Panels.js';
+import { DialoguePanel, JsonDialogueProvider } from './ui/DialoguePanel.js';
+import { WishPanel } from './ui/WishPanel.js';
+import { MapPanel } from './ui/MapPanel.js';
+import { CharacterCreator } from './ui/CharacterCreator.js';
+import { MeditationPanel } from './ui/MeditationPanel.js';
+import { LanternPanel } from './ui/LanternPanel.js';
+import { StoriesPanel } from './ui/StoriesPanel.js';
+import { MinigameHost } from './ui/minigames/MinigameHost.js';
+import { SandGame } from './ui/minigames/SandGame.js';
+import { SweepGame } from './ui/minigames/SweepGame.js';
+import { TeaGame } from './ui/minigames/TeaGame.js';
+import { BUSES } from './systems/AudioManager.js';
+import { GardenPanel } from './ui/GardenPanel.js';
+import { ProgressPanels } from './ui/ProgressPanels.js';
+import { SocialPanel } from './ui/SocialPanel.js';
+
+const params = new URLSearchParams(location.search);
+// ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
+const slot = /^[1-4]$/.test(params.get('slot') || '') ? params.get('slot') : '';
+let room = (params.get('room') || 'MAY-01').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 24);
+if (room.length < 2) room = 'MAY-01';
+const url = new URL(location.href); url.searchParams.set('room', room); history.replaceState(null, '', url);
+$('#roomLabel').textContent = `PHÒNG ${room}`;
+
+const api = new Api(store, `sanmay-token${slot ? `-${slot}` : ''}`);
+const savedVolumes = (() => { try { return JSON.parse(store.get('sanmay-volumes', '{}')); } catch { return {}; } })();
+const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolumes);
+const panels = new Panels(), creator = new CharacterCreator();
+const blocked = new Set();
+let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0;
+
+const STATE_TEXT = { idle: 'Một khoảng lặng giữa ngày', walk: 'Dạo bước thong thả', bow: 'Đang cúi lạy…', bead: 'Đang lần một hạt…', pray: 'Chắp tay · an lành', sit: 'Đang ngồi nghỉ', bell: 'Tiếng chuông ngân', wave: 'Vẫy chào bạn bè', meditate: 'Đang thiền', interact: 'Đang chạm khẽ' };
+
+function setProgress(next) {
+  if (!next) return;
+  progress = next; game.player.bows = next.bowsRound; game.player.beads = next.beadsRound;
+  for (const [type, value] of [['bow', next.bowsRound], ['bead', next.beadsRound]]) { $(`#${type}Count`).textContent = `${value} / ${ROUND}`; $(`#${type}Progress`).value = value; }
+  $('#restart').hidden = next.bowsRound < ROUND && next.beadsRound < ROUND;
+  if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress.scenesVisited);
+}
+function celebrate(events) {
+  const messages = [...(events.achievements || []).map(a => `Thành tựu mới · ${a.title}${a.rewardName ? ` · nhận ${a.rewardName}` : ''}`), ...(events.quests || []).map(q => `Hoàn thành nhiệm vụ · ${q.title}`)];
+  messages.forEach((text, i) => setTimeout(() => toast(text), i * 2200));
+  if (messages.length) audio.tone(660, .6, .05);
+}
+function showAreaTitle(map) {
+  $('#areaName').textContent = map.name; $('#areaSubtitle').textContent = map.subtitle;
+  const title = $('#areaTitle'); title.classList.remove('show'); void title.offsetWidth; title.classList.add('show');
+}
+function syncBells(bells, serverNow) {
+  const scene = game.scene;
+  for (const [id, at] of Object.entries(bells || {})) scene.bells[id] = game.time - (serverNow - at) / 1000;
+}
+function applyScene(self, snapshot, announce = true) {
+  const changed = game.scene.id !== self.sceneId;
+  if (changed || Math.hypot(game.player.x - self.x, game.player.y - self.y) > 2) game.setScene(self.sceneId, self.x, self.y, self.direction);
+  net.loadScene(snapshot);
+  const now = net.clock.now();
+  syncBells(snapshot.bells, now);
+  if (game.scene.lanterns) game.scene.blocked = blocked;
+  game.scene.setLanterns?.(snapshot.lanterns || [], now);
+  game.scene.setGarden?.(snapshot.garden, net.selfId);
+  gardens?.refresh();
+  if (changed || announce) showAreaTitle(game.scene.map);
+  if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress?.scenesVisited);
+}
+
+const net = new SocketClient(io, {
+  status(ok, message) { $('#connection').textContent = ok ? 'Đã kết nối' : message; $('#connection').classList.toggle('offline', !ok); $('#statusDot').classList.toggle('off', !ok); },
+  online(count) { $('#online').textContent = `${count} người trong phòng`; },
+  joined(res) {
+    applyScene(res.self, res.scene, !game.joinedOnce); game.joinedOnce = true;
+    setProgress(res.progress); $('#online').textContent = `${res.room.online}/${res.room.capacity} người trong phòng`;
+    if (res.meditationResult) toast(`Phiên thiền trước đã được lưu: ${Math.round(res.meditationResult.actualSeconds / 60)} phút.`);
+    if (res.meditation && !meditation.session) meditation.begin(res.meditation);
+  },
+  'meditation:ended'(result) { meditation.result(result); },
+  error(error) { toast(error.message); },
+  unauthorized() { api.setToken(''); toast('Phiên khách không còn hợp lệ. Đang tải lại…'); setTimeout(() => location.reload(), 1500); },
+  'player:correct'(data) { if (data.sceneId === game.scene.id) game.player.place(data.x, data.y); },
+  'player:emote'(data) {
+    const target = data.id === net.selfId ? game.player : net.remotes.get(data.id);
+    if (target && !blocked.has(data.id)) target.emote = { emote: data.emote, age: 0 };
+  },
+  'bell:ring'(data) {
+    if (data.sceneId !== game.scene.id) return;
+    game.scene.bells[data.objectId] = game.time;
+    data.objectId === 'bigBell' ? audio.bigBell() : audio.bell();
+    if (data.by !== net.selfId && !blocked.has(data.by)) toast(`${data.name} vừa thỉnh chuông.`);
+  },
+  'wish:new'(wish) { if (!blocked.has(wish.playerId)) wishes.add(wish); },
+  'wish:reaction'(data) { wishes.reactions(data.wishId, data.reactions); },
+  'wish:hidden'(data) { wishes.remove(data.id); },
+  'lantern:new'(lantern) { game.scene.addLantern?.(lantern, net.clock.now()); },
+  'lantern:hidden'(data) { game.scene.removeLantern?.(data.id); },
+  'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
+  'progress:events'(events) { if (events.progress) setProgress(events.progress); celebrate(events); },
+  'session:replaced'() { entered = false; net.stop(); game.pauseInput(true); toast('Bạn vừa mở Sân Mây ở tab khác. Tab này đã tạm dừng; tải lại để tiếp tục tại đây.', 8000); $('#connection').textContent = 'Đang mở ở tab khác'; },
+});
+
+function act(state) {
+  if (!entered) return;
+  game.input.target = null; game.approach = null;
+  if ((state === 'bow' && game.player.bows >= ROUND) || (state === 'bead' && game.player.beads >= ROUND)) return toast('Bạn đã hoàn thành vòng này. Chọn “Vòng mới” để bắt đầu lại.');
+  if (!game.player.act(state)) toast('Hãy hoàn tất hành động hoặc di chuyển để hủy.');
+}
+async function ringBell(o) {
+  if (!['idle', 'walk'].includes(game.player.state)) return toast('Di chuyển để kết thúc hành động hiện tại.');
+  const cooldown = (COOLDOWNS[o.cooldown] || COOLDOWNS.bell) / 1000;
+  if (game.time - (game.scene.bells[o.id] ?? -100) < cooldown) return toast('Hãy đợi tiếng chuông ngân hết.');
+  try { net.sendMove(game.player, performance.now(), true); await net.request('bell:ring', { objectId: o.id }); game.player.act('bell'); toast(o.id === 'bigBell' ? 'Đại hồng chung ngân vang khắp núi.' : 'Một tiếng chuông, một hơi thở.'); }
+  catch (error) { toast(error.message); }
+}
+function interact(o = game.interactions.nearest) {
+  if (!entered) return;
+  if (!o) return toast('Hãy đến gần một người, một vật hoặc chạm vào nó để tương tác.');
+  game.input.clear();
+  switch (o.action) {
+    case 'dialogue': return dialogue.open(o.dialogue).catch(error => toast(error.message));
+    case 'wishes': return panels.open('wishPanel');
+    case 'bell': return ringBell(o);
+    case 'sit': game.player.setState(game.player.state === 'sit' ? 'idle' : 'sit'); return toast(game.player.state === 'sit' ? 'Ngồi nghỉ. Di chuyển để đứng dậy.' : 'Đã đứng dậy.');
+    case 'bow': case 'bead': case 'pray': return act(o.action);
+    case 'meditate': return panels.open('meditationPanel');
+    case 'lantern': return lanterns.open(o);
+    case 'stories': return stories.open(o);
+    case 'sand': return minigames.start(SandGame, o);
+    case 'sweep': return minigames.start(SweepGame, o);
+    case 'tea': return minigames.start(TeaGame, o);
+    case 'chant': return toggleChant(o);
+    case 'garden': return gardens.openGate();
+    case 'water': return gardens.water(o);
+    default: return toast('Không có gì để làm ở đây.');
+  }
+}
+function toggleChant(o) {
+  const on = !audio.chanting;
+  audio.setChant(on);
+  if (!on) return toast('Tiếng mõ đã lặng.');
+  if (!audio.running) toast('Hãy bật âm thanh trong Cài đặt để nghe tụng kinh.');
+  else toast('Tiếng mõ và chuông gõ đều đặn. Đến lần nữa để dừng.');
+  net.request('activity:complete', { objectId: o.id }).catch(() => {});
+}
+async function usePortal(portal) {
+  if (!net.connected) { blockedPortal = portal.id; return toast('Đang mất kết nối nên chưa thể sang khu khác.'); }
+  await game.scenes.transition(async () => {
+    net.sendMove(game.player, performance.now(), true);
+    try { const res = await net.request('player:portal', { portalId: portal.id }); applyScene(res.self, res.scene); audio.tone(440, .5, .04); }
+    catch (error) { blockedPortal = portal.id; toast(error.message); }
+  });
+}
+function emote(name) {
+  if (!entered) return;
+  if (performance.now() - lastEmote < COOLDOWNS.emote) return;
+  lastEmote = performance.now(); net.emote(name); $('#emotes').hidden = true; $('#emoteToggle').setAttribute('aria-expanded', 'false');
+  if (!net.connected) game.player.emote = { emote: name, age: 0 };
+}
+function keyAction(key) {
+  if (minigames?.open) return;
+  if (key === 'escape') { if (!panels.close()) { $('#emotes').hidden = true; } game.pauseInput(false); }
+  if (key === 'e') interact();
+  if (key === 'm') panels.toggle('mapPanel');
+  if (key === 'j') panels.toggle('journalPanel');
+  if (key === 'q') panels.toggle('questPanel');
+  const actions = { 1: 'bow', 2: 'bead', 3: 'pray', 4: 'wave' };
+  if (actions[key]) act(actions[key]);
+}
+function tick(dt) {
+  net.update(dt); game.remotes = [...net.remotes.values()];
+  if (game.player.emote && (game.player.emote.age += dt) > 2.6) game.player.emote = null;
+  if (entered && !game.scenes.busy) {
+    net.sendMove(game.player);
+    const portal = game.scene.portalAt(game.player.x, game.player.y);
+    if (!portal) blockedPortal = null; else if (portal.id !== blockedPortal) usePortal(portal);
+  }
+  audio.setScene(game.scene.map.ambient, game.weather, game.scene.indoor);
+  if (audio.chanting && game.scene.id !== 'mainHall') audio.setChant(false);
+  if (game.player.state === 'walk' && (stepTimer -= dt) <= 0) { audio.step(); stepTimer = .38; }
+  const nearest = game.interactions.nearest, p = game.player, env = game.env;
+  $('#interact').textContent = nearest ? `E · ${nearest.label}` : 'E · Tương tác'; $('#interact').disabled = !entered || !nearest;
+  $('#actionState').textContent = STATE_TEXT[p.state] || '';
+  const line = `${game.scene.map.name} · ${env.label}`;
+  if ($('#areaLine').textContent !== line) $('#areaLine').textContent = line;
+  const sky = game.scene.indoor ? 'Trong nhà' : game.weather.label;
+  if ($('#skyLabel').textContent !== sky) $('#skyLabel').textContent = sky;
+}
+
+function block(playerId, name) {
+  api.put(`/blocks/${playerId}`).then(res => { blocked.clear(); res.blocks.forEach(id => blocked.add(id)); wishes.render(); toast(`Đã ẩn ${name}. Bạn sẽ không thấy nhân vật và lời chúc của người này.`); }).catch(error => toast(error.message));
+}
+
+function setupSettings() {
+  const fill = (select, options, value) => { select.replaceChildren(...Object.entries(options).map(([key, label]) => el('option', { value: key, text: label }))); select.value = value; };
+  fill($('#timeMode'), TIME_MODES, game.dayNight.mode); fill($('#weatherMode'), WEATHER_MODES, game.weather.mode);
+  $('#quality').value = game.renderer.quality; $('#reduced').checked = game.reduced;
+  const audioLabel = () => { $('#sound').textContent = audio.muted ? 'Âm thanh: tắt' : 'Âm thanh: bật'; }; audioLabel();
+  $('#sound').onclick = async () => { audio.setMuted(!audio.muted); store.set('sanmay-muted', audio.muted); audioLabel(); if (!audio.muted) { if (!await audio.unlock()) toast('Không bật được âm thanh trên trình duyệt này.'); audio.click(); } };
+  $('#volumes').replaceChildren(...Object.entries(BUSES).map(([bus, label]) => {
+    const input = el('input', { type: 'range', min: 0, max: 100, value: Math.round(audio.volumes[bus] * 100), 'aria-label': `Âm lượng ${label}` });
+    input.oninput = () => { audio.setVolume(bus, input.value / 100); store.set('sanmay-volumes', JSON.stringify(audio.volumes)); };
+    return el('label', { class: 'volume' }, el('span', { text: label }), input);
+  }));
+  $('#quality').onchange = () => { game.setQuality($('#quality').value); store.set('sanmay-quality', $('#quality').value); };
+  $('#timeMode').onchange = () => { game.dayNight.mode = $('#timeMode').value; store.set('sanmay-time', $('#timeMode').value); };
+  $('#weatherMode').onchange = () => { game.weather.mode = $('#weatherMode').value; store.set('sanmay-weather', $('#weatherMode').value); };
+  $('#reduced').onchange = () => { game.reduced = $('#reduced').checked; store.set('sanmay-reduced', game.reduced); };
+  $('#fullscreen').onclick = async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { toast('Trình duyệt này không hỗ trợ toàn màn hình.'); } };
+  panels.on('settingsPanel', () => { $('#recoveryCode').value = api.token; });
+  $('#copyRecovery').onclick = async () => { try { await navigator.clipboard.writeText(api.token); toast('Đã sao chép mã khôi phục. Hãy cất giữ cẩn thận.'); } catch { $('#recoveryCode').select(); toast('Hãy tự sao chép mã đang được chọn.'); } };
+  $('#recover').onclick = async () => { try { const player = await api.recover($('#recoverInput').value); toast(`Đã khôi phục danh tính của ${player.name}. Đang tải lại…`); setTimeout(() => location.reload(), 1200); } catch (error) { toast(error.message); } };
+}
+function setupEmotes() {
+  $('#emotes').replaceChildren(...EMOTES.map(name => {
+    const canvas = el('canvas', { width: 64, height: 64, 'aria-hidden': 'true' }), c = canvas.getContext('2d');
+    c.scale(2, 2); emoteBubble(c, 16, 33, name, .5);
+    return el('button', { type: 'button', role: 'menuitem', 'aria-label': { bow: 'Cúi chào', lotus: 'Hoa sen', heart: 'Thương mến', smile: 'Mỉm cười', sparkle: 'Lấp lánh' }[name], onclick: () => emote(name) }, canvas);
+  }));
+  $('#emoteToggle').onclick = () => { const open = $('#emotes').hidden; $('#emotes').hidden = !open; $('#emoteToggle').setAttribute('aria-expanded', String(open)); };
+}
+
+async function boot() {
+  $('#enter').disabled = true; $('#loading').textContent = 'Đang tải…'; $('#retry').hidden = true;
+  try {
+    [assets, me] = await Promise.all([new AssetLoader().load((done, total) => { $('#loading').textContent = `Chuẩn bị tài nguyên · ${done}/${total}`; $('#loadProgress').value = done / total; }), api.ensureGuest(store.get('sanmay-name'))]);
+    me.blocks.forEach(id => blocked.add(id));
+    if (!$('#name').value) $('#name').value = me.name === 'Khách' ? '' : me.name;
+    const start = assets.get('maps').has(me.progress.lastScene) ? me.progress.lastScene : 'gate';
+    game?.destroy();
+    game = new Game($('#scene'), assets, $('#joystick'), keyAction, tick, { scene: start, room, time: store.get('sanmay-time', 'auto'), weather: store.get('sanmay-weather', 'auto') });
+    game.blocked = blocked; game.onApproach = interact;
+    game.reduced = store.get('sanmay-reduced', String(matchMedia('(prefers-reduced-motion: reduce)').matches)) === 'true';
+    game.setQuality(store.get('sanmay-quality', matchMedia('(pointer: coarse)').matches ? 'medium' : 'high'));
+    const spawn = game.scene.map.spawns.default; game.setScene(start, me.progress.lastX ?? spawn[0], me.progress.lastY ?? spawn[1]);
+    setProgress(me.progress);
+    game.player.onStateChange = (state, previous) => { if (!['walk', 'idle', 'bell', 'meditate'].includes(state) || (state === 'idle' && previous === 'sit')) net.action(state); meditation?.playerState(state, previous); };
+    game.player.onComplete = state => {
+      if (state !== 'bow' && state !== 'bead') return;
+      audio.tone(state === 'bow' ? 350 : 580, .45);
+      net.request('practice:complete', { type: state }).then(res => { setProgress(res.progress); if (res.progress[`${state}sRound`] === ROUND) toast('Đã tròn 108. Chúc bạn bình an.'); })
+        .catch(error => { setProgress(error.data?.progress || progress); toast(net.connected ? error.message : 'Mất kết nối nên lần này chưa được lưu.'); });
+    };
+    dialogue = new DialoguePanel(new JsonDialogueProvider(assets.get('dialogues')), game);
+    wishes = new WishPanel({ api, net, room, getMe: () => me, blocked, onBlock: block });
+    mapPanel = new MapPanel(assets.get('maps'));
+    const shared = { net, game, api, audio, panels, celebrate };
+    gardens = new GardenPanel({ ...shared, getMe: () => me, applyScene });
+    new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render() });
+    new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
+    meditation = new MeditationPanel(shared); lanterns = new LanternPanel(shared); stories = new StoriesPanel(shared); minigames = new MinigameHost(shared);
+    panels.on('mapPanel', () => mapPanel.render(game.scene.id, progress?.scenesVisited));
+    panels.on('wishPanel', () => wishes.load());
+    setupSettings(); setupEmotes();
+    creator.setup(me.appearance, me.items);
+    // QA only: ?debug=1 exposes the game for screenshots; nothing here bypasses the server.
+    if (params.get('debug') === '1') window.sanmay = { game, net, panels, meditation, minigames };
+    $('#loading').textContent = 'Mọi thứ đã sẵn sàng'; $('#enter').disabled = false;
+  } catch (error) { $('#loading').textContent = `Không thể mở Sân Mây: ${error.message}`; $('#retry').hidden = false; }
+}
+
+$('#retry').onclick = boot;
+// Re-opens the character card to change name and outfit; the server re-validates owned items.
+function editLook() {
+  editing = true; game.pauseInput(true); creator.setup(me.appearance, me.items);
+  $('#name').value = me.name; $('#enter').textContent = 'Lưu thay đổi →'; $('#enter').disabled = false; $('#cancelEdit').hidden = false; $('#intro').hidden = false;
+}
+function closeEdit() { editing = false; creator.stop(); $('#intro').hidden = true; $('#cancelEdit').hidden = true; game.pauseInput(false); }
+$('#cancelEdit').onclick = closeEdit;
+$('#enter').onclick = async () => {
+  if (editing) {
+    try { me = (await api.put('/profile', { name: $('#name').value.trim() || 'Khách', appearance: creator.look })).player; store.set('sanmay-name', me.name); game.player.name = me.name; game.player.appearance = me.appearance; closeEdit(); toast('Đã lưu. Mọi người trong phòng sẽ thấy dáng mới của bạn.'); }
+    catch (error) { toast(error.message); }
+    return;
+  }
+  if (entered || !game) return;
+  $('#enter').disabled = true;
+  try { me = (await api.put('/profile', { name: $('#name').value.trim() || 'Khách', appearance: creator.look })).player; }
+  catch (error) { $('#enter').disabled = false; return toast(error.message); }
+  store.set('sanmay-name', me.name); entered = true; creator.stop();
+  game.player.appearance = me.appearance; game.enter(me.name); $('#intro').hidden = true;
+  for (const id of ['#bow', '#bead', '#pray', '#wave', '#emoteToggle']) $(id).disabled = false;
+  net.room = room; net.start(api.token);
+  if (!await audio.unlock()) toast('Không bật được âm thanh; bạn vẫn có thể chơi.');
+  audio.tone(520, .8);
+};
+$('#name').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#enter').disabled) $('#enter').click(); });
+$('#bow').onclick = () => act('bow'); $('#bead').onclick = () => act('bead'); $('#pray').onclick = () => act('pray'); $('#wave').onclick = () => act('wave'); $('#interact').onclick = () => interact();
+$('#restart').onclick = async () => { try { for (const type of ['bow', 'bead']) if (progress?.[`${type}sRound`] >= ROUND) setProgress((await api.post('/progress/restart', { type })).progress); toast('Đã bắt đầu vòng mới.'); } catch (error) { toast(error.message); } };
+$('#copy').onclick = async () => { const invite = new URL(location.href); invite.searchParams.delete('slot'); try { await navigator.clipboard.writeText(invite.href); toast('Đã sao chép liên kết mời vào phòng này.'); } catch { toast('Không truy cập được clipboard. Hãy sao chép địa chỉ trên thanh trình duyệt.'); } };
+window.addEventListener('keydown', e => { if (e.key === 'Escape' && !dialogue?.isOpen && !entered) panels.close(); });
+window.addEventListener('pagehide', () => { net.stop(); game?.destroy(); });
+boot();

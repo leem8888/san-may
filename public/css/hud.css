@@ -1,0 +1,37 @@
+.topbar{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:22px 28px;background:linear-gradient(#0c2324d9,transparent);pointer-events:none;z-index:3}
+.brand,nav{display:flex;align-items:center;gap:12px}
+.brand strong{font-size:20px;letter-spacing:.24em}
+.brand small{display:block;font-size:9px;letter-spacing:.17em;color:#c2cbb1;margin-top:5px;text-transform:uppercase}
+.mark{display:grid;place-items:center;border:1px solid #d9b77e9c;width:44px;height:44px;border-radius:50%;font-size:28px;color:var(--gold)}
+nav{pointer-events:auto;gap:7px}
+nav button{font-size:12px;backdrop-filter:blur(15px)}
+nav button[aria-expanded=true]{background:#3c5e4d;border-color:#d9b77e88}
+.menu-toggle{display:none;pointer-events:auto}
+.room{position:absolute;left:30px;top:88px;display:flex;gap:9px;align-items:center;font-size:10px;color:#cbd9bf;flex-wrap:wrap;max-width:560px;background:#102625bc;padding:8px 12px;border-radius:20px;z-index:2}
+.dot{height:6px;width:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 9px var(--accent)}
+.dot.off{background:#f3be86;box-shadow:0 0 9px #f3be86}
+#connection{color:#a7c8b3}
+#skyLabel{color:#e2d3a8}
+.offline{color:#f3be86!important}
+.area-title{position:absolute;left:50%;top:22%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;z-index:2;text-shadow:0 3px 14px #061c21;white-space:nowrap}
+.area-title strong{display:block;font:normal 44px "Palatino Linotype","Book Antiqua",Georgia,serif;margin-top:8px;color:#f6ecd2}
+.area-title.show{animation:title 4.2s ease-out forwards}
+.world-caption{position:absolute;bottom:38px;left:30px;pointer-events:none;text-shadow:0 2px 6px #102625}
+.world-caption p{font:italic 17px "Palatino Linotype","Book Antiqua",Georgia,serif;margin:7px 0}
+.hud-bottom{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2}
+.actions{display:flex;padding:5px;gap:4px;background:#102625e8;border:1px solid #b6b68a55;border-radius:17px;box-shadow:0 10px 30px #10262555;backdrop-filter:blur(12px)}
+.actions button{min-width:76px;background:none;border:0;display:flex;align-items:center;flex-direction:column;gap:3px;padding:6px 9px}
+.actions span{font:25px "Palatino Linotype","Book Antiqua",Georgia,serif;height:26px;color:#e1c996}
+.actions b{font-size:11px}
+.actions small{font-size:9px;color:#c3d0ba}
+.actions progress{margin-top:2px}
+.emotes{display:flex;gap:6px;padding:6px;background:#102625ee;border:1px solid #b6b68a55;border-radius:14px;position:absolute;bottom:100%;margin-bottom:8px;animation:open .16s ease-out}
+.emotes button{width:46px;height:46px;padding:4px;border-radius:12px}
+.emotes canvas{width:32px;height:32px;display:block;margin:auto}
+.interaction{font-size:11px;background:#e1c38c;color:#22392d;min-height:36px;border:1px solid #f5dca8}
+.interaction:disabled{opacity:.65;background:#213f34;color:#d2dfc5}
+#restart{font-size:11px;position:absolute;left:100%;bottom:20px;white-space:nowrap;margin-left:8px}
+#toast{position:absolute;z-index:9;top:140px;left:50%;transform:translateX(-50%);max-width:min(460px,90vw);background:#e4cc9a;color:#25382d;border-radius:14px;padding:12px 20px;font-size:12px;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+#joystick{display:none;position:absolute;left:22px;bottom:34px;width:110px;height:110px;border-radius:50%;border:1px solid #c2c8a977;background:#183c3066;touch-action:none;place-items:center;z-index:2}
+#joystick span{display:block;width:46px;height:46px;background:#d5c09488;border:1px solid #dfcc9d;border-radius:50%;pointer-events:none}

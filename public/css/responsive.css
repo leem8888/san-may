@@ -1,0 +1,49 @@
+@media(max-width:1050px){.world-caption{display:none}}
+@media(pointer:coarse){
+  #joystick{display:grid}
+  .hud-bottom{left:auto;right:12px;transform:none;align-items:flex-end}
+  .actions button{min-width:56px;padding:6px}
+  .actions{gap:0}
+  .actions span{font-size:22px}
+  .actions b{font-size:10px}
+  .interaction{min-height:44px;font-size:12px;padding:10px 16px}
+}
+@media(max-width:760px){
+  .topbar{padding:14px}
+  .brand strong{font-size:16px}
+  .brand small{font-size:8px}
+  .mark{width:32px;height:32px;font-size:22px}
+  .brand{gap:8px}
+  .menu-toggle{display:block;font-size:12px;padding:8px 12px}
+  nav{display:none;position:absolute;top:60px;right:12px;flex-direction:column;align-items:stretch;background:#102625f2;padding:8px;border-radius:14px;border:1px solid var(--line);min-width:170px}
+  nav.open{display:flex}
+  .room{left:12px;top:66px;max-width:calc(100% - 24px);font-size:9px;gap:7px}
+  .panel{top:104px;left:10px;right:10px;width:auto;max-height:calc(100dvh - 290px);padding:18px}
+  .intro-card{padding:22px}
+  .intro h1{font-size:27px}
+  .creator{flex-direction:column;align-items:center}
+  .creator-fields{width:100%}
+  .hud-bottom{bottom:12px}
+  .actions b{font-size:9px}
+  .actions small{display:none}
+  .actions button{min-width:48px;padding:5px 4px}
+  .world-caption{display:none}
+  #joystick{width:96px;height:96px;left:12px;bottom:22px}
+  #restart{left:auto;right:0;bottom:100%;margin:0 0 8px}
+  .area-title strong{font-size:32px}
+  #toast{top:110px}
+}
+@media(max-height:520px){
+  .topbar{padding:8px 16px}
+  .room{top:56px}
+  .panel{top:90px;max-height:calc(100dvh - 104px);width:300px;left:auto}
+  .intro-card{padding:16px 24px}
+  .intro h1{font-size:24px;margin:8px 0}
+  .creator{flex-direction:row}
+  .hud-bottom{bottom:6px}
+  .world-caption{display:none}
+  .area-title{top:14%}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.area-title.show{opacity:1}}
+@media(max-width:760px){.panel.wide{width:auto}.minigame-card{padding:12px}.meditation{bottom:4%}.meditation strong{font-size:34px}}
+@media(max-width:760px){.garden-bar{left:10px;right:10px;width:auto;bottom:auto;top:104px;max-height:40dvh;overflow:auto}}

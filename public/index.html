@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#102625">
+  <title>Sân Mây · Một khoảng lặng giữa ngày</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/hud.css">
+  <link rel="stylesheet" href="/css/panels.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+<main id="app">
+  <canvas id="scene" aria-label="Thế giới Sân Mây: WASD hoặc phím mũi tên để đi, E để tương tác"></canvas>
+
+  <header class="topbar">
+    <div class="brand"><span class="mark" aria-hidden="true">✦</span><div><strong>SÂN MÂY</strong><small id="areaLine">CỔNG TAM QUAN</small></div></div>
+    <button id="menuToggle" class="menu-toggle" aria-expanded="false" aria-controls="mainNav">Menu</button>
+    <nav id="mainNav" aria-label="Menu chính">
+      <button data-panel="mapPanel" title="Bản đồ (M)">Bản đồ</button>
+      <button data-panel="questPanel" title="Nhiệm vụ (Q)">Nhiệm vụ</button>
+      <button data-panel="journalPanel" title="Nhật ký (J)">Nhật ký</button>
+      <button data-panel="wishPanel" title="Lời chúc">Lời chúc</button>
+      <button data-panel="profilePanel" title="Hồ sơ & thành tựu">Hồ sơ</button>
+      <button data-panel="settingsPanel" title="Cài đặt">Cài đặt</button>
+      <button id="copy" class="accent">Mời bạn ↗</button>
+    </nav>
+  </header>
+
+  <div class="room" role="status">
+    <span class="dot" id="statusDot"></span><span id="roomLabel">PHÒNG</span><button id="online" class="link-button" data-panel="peoplePanel" title="Xem người trong khu">Chưa vào phòng</button><small id="connection">Sẵn sàng</small><small id="skyLabel"></small>
+  </div>
+
+  <div id="areaTitle" class="area-title" aria-live="polite"><span class="eyebrow" id="areaSubtitle"></span><strong id="areaName"></strong></div>
+
+  <section class="intro" id="intro" aria-label="Vào Sân Mây">
+    <div class="intro-card">
+      <span class="eyebrow">MỘT KHOẢNG LẶNG GIỮA NGÀY</span>
+      <h1>Chậm lại một chút.<br><em>Mây vẫn đang trôi.</em></h1>
+      <p>Dạo bước qua tám khu của một ngôi chùa nhỏ, nghe một tiếng chuông và gửi một lời lành đến bạn bè.</p>
+      <div class="creator">
+        <canvas id="preview" width="128" height="160" aria-label="Xem trước nhân vật"></canvas>
+        <div class="creator-fields">
+          <label for="name">Tên của bạn</label>
+          <input id="name" maxlength="18" autocomplete="nickname" placeholder="Ví dụ: An">
+          <div id="lookOptions" class="look-options"></div>
+        </div>
+      </div>
+      <details class="rooms" id="roomChooser">
+        <summary>Phòng <b id="introRoom"></b> · đổi phòng hoặc tạo phòng riêng</summary>
+        <div id="publicRooms" class="room-list" aria-live="polite"></div>
+        <form id="joinRoomForm" class="row"><input id="roomInput" maxlength="24" placeholder="Nhập mã phòng" aria-label="Mã phòng"><button>Vào phòng</button></form>
+        <button id="createPrivate" type="button" class="ghost">Tạo phòng riêng (chỉ ai có liên kết mới vào được)</button>
+      </details>
+      <button class="primary" id="enter" disabled>Bước vào chùa →</button>
+      <progress id="loadProgress" value="0" max="1" aria-label="Tiến trình tải tài nguyên"></progress>
+      <small id="loading" role="status">Đang tải…</small>
+      <button id="retry" hidden>Thử tải lại</button>
+      <button id="cancelEdit" class="ghost" hidden>Huỷ, giữ như cũ</button>
+      <small>WASD / mũi tên để đi · E tương tác · M bản đồ · Chạm vào cảnh để di chuyển</small>
+    </div>
+  </section>
+
+  <aside id="mapPanel" class="panel" hidden aria-labelledby="mapTitle">
+    <div class="panel-head"><div><span class="eyebrow">TÁM KHU VỰC</span><h2 id="mapTitle">Bản đồ</h2></div><button class="close" data-close aria-label="Đóng bản đồ">×</button></div>
+    <svg id="worldMap" viewBox="0 0 320 300" role="img" aria-label="Sơ đồ các khu vực"></svg>
+    <p class="hint" id="mapHint"></p>
+  </aside>
+
+  <aside id="wishPanel" class="panel" hidden aria-labelledby="wishTitle">
+    <div class="panel-head"><div><span class="eyebrow">ĐIỀU LÀNH GỬI NHAU</span><h2 id="wishTitle">Bảng lời chúc</h2></div><button class="close" data-close aria-label="Đóng lời chúc">×</button></div>
+    <form id="wishForm" class="card-form">
+      <label for="wish">Viết một lời chúc</label>
+      <textarea id="wish" maxlength="120" rows="2" required placeholder="Chúc bạn một ngày bình an…"></textarea>
+      <div class="row"><label class="check"><input type="checkbox" id="wishPrivate">Chỉ mình tôi xem</label><small id="wishCount">0/120</small></div>
+      <button id="sendWish" class="primary">Gửi lời chúc →</button>
+      <small id="wishStatus" role="status"></small>
+    </form>
+    <div id="wishes" class="wish-list"></div>
+    <button id="moreWishes" class="ghost" hidden>Xem thêm lời chúc cũ</button>
+  </aside>
+
+  <aside id="settingsPanel" class="panel" hidden aria-labelledby="settingsTitle">
+    <div class="panel-head"><h2 id="settingsTitle">Cài đặt</h2><button class="close" data-close aria-label="Đóng cài đặt">×</button></div>
+    <button id="sound">Âm thanh: bật</button>
+    <div id="volumes" class="volumes" role="group" aria-label="Âm lượng từng kênh"></div>
+    <label class="field">Chất lượng hình ảnh<select id="quality"><option value="high">Cao</option><option value="medium">Vừa</option><option value="low">Thấp (máy yếu)</option></select></label>
+    <label class="field">Thời gian trong chùa<select id="timeMode"></select></label>
+    <label class="field">Thời tiết<select id="weatherMode"></select></label>
+    <label class="check"><input type="checkbox" id="reduced">Giảm hiệu ứng chuyển động</label>
+    <button id="fullscreen">Bật / tắt toàn màn hình</button>
+    <details class="recovery"><summary>Mã khôi phục danh tính</summary>
+      <p>Tiến trình của bạn gắn với mã này. Lưu lại để dùng trên máy khác; không chia sẻ cho người khác.</p>
+      <div class="row"><input id="recoveryCode" readonly aria-label="Mã khôi phục"><button id="copyRecovery">Sao chép</button></div>
+      <label for="recoverInput">Dùng mã khác trên máy này</label>
+      <div class="row"><input id="recoverInput" placeholder="Dán mã khôi phục"><button id="recover">Khôi phục</button></div>
+    </details>
+    <p class="keys">WASD / mũi tên: di chuyển · E: tương tác<br>1 lạy · 2 lần chuỗi · 3 chắp tay · 4 vẫy chào<br>M: bản đồ · Esc: đóng bảng</p>
+  </aside>
+
+  <aside id="meditationPanel" class="panel" hidden aria-labelledby="meditationTitle">
+    <div class="panel-head"><div><span class="eyebrow">NGỒI YÊN · THỞ CHẬM</span><h2 id="meditationTitle">Thiền định</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p>Chọn thời lượng. Đồng hồ do máy chủ giữ, nên bạn có thể chuyển tab mà phiên vẫn chạy. Di chuyển hoặc chọn “Kết thúc” để dừng sớm; thời gian thực tế vẫn được lưu.</p>
+    <div id="meditationMinutes" class="choice-row" role="group" aria-label="Thời lượng"></div>
+    <label class="check"><input type="checkbox" id="meditationMusic" checked>Nhạc thiền nhẹ</label>
+    <button id="startMeditation" class="primary">Bắt đầu thiền →</button>
+  </aside>
+
+  <aside id="lanternPanel" class="panel" hidden aria-labelledby="lanternTitle">
+    <div class="panel-head"><div><span class="eyebrow">MỘT ĐIỀU ƯỚC TRÊN MẶT NƯỚC</span><h2 id="lanternTitle">Thả hoa đăng</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <form id="lanternForm" class="card-form">
+      <label for="lanternText">Điều ước của bạn (mọi người trong phòng sẽ thấy)</label>
+      <textarea id="lanternText" maxlength="80" rows="2" required placeholder="Mong mọi người đều bình an…"></textarea>
+      <div id="lanternStyles" class="choice-row" role="radiogroup" aria-label="Kiểu đèn"></div>
+      <button id="releaseLantern" class="primary">Thả đèn xuống hồ →</button>
+      <small id="lanternStatus" role="status"></small>
+    </form>
+    <h3 class="sub">Hoa đăng đang trôi</h3>
+    <div id="lanternList" class="entries"></div>
+  </aside>
+
+  <aside id="peoplePanel" class="panel" hidden aria-labelledby="peopleTitle">
+    <div class="panel-head"><div><span class="eyebrow">CÙNG KHU VỰC</span><h2 id="peopleTitle">Mọi người</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p class="hint">Ẩn một người: bạn sẽ không thấy nhân vật, lời chúc, hoa đăng và biểu cảm của họ nữa. Họ không được thông báo.</p>
+    <div id="peopleList" class="entries"></div>
+    <h3 class="sub">Đã ẩn</h3>
+    <div id="blockedList" class="entries"></div>
+  </aside>
+
+  <aside id="storiesPanel" class="panel wide" hidden aria-labelledby="storiesTitle">
+    <div class="panel-head"><div><span class="eyebrow">TÀNG KINH CÁC</span><h2 id="storiesTitle">Truyện &amp; lời hay</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div id="storyList" class="story-list"></div>
+    <article id="storyView" class="story" hidden>
+      <span class="eyebrow" id="storyKind"></span><h3 id="storyHeading"></h3><p id="storyText"></p>
+      <p class="reflect" id="storyReflect"></p><small id="storySource"></small>
+      <div class="row"><button id="storyBack" class="ghost">← Danh sách</button><button id="storyDone" class="ghost">Đã đọc xong</button></div>
+    </article>
+    <p class="hint" id="storiesNote"></p>
+  </aside>
+
+  <aside id="questPanel" class="panel" hidden aria-labelledby="questTitle">
+    <div class="panel-head"><div><span class="eyebrow">VIỆC NHỎ MỖI NGÀY · KHÔNG BẮT BUỘC</span><h2 id="questTitle">Nhiệm vụ</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p class="hint">Làm được bao nhiêu thì làm. Bỏ lỡ một ngày không mất gì cả.</p>
+    <div id="questList"></div>
+  </aside>
+
+  <aside id="journalPanel" class="panel wide" hidden aria-labelledby="journalTitle">
+    <div class="panel-head"><div><span class="eyebrow">NHỮNG NGÀY Ở CHÙA</span><h2 id="journalTitle">Nhật ký</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div id="journalStats" class="stats"></div>
+    <form id="noteForm" class="card-form">
+      <label for="note">Ghi lại một suy nghĩ (chỉ mình bạn đọc)</label>
+      <textarea id="note" maxlength="400" rows="2" placeholder="Hôm nay mình biết ơn…"></textarea>
+      <div class="row"><small id="noteCount">0/400</small><button>Lưu ghi chép</button></div>
+    </form>
+    <h3 class="sub">Các phiên thiền gần đây</h3>
+    <ul id="meditationHistory" class="history"></ul>
+    <h3 class="sub">Nhật ký hoạt động</h3>
+    <div id="journalEntries" class="entries"></div>
+  </aside>
+
+  <aside id="profilePanel" class="panel wide" hidden aria-labelledby="profileTitle">
+    <div class="panel-head"><div><span class="eyebrow">HỒ SƠ</span><h2 id="profileName"></h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div id="profileStats" class="stats"></div>
+    <button id="editLook" class="ghost">Đổi tên &amp; trang phục</button>
+    <h3 class="sub">Vật phẩm đã nhận</h3>
+    <div id="profileItems" class="items"></div>
+    <h3 class="sub">Thành tựu <small id="achievementCount"></small></h3>
+    <div id="achievementList" class="achievements"></div>
+  </aside>
+
+  <aside id="gardenGatePanel" class="panel" hidden aria-labelledby="gardenGateTitle">
+    <div class="panel-head"><div><span class="eyebrow">MỖI NGƯỜI MỘT GÓC NHỎ</span><h2 id="gardenGateTitle">Vườn riêng</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p>Gieo cây, đặt đá, đèn và hoa theo ý bạn. Cây lớn dần theo thời gian và mỗi lần được tưới; không cần ghé mỗi ngày.</p>
+    <button id="enterOwnGarden" class="primary">Vào vườn của tôi →</button>
+    <form id="visitForm" class="card-form">
+      <label for="visitCode">Ghé vườn của bạn bè (nhập mã vườn)</label>
+      <div class="row"><input id="visitCode" maxlength="12" autocomplete="off" placeholder="Ví dụ: K7M2Q9XA" required><button>Ghé thăm</button></div>
+    </form>
+  </aside>
+
+  <section id="gardenBar" class="garden-bar" hidden aria-label="Công cụ vườn">
+    <div class="row"><strong id="gardenName"></strong><small id="gardenCount"></small></div>
+    <div class="row"><small>Mã vườn: <b id="gardenCode"></b></small><button id="copyGardenCode" type="button">Chia sẻ mã</button></div>
+    <div id="gardenTools" class="garden-tools"></div>
+    <small id="gardenHint"></small>
+  </section>
+
+  <section id="minigame" class="minigame" hidden aria-labelledby="minigameTitle">
+    <div class="minigame-card">
+      <div class="panel-head"><div><span class="eyebrow" id="minigameEyebrow"></span><h2 id="minigameTitle"></h2></div><button class="close" id="minigameClose" aria-label="Đóng trò chơi">×</button></div>
+      <canvas id="minigameCanvas" width="1000" height="600"></canvas>
+      <div id="minigameTools" class="minigame-tools"></div>
+      <small id="minigameStatus" role="status"></small>
+    </div>
+  </section>
+
+  <section id="meditation" class="meditation" hidden aria-live="polite">
+    <div class="breath" aria-hidden="true"><span id="breathRing"></span></div>
+    <p id="breathText">Hít vào…</p>
+    <strong id="meditationClock">00:00</strong>
+    <div class="row"><button id="meditationSound">Nhạc: bật</button><button id="endMeditation">Kết thúc</button></div>
+  </section>
+
+  <dialog id="dialogue">
+    <div class="panel-head"><span class="eyebrow" id="dialogueName"></span><button class="close" id="dialogueClose" aria-label="Đóng hội thoại">×</button></div>
+    <h2 id="dialogueTitle"></h2>
+    <p id="dialogueText"></p>
+    <div class="dialogue-foot"><small id="dialoguePage"></small><button class="primary" id="dialogueNext">Tiếp tục →</button></div>
+  </dialog>
+
+  <div class="world-caption"><span class="eyebrow" id="captionEyebrow">DƯỚI MÁI HIÊN YÊN BÌNH</span><p id="actionState">Một khoảng lặng giữa ngày</p></div>
+  <div id="joystick" aria-label="Cần điều khiển cảm ứng"><span></span></div>
+
+  <footer class="hud-bottom">
+    <button id="interact" class="interaction" disabled>E · Tương tác</button>
+    <div class="actions" role="toolbar" aria-label="Hành động">
+      <button id="bow" disabled title="Phím 1 · Di chuyển sẽ hủy lạy"><span aria-hidden="true">⌄</span><b>Lạy Phật</b><small id="bowCount">0 / 108</small><progress id="bowProgress" value="0" max="108" aria-label="Tiến trình lạy"></progress></button>
+      <button id="bead" disabled title="Phím 2"><span aria-hidden="true">◌</span><b>Lần chuỗi</b><small id="beadCount">0 / 108</small><progress id="beadProgress" value="0" max="108" aria-label="Tiến trình lần chuỗi"></progress></button>
+      <button id="pray" disabled title="Phím 3"><span aria-hidden="true">◇</span><b>Chắp tay</b><small>Phím 3</small></button>
+      <button id="wave" disabled title="Phím 4"><span aria-hidden="true">〰</span><b>Vẫy chào</b><small>Phím 4</small></button>
+      <button id="emoteToggle" disabled aria-expanded="false" aria-controls="emotes" title="Biểu cảm"><span aria-hidden="true">✿</span><b>Biểu cảm</b><small>Gửi mọi người</small></button>
+    </div>
+    <div id="emotes" class="emotes" hidden role="menu" aria-label="Biểu cảm"></div>
+    <button id="restart" hidden>Vòng mới</button>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <noscript>Game cần JavaScript. Hãy bật JavaScript rồi tải lại trang.</noscript>
+</main>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

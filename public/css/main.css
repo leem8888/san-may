@@ -1,0 +1,49 @@
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#f2ebd8;background:#102625;--bg:#102625;--surface:#183330;--gold:#d9b77e;--wood:#89674a;--text:#f2ebd8;--accent:#8dcba9;--muted:#c4cfbd;--glass:#102625eb;--line:#c4bb8844}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;background:var(--bg)}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;color:inherit;background:#23423be8;border:1px solid #a9b69544;border-radius:10px;padding:10px 14px;transition:background .18s,transform .18s}
+button:hover:not(:disabled){background:#39594a;transform:translateY(-1px)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #f4d493;outline-offset:3px}
+[hidden]{display:none!important}
+#app,#scene{position:absolute;inset:0;width:100%;height:100%}
+#scene{touch-action:none;display:block}
+input,textarea,select{background:#102623;color:var(--text);border:1px solid #90a78b66;border-radius:9px;padding:11px 12px;width:100%}
+textarea{resize:vertical}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d9b77e 50%),linear-gradient(135deg,#d9b77e 50%,transparent 50%);background-position:calc(100% - 17px) 50%,calc(100% - 12px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+.primary{display:block;width:100%;background:var(--gold);color:#21352b;font-weight:650;margin:14px 0;padding:13px;border:0}
+.primary:hover:not(:disabled){background:#ebce98}
+.ghost{background:transparent;border-color:#d9b77e55;width:100%;margin-top:10px;font-size:12px}
+.accent{background:var(--gold)!important;color:#233e35}
+.eyebrow{font-size:9px;color:var(--gold);letter-spacing:.18em;font-weight:700;text-transform:uppercase}
+h2{font:normal 25px "Palatino Linotype","Book Antiqua",Georgia,serif;margin:9px 0}
+progress{appearance:none;width:100%;height:3px;border:0;border-radius:4px;overflow:hidden;background:#ffffff22}
+progress::-webkit-progress-bar{background:#ffffff22}
+progress::-webkit-progress-value{background:var(--gold)}
+progress::-moz-progress-bar{background:var(--gold)}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.check{display:flex;align-items:center;gap:8px;font-size:12px}
+.check input{width:auto}
+.intro{position:absolute;inset:0;display:grid;place-items:center;background:#061c2199;backdrop-filter:blur(5px);z-index:5}
+.intro-card{width:min(520px,calc(100vw - 24px));max-height:96dvh;overflow:auto;padding:32px;border:1px solid #bca0716e;border-radius:22px;background:linear-gradient(135deg,#213d34f5,#102625f5);box-shadow:0 30px 100px #00101488}
+.intro h1{font:normal 34px/1.18 "Palatino Linotype","Book Antiqua",Georgia,serif;margin:16px 0}
+.intro em{color:var(--gold);font-weight:normal}
+.intro p{color:var(--muted);font-size:13px;line-height:1.8;margin:0 0 6px}
+.intro label{font-size:12px;display:block;margin:6px 0}
+.intro small{font-size:10px;color:#bdcbb9;display:block;margin-top:10px;line-height:1.6}
+.creator{display:flex;gap:16px;align-items:flex-start;margin-top:14px}
+#preview{flex:none;width:112px;height:140px;border-radius:16px;background:radial-gradient(circle at 50% 70%,#355a4b,#163029);border:1px solid #d9b77e44}
+.creator-fields{flex:1;min-width:0}
+.look-options{display:grid;gap:8px;margin-top:10px}
+.look-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.look-row>span{font-size:11px;color:var(--muted);width:72px;flex:none}
+.swatch{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid transparent}
+.swatch[aria-pressed=true]{border-color:var(--gold);box-shadow:0 0 0 2px #102625 inset}
+.chip{font-size:11px;padding:5px 9px;border-radius:14px}
+.chip[aria-pressed=true]{background:var(--gold);color:#21352b}
+.locked{opacity:.35}
+noscript{position:absolute;inset:30%;z-index:10;background:var(--bg);padding:30px}
+@keyframes open{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes title{0%{opacity:0;transform:translate(-50%,10px)}15%,75%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
