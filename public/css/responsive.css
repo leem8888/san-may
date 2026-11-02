@@ -52,3 +52,8 @@
 body.meditating .chat{opacity:0;pointer-events:none}
 /* Prevent mobile browsers from zooming the game when focusing chat. */
 @media(pointer:coarse),(max-width:760px){.chat input{font-size:16px}}
+@media(max-width:760px){.story-objective{left:12px;top:96px;font-size:11px;max-width:calc(100vw - 24px)}}
+body.meditating .story-objective{opacity:0;pointer-events:none}
+@media(max-width:760px){.coop{left:12px;right:12px;top:auto;bottom:150px;width:auto;max-height:42vh}}
+body.meditating .coop{opacity:.85}
+@media(max-width:760px){.practice-card{right:12px;left:12px;width:auto;bottom:160px}}

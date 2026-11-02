@@ -1,0 +1,783 @@
+{
+  "npc": "novice",
+  "name": "AN · CHÚ TIỂU",
+  "title": "Chú tiểu An",
+  "entries": [
+    {
+      "when": {
+        "met": false
+      },
+      "node": "intro"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 5,
+            "step": "thank"
+          }
+        }
+      },
+      "node": "hall-thanks"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 4
+          }
+        }
+      },
+      "node": "hall-wait-4"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 3
+          }
+        }
+      },
+      "node": "hall-wait-3"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 2
+          }
+        }
+      },
+      "node": "hall-wait-2"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": "none"
+        },
+        "notFlags": [
+          "hall.later"
+        ]
+      },
+      "node": "hall-1"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 4,
+            "step": "thank"
+          }
+        }
+      },
+      "node": "bell-4-thanks"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 4,
+            "step": "hang"
+          }
+        }
+      },
+      "node": "bell-4-wait"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 3,
+            "step": "tell-an"
+          }
+        }
+      },
+      "node": "bell-3-found"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 3
+          }
+        }
+      },
+      "node": "bell-3-wait"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 2
+          }
+        }
+      },
+      "node": "bell-2-wait"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": "none"
+        }
+      },
+      "node": "bell-1"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "courtyard",
+            "object": "yard",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 3
+          }
+        ]
+      },
+      "node": "yard-decorated"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "courtyard",
+            "object": "yard",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 2
+          }
+        ]
+      },
+      "node": "yard-clean"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "courtyard",
+            "object": "yard",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 1
+          }
+        ]
+      },
+      "node": "yard-cleaning"
+    },
+    {
+      "when": {
+        "weather": [
+          "rain"
+        ]
+      },
+      "node": "rain"
+    },
+    {
+      "when": {
+        "phase": [
+          "morning"
+        ]
+      },
+      "node": "morning"
+    },
+    {
+      "when": {
+        "phase": [
+          "evening",
+          "night"
+        ]
+      },
+      "node": "evening"
+    },
+    {
+      "when": {
+        "familiarity": 3
+      },
+      "node": "friend"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "intro": {
+      "mood": "happy",
+      "lines": [
+        "Chào bạn! Mình là An, chú tiểu ở chùa này.",
+        "Bạn đến lần đầu phải không? Nhìn bạn ngơ ngác giống mình hôm mới vào chùa ghê."
+      ],
+      "choices": [
+        {
+          "id": "first",
+          "text": "Ừ, mình mới đến lần đầu.",
+          "next": "intro-guide"
+        },
+        {
+          "id": "age",
+          "text": "An bao nhiêu tuổi rồi?",
+          "next": "intro-age"
+        }
+      ]
+    },
+    "intro-age": {
+      "mood": "proud",
+      "lines": [
+        "Mười hai tuổi rồi đó!",
+        "Thầy bảo mình nói nhiều quá. Mình thấy nói vừa vừa thôi mà…"
+      ],
+      "next": "intro-guide"
+    },
+    "intro-guide": {
+      "mood": "happy",
+      "lines": [
+        "Qua cổng này là Sân Chùa. Từ sân có lối lên Chánh Điện, sang Vườn Thiền và Hồ Sen.",
+        "Bấm M để mở bản đồ nha. Lần sau gặp, cứ gọi mình."
+      ],
+      "choices": [
+        {
+          "id": "fav",
+          "text": "An thích chỗ nào nhất ở đây?",
+          "next": "fav"
+        },
+        {
+          "id": "bye",
+          "text": "Cảm ơn An!"
+        }
+      ]
+    },
+    "fav": {
+      "mood": "happy",
+      "lines": [
+        "Tháp Chuông! Đứng trên đó nhìn xuống thấy cả hồ sen.",
+        "Còn bạn, bạn nghĩ mình sẽ thích chỗ nào?"
+      ],
+      "choices": [
+        {
+          "id": "lake",
+          "text": "Chắc là Hồ Sen.",
+          "remember": {
+            "key": "favourite",
+            "value": "lake"
+          },
+          "next": "fav-ok"
+        },
+        {
+          "id": "garden",
+          "text": "Vườn Thiền nghe yên quá.",
+          "remember": {
+            "key": "favourite",
+            "value": "garden"
+          },
+          "next": "fav-ok"
+        },
+        {
+          "id": "library",
+          "text": "Thư Viện, mình thích đọc.",
+          "remember": {
+            "key": "favourite",
+            "value": "library"
+          },
+          "next": "fav-ok"
+        }
+      ]
+    },
+    "fav-ok": {
+      "mood": "happy",
+      "lines": [
+        "Mình nhớ rồi nhé! Lần sau gặp, mình sẽ hỏi bạn đã ghé chưa."
+      ]
+    },
+    "rain": {
+      "mood": "worried",
+      "lines": [
+        [
+          "Mưa rồi! Lá ngoài sân lại rụng đầy, chiều nay mình phải quét lại thôi."
+        ],
+        [
+          "Bạn có mang ô không? Mái hiên Chánh Điện khô lắm, vào đó đứng tạm nè."
+        ]
+      ],
+      "next": "menu"
+    },
+    "morning": {
+      "mood": "sleepy",
+      "lines": [
+        [
+          "Sáng nay thầy dậy từ bốn giờ. Mình cũng phải dậy theo… buồn ngủ ghê."
+        ],
+        [
+          "Chào buổi sáng! Sương còn đọng trên lá trúc, đẹp lắm đó."
+        ]
+      ],
+      "next": "menu"
+    },
+    "evening": {
+      "mood": "calm",
+      "lines": [
+        [
+          "Tối rồi, đèn lồng sáng hết rồi kìa. Mình thích lúc này nhất."
+        ],
+        [
+          "Chuông chiều vừa ngân xong. Bạn có nghe không?"
+        ]
+      ],
+      "next": "menu"
+    },
+    "friend": {
+      "mood": "happy",
+      "lines": [
+        [
+          "A, bạn thân của mình đây rồi!"
+        ],
+        [
+          "Mình đang mong bạn ghé đó. Hôm nay bạn đi đâu chơi?"
+        ]
+      ],
+      "next": "menu"
+    },
+    "hello": {
+      "mood": "happy",
+      "lines": [
+        [
+          "Ơ, bạn lại đến! Hôm nay đi đâu thế?"
+        ],
+        [
+          "Chào bạn! Mình vừa quét xong một góc sân, mỏi tay ghê."
+        ],
+        [
+          "Bạn có thấy con mèo vàng không? Nó hay trốn trong Chánh Điện lắm."
+        ]
+      ],
+      "next": "menu"
+    },
+    "menu": {
+      "lines": [
+        "Bạn muốn hỏi mình gì không?"
+      ],
+      "choices": [
+        {
+          "id": "been-lake",
+          "when": {
+            "choices": {
+              "favourite": "lake"
+            }
+          },
+          "text": "Mình vừa ghé Hồ Sen đó.",
+          "next": "been-lake"
+        },
+        {
+          "id": "been-garden",
+          "when": {
+            "choices": {
+              "favourite": "garden"
+            }
+          },
+          "text": "Mình vừa ghé Vườn Thiền.",
+          "next": "been-garden"
+        },
+        {
+          "id": "been-library",
+          "when": {
+            "choices": {
+              "favourite": "library"
+            }
+          },
+          "text": "Mình vừa ghé Thư Viện.",
+          "next": "been-library"
+        },
+        {
+          "id": "fav",
+          "when": {
+            "notChoices": [
+              "favourite"
+            ]
+          },
+          "text": "An thích chỗ nào nhất ở đây?",
+          "next": "fav"
+        },
+        {
+          "id": "secret",
+          "when": {
+            "familiarity": 2
+          },
+          "text": "An có bí mật gì kể mình nghe không?",
+          "next": "secret"
+        },
+        {
+          "id": "way",
+          "text": "Chỉ đường giúp mình với.",
+          "next": "way"
+        },
+        {
+          "id": "bell-after",
+          "when": {
+            "story": {
+              "an-bell": "completed"
+            }
+          },
+          "text": "Chuông ở cổng vẫn ngân chứ An?",
+          "next": "bell-after"
+        },
+        {
+          "id": "hall-again",
+          "when": {
+            "story": {
+              "light-hall": "none"
+            },
+            "flags": {
+              "hall.later": true
+            }
+          },
+          "text": "Kể mình nghe về chiếc đèn cổ đi.",
+          "next": "hall-again"
+        },
+        {
+          "id": "hall-after",
+          "when": {
+            "story": {
+              "light-hall": "completed"
+            }
+          },
+          "text": "Chiếc đèn vẫn sáng chứ An?",
+          "next": "hall-after"
+        },
+        {
+          "id": "bye",
+          "text": "Hẹn gặp lại An."
+        }
+      ]
+    },
+    "been-lake": {
+      "mood": "happy",
+      "lines": [
+        "Thấy chưa, mình nói mà! Tối thả hoa đăng còn đẹp hơn nữa."
+      ],
+      "next": "menu"
+    },
+    "been-garden": {
+      "mood": "happy",
+      "lines": [
+        "Bác Lâm có cho bạn cào cát không? Bác ít khi cho mình cào lắm, sợ mình vẽ con mèo."
+      ],
+      "next": "menu"
+    },
+    "been-library": {
+      "mood": "calm",
+      "lines": [
+        "Thầy Minh có nhiều sách lắm. Mình thích nhất cuốn có hình con voi."
+      ],
+      "next": "menu"
+    },
+    "secret": {
+      "mood": "shy",
+      "lines": [
+        "Suỵt… Có lần mình làm rơi chiếc chày gỗ ở Tháp Chuông. May mà không ai thấy.",
+        "Bạn đừng kể với thầy nha!"
+      ],
+      "next": "menu"
+    },
+    "way": {
+      "mood": "calm",
+      "lines": [
+        "Chánh Điện ở phía bắc sân. Vườn Thiền bên trái, Hồ Sen bên phải.",
+        "Sau Hồ Sen là Tháp Chuông; sau Vườn Thiền là Rừng Trúc rồi tới Thư Viện."
+      ],
+      "next": "menu"
+    },
+    "bell-1": {
+      "mood": "surprised",
+      "lines": [
+        "Bạn ơi! Mình tìm thấy cái này kẹp dưới bậc thang Tháp Chuông.",
+        "Một trang nhật ký cũ lắm rồi. Trong đó có nhắc tới “chiếc chuông nhỏ ở cổng chùa”."
+      ],
+      "choices": [
+        {
+          "id": "accept",
+          "text": "Mình giúp An tìm nhé!",
+          "next": "bell-1-accept"
+        },
+        {
+          "id": "what",
+          "text": "Chuông nhỏ nào vậy?",
+          "next": "bell-1-what"
+        },
+        {
+          "id": "other",
+          "text": "Mình muốn hỏi chuyện khác.",
+          "next": "menu"
+        },
+        {
+          "id": "later",
+          "text": "Để lúc khác nhé."
+        }
+      ]
+    },
+    "bell-1-what": {
+      "mood": "worried",
+      "lines": [
+        "Mình cũng không biết! Ở cổng bây giờ đâu có chuông.",
+        "Chắc nó bị cất đi đâu đó từ lâu rồi…"
+      ],
+      "choices": [
+        {
+          "id": "accept",
+          "text": "Mình cùng tìm thử xem.",
+          "next": "bell-1-accept"
+        },
+        {
+          "id": "later",
+          "text": "Để lúc khác nhé."
+        }
+      ]
+    },
+    "bell-1-accept": {
+      "mood": "happy",
+      "startStory": "an-bell",
+      "lines": [
+        "Thật hả? Tuyệt quá!",
+        "Thầy Minh biết nhiều chuyện cũ lắm. Bạn hỏi thầy giúp mình nhé. Thầy hay ở Thư Viện."
+      ]
+    },
+    "bell-2-wait": {
+      "mood": "calm",
+      "lines": [
+        "Thầy Minh nói gì chưa? Thầy hay ở Thư Viện, có lúc ra Rừng Trúc dạo."
+      ],
+      "next": "menu"
+    },
+    "bell-3-wait": {
+      "mood": "surprised",
+      "lines": [
+        "Hộc gỗ khắc hoa sen hả? Mình chưa thấy bao giờ!",
+        "Dưới chân Tháp Chuông có mấy cái hộc cũ lắm. Bạn xem kỹ nhé."
+      ],
+      "next": "menu"
+    },
+    "bell-3-found": {
+      "mood": "surprised",
+      "lines": [
+        "Đây… đây là chiếc chuông trong nhật ký!",
+        "Lưỡi đồng nhỏ xíu vẫn còn nguyên. Keng!",
+        "Mình muốn treo nó lại chỗ cũ. Dưới mái cổng Tam Quan còn một cái móc sắt."
+      ]
+    },
+    "bell-4-wait": {
+      "mood": "calm",
+      "lines": [
+        "Móc sắt ở dưới mái cổng, gần mấy chiếc đèn lồng đỏ. Bạn treo giúp mình nhé, mình với không tới!"
+      ],
+      "next": "menu"
+    },
+    "bell-4-thanks": {
+      "mood": "happy",
+      "lines": [
+        "Mình nghe thấy rồi! Gió vừa qua là chuông ngân.",
+        "Cảm ơn bạn nhiều lắm. Mình làm thêm một chiếc nhỏ, tặng bạn treo ở vườn riêng nhé."
+      ]
+    },
+    "bell-after": {
+      "mood": "happy",
+      "lines": [
+        "Ngày nào gió lên mình cũng chạy ra cổng nghe. Thầy bảo mình nghe chuông mà quên quét sân!"
+      ],
+      "next": "menu"
+    },
+    "yard-cleaning": {
+      "mood": "happy",
+      "lines": [
+        [
+          "Có người quét sân giúp mình! Còn mấy đống lá nữa thôi."
+        ],
+        [
+          "Quét xong nhớ gom lá vào xe nhé, không gió lại thổi tung ra."
+        ]
+      ],
+      "next": "menu"
+    },
+    "yard-clean": {
+      "mood": "proud",
+      "lines": [
+        [
+          "Sân sạch bóng rồi! Giờ chỉ thiếu chút hoa với đèn ở bậc thềm."
+        ]
+      ],
+      "next": "menu"
+    },
+    "yard-decorated": {
+      "mood": "happy",
+      "lines": [
+        [
+          "Sân đẹp như ngày rằm! Tối nay thắp dây đèn lồng lên nhé, đẹp lắm."
+        ],
+        [
+          "Mình đứng ngắm mãi. Ai đi qua cũng dừng lại."
+        ]
+      ],
+      "next": "menu"
+    },
+    "hall-1": {
+      "mood": "surprised",
+      "lines": [
+        "Bạn ơi! Bạn có để ý góc tối tối trong Chánh Điện không?",
+        "Ở đó từng có một chiếc đèn cổ. Lâu lắm rồi không ai thắp."
+      ],
+      "choices": [
+        {
+          "id": "lamp",
+          "text": "Chiếc đèn trông thế nào?",
+          "next": "hall-lamp"
+        },
+        {
+          "id": "history",
+          "text": "Chùa mình có từ bao giờ vậy?",
+          "next": "hall-history"
+        },
+        {
+          "id": "accept",
+          "text": "Mình giúp An tìm lại nhé.",
+          "next": "hall-accept"
+        },
+        {
+          "id": "other",
+          "text": "Mình muốn hỏi chuyện khác.",
+          "next": "menu"
+        },
+        {
+          "id": "later",
+          "text": "Để lúc khác nhé.",
+          "next": "hall-later"
+        }
+      ]
+    },
+    "hall-lamp": {
+      "mood": "happy",
+      "lines": [
+        "Mình chỉ thấy trong tranh thôi: đèn bằng đồng, chân hình hoa sen, thân khắc ba áng mây."
+      ],
+      "choices": [
+        {
+          "id": "history",
+          "text": "Chùa mình có từ bao giờ vậy?",
+          "next": "hall-history"
+        },
+        {
+          "id": "accept",
+          "text": "Mình giúp An tìm lại nhé.",
+          "next": "hall-accept"
+        },
+        {
+          "id": "later",
+          "text": "Để lúc khác nhé.",
+          "next": "hall-later"
+        }
+      ]
+    },
+    "hall-history": {
+      "mood": "calm",
+      "lines": [
+        "Thầy Viên Giác kể: ngày xưa chỉ có một gian nhỏ lợp lá. Người trong làng góp từng viên ngói mới thành Chánh Điện bây giờ.",
+        "Chiếc đèn cổ là quà của làng hồi ấy đấy."
+      ],
+      "choices": [
+        {
+          "id": "lamp",
+          "text": "Chiếc đèn trông thế nào?",
+          "next": "hall-lamp"
+        },
+        {
+          "id": "accept",
+          "text": "Mình giúp An tìm lại nhé.",
+          "next": "hall-accept"
+        },
+        {
+          "id": "later",
+          "text": "Để lúc khác nhé.",
+          "next": "hall-later"
+        }
+      ]
+    },
+    "hall-accept": {
+      "mood": "happy",
+      "startStory": "light-hall",
+      "lines": [
+        "Thật hả? Vui quá!",
+        "Nhớ nhé: chân đèn hình hoa sen, thân khắc ba áng mây.",
+        "Thầy Minh có cuốn sách cũ vẽ đủ đồ trong chùa. Bạn hỏi thầy ở Thư Viện thử xem."
+      ]
+    },
+    "hall-later": {
+      "mood": "calm",
+      "setFlags": {
+        "hall.later": true
+      },
+      "lines": [
+        "Ừ, lúc nào rảnh thì quay lại nhé. Mình vẫn ở quanh đây."
+      ]
+    },
+    "hall-again": {
+      "mood": "happy",
+      "setFlags": {
+        "hall.later": false
+      },
+      "lines": [
+        "Bạn muốn nghe chuyện chiếc đèn cổ à?"
+      ],
+      "next": "hall-1"
+    },
+    "hall-wait-2": {
+      "mood": "calm",
+      "lines": [
+        [
+          "Thầy Minh có nói gì về chiếc đèn chưa? Thư Viện ở phía sau Rừng Trúc đó."
+        ],
+        [
+          "Chân sen, ba áng mây — bạn nhớ không?"
+        ]
+      ],
+      "next": "menu"
+    },
+    "hall-wait-3": {
+      "mood": "happy",
+      "lines": [
+        [
+          "Hốc tường thứ ba à? Để mình đi lấy chổi phẩy bụi!"
+        ],
+        [
+          "Chánh Điện thơm mùi hoa rồi. Mình thích lúc này nhất."
+        ]
+      ],
+      "next": "menu"
+    },
+    "hall-wait-4": {
+      "mood": "happy",
+      "lines": [
+        "Chiếc đèn đang phủ khăn trên bàn gỗ bên trái Chánh Điện.",
+        "Rủ thêm một người bạn thì vui hơn. Không có ai thì mình làm cùng bạn!"
+      ],
+      "next": "menu"
+    },
+    "hall-thanks": {
+      "mood": "happy",
+      "lines": [
+        "Mình thấy rồi! Ánh đèn vàng ấm cả Chánh Điện.",
+        "Đây, mình gói cho bạn một chiếc đèn nhỏ, để ở vườn riêng.",
+        "À… thầy Viên Giác nói dưới đáy Hồ Sen còn một chiếc chuông đồng nhỏ. Hôm nào mình kể tiếp nhé."
+      ]
+    },
+    "hall-after": {
+      "mood": "happy",
+      "lines": [
+        [
+          "Tối nào mình cũng ghé nhìn chiếc đèn một lát."
+        ],
+        [
+          "Có bạn kia hỏi mình về chiếc đèn. Mình bảo: hỏi người đã thắp nó ấy!"
+        ]
+      ],
+      "next": "menu"
+    }
+  }
+}

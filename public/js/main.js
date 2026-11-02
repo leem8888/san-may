@@ -15,6 +15,9 @@ import { WishPanel } from './ui/WishPanel.js';
 import { MapPanel } from './ui/MapPanel.js';
 import { CharacterCreator } from './ui/CharacterCreator.js';
 import { MeditationPanel } from './ui/MeditationPanel.js';
+import { CoopPanel } from './ui/CoopPanel.js';
+import { HallPanel } from './ui/HallPanel.js';
+import { BowSession, BeadRing, ReadingPanel, PrayerBook } from './ui/HallPractice.js';
 import { LanternPanel } from './ui/LanternPanel.js';
 import { StoriesPanel } from './ui/StoriesPanel.js';
 import { MinigameHost } from './ui/minigames/MinigameHost.js';
@@ -27,6 +30,8 @@ import { ProgressPanels } from './ui/ProgressPanels.js';
 import { SocialPanel } from './ui/SocialPanel.js';
 import { FortunePanel } from './ui/FortunePanel.js';
 import { HallChant } from './systems/HallChant.js';
+import { WorldStateStore } from './multiplayer/WorldStateStore.js';
+import { ROUTINE_NAMES } from './shared/npcSchedule.js';
 import { ShopPanel } from './ui/ShopPanel.js';
 
 const params = new URLSearchParams(location.search);
@@ -42,7 +47,59 @@ const savedVolumes = (() => { try { return JSON.parse(store.get('sanmay-volumes'
 const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolumes);
 const panels = new Panels(), creator = new CharacterCreator();
 const blocked = new Set();
-let game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
+let coop, hall, bowSession, beadRing, reading, prayerBook, game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
+// Server-side story state: current objectives, which NPCs have something new to tell, which NPCs talk via the server.
+let storyState = { objectives: [], highlights: [], talkers: [] };
+// The objective line. A journey shows its stage; it can be paused (objective hidden, no active time counted),
+// introduces each stage once, and offers its hint only after a while without progress.
+let goalKey = null, goalSince = 0;
+const HINT_AFTER_MS = 150_000;
+function setStory(next) {
+  if (!next) return;
+  storyState = next;
+  const journey = next.journey || { paused: false, seen: [] };
+  const list = journey.paused ? next.objectives.filter(x => !x.journey) : next.objectives;
+  const o = list.find(x => x.journey) || list[0];
+  $('#journeyPaused').hidden = !(journey.paused && next.objectives.some(x => x.journey));
+  $('#storyObjective').hidden = !o;
+  if (!o) return;
+  $('#storyChapter').textContent = o.journey ? `Hành trình · Giai đoạn ${o.chapter}/${o.chapters}: ${o.chapterTitle}` : `${o.story} · Chương ${o.chapter}/${o.chapters}: ${o.chapterTitle}`;
+  $('#storyGoal').textContent = o.text;
+  $('#journeyPause').hidden = !o.journey;
+  const key = `${o.storyId}|${o.chapter}|${o.step}`;
+  if (key !== goalKey) { goalKey = key; goalSince = performance.now(); $('#storyHint').hidden = true; $('#storyHint').textContent = o.hint ? `Gợi ý: ${o.hint}` : ''; }
+  if (o.journey && !journey.seen.includes(`${o.storyId}.${o.chapter}`)) showStage(o);
+}
+setInterval(() => { if (goalKey && $('#storyHint').textContent && performance.now() - goalSince > HINT_AFTER_MS) $('#storyHint').hidden = false; }, 5000);
+function showStage(o) {
+  const card = $('#journeyCard');
+  storyState.journey?.seen.push(`${o.storyId}.${o.chapter}`);
+  net.request('journey:seen', { storyId: o.storyId, stage: o.chapter }).catch(() => {});
+  $('#journeyStage').textContent = `${o.story.toUpperCase()} · GIAI ĐOẠN ${o.chapter}/${o.chapters}`;
+  $('#journeyTitle').textContent = o.chapterTitle; $('#journeySummary').textContent = o.summary || o.text;
+  card.classList.remove('out'); card.hidden = false;
+  audio.tone(523, 1.4, .03, 'ui'); audio.tone(784, 1.8, .025, 'ui', 'sine', 1, (audio.context?.currentTime || 0) + .3);
+  clearTimeout(showStage.timer);
+  showStage.timer = setTimeout(() => { card.classList.add('out'); showStage.timer = setTimeout(() => { card.hidden = true; }, 1400); }, 6000);
+}
+async function pauseJourney(on) { try { setStory((await net.request('journey:pause', { on })).story); toast(on ? 'Đã tạm dừng hành trình. Bạn cứ tự do dạo chùa.' : 'Tiếp tục hành trình.'); } catch (error) { toast(error.message); } }
+// The closing moment of a journey: a few warm lines, what you keep, and what may come next.
+function showFinale(c) {
+  $('#finaleTitle').textContent = c.storyTitle; $('#finaleText').textContent = c.finale;
+  $('#finaleGifts').textContent = c.granted.length ? `Bạn nhận: ${c.granted.map(g => g.name).join(' · ')}` : '';
+  $('#finaleTeaser').textContent = c.teaser || '';
+  if (!$('#journeyFinale').open) $('#journeyFinale').showModal();
+  audio.bigBell(); [523, 659, 784].forEach((f, i) => audio.tone(f, 3, .035, 'music', 'sine', 1, (audio.context?.currentTime || 0) + .6 + i * .5));
+}
+function storyUpdate({ story, chapters }) {
+  setStory(story);
+  chapters.forEach((c, i) => setTimeout(() => {
+    toast(`“${c.storyTitle}” · xong chương ${c.n}: ${c.title}${c.granted.length ? ` · nhận ${c.granted.map(g => g.name).join(', ')}` : ''}`, 5200);
+    if (c.finale && c.journey) setTimeout(() => showFinale(c), 1800);
+    else if (c.finale) setTimeout(() => toast(c.finale, 7000), 5400);
+    audio.tone(660, .8, .05); audio.tone(880, 1.2, .04, 'sfx', 'sine', 1, (audio.context?.currentTime || 0) + .25);
+  }, i * 5600));
+}
 const chant = new HallChant(audio);
 let shop;
 chant.detectRecording();
@@ -78,6 +135,7 @@ function applyScene(self, snapshot, announce = true) {
   if (game.scene.lanterns) game.scene.blocked = blocked;
   game.scene.setLanterns?.(snapshot.lanterns || [], now);
   game.scene.setIncense?.(snapshot.incense || [], now);
+  worldStore.load(snapshot.world, self.sceneId);
   game.scene.setGarden?.(snapshot.garden, net.selfId);
   game.scene.setSand?.(snapshot.sand);
   game.scene.setOfferings?.(snapshot.offerings, now);
@@ -86,14 +144,24 @@ function applyScene(self, snapshot, announce = true) {
   if (panels.current === 'mapPanel') mapPanel.render(game.scene.id, progress?.scenesVisited, game.player);
 }
 
+// Mirror of server world state; scenes react to the rows that concern them.
+const worldStore = new WorldStateStore();
+worldStore.on(record => {
+  if (!game || record.sceneId !== game.scene.id) return;
+  if (record.objectId === 'censer' && record.type === 'incense') game.scene.setIncense?.(record.value?.sticks || [], net.clock.now());
+  game.scene.onWorldState?.(record, worldStore);
+});
 const net = new SocketClient(io, {
   status(ok, message) { $('#connection').textContent = ok ? 'Đã kết nối' : message; $('#connection').classList.toggle('offline', !ok); $('#statusDot').classList.toggle('off', !ok); },
   online(count) { $('#online').textContent = `${count} người trong phòng`; },
   joined(res) {
+    setStory(res.story);
     applyScene(res.self, res.scene, !game.joinedOnce); game.joinedOnce = true;
     setProgress(res.progress); $('#online').textContent = `${res.room.online}/${res.room.capacity} người trong phòng`;
     if (res.meditationResult) toast(`Phiên thiền trước đã được lưu: ${Math.round(res.meditationResult.actualSeconds / 60)} phút.`);
     if (res.meditation && !meditation.session) meditation.begin(res.meditation);
+    coop?.update(res.coop);
+    bowSession?.show(res.practice);
   },
   'meditation:ended'(result) { meditation.result(result); },
   error(error) { toast(error.message); },
@@ -112,6 +180,8 @@ const net = new SocketClient(io, {
   'bell:ring'(data) {
     if (data.sceneId !== game.scene.id) return;
     game.scene.bells[data.objectId] = game.time;
+    const bellObject = game.scene.objects.find(o => o.id === data.objectId);
+    if (bellObject) game.scene.react?.('bell', bellObject);
     data.objectId === 'bigBell' ? audio.bigBell() : audio.bell();
     if (data.by !== net.selfId && !blocked.has(data.by)) toast(`${data.name} vừa thỉnh chuông.`);
   },
@@ -120,7 +190,8 @@ const net = new SocketClient(io, {
   'wish:hidden'(data) { wishes.remove(data.id); },
   'lantern:new'(lantern) { game.scene.addLantern?.(lantern, net.clock.now()); },
   'lantern:hidden'(data) { game.scene.removeLantern?.(data.id); },
-  'incense:new'(stick) { if (stick.sceneId === game.scene.id) game.scene.addIncense?.(stick, net.clock.now()); },
+  'world:delta'(delta) { worldStore.apply(delta); },
+  'story:update'(update) { storyUpdate(update); },
   'sand:update'(data) { if (data.sceneId === game.scene.id) game.scene.setSand?.(data.strokes); },
   'offering:update'(data) { if (data.sceneId === game.scene.id) game.scene.setOfferings?.(data.offerings, net.clock.now()); },
   'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
@@ -150,7 +221,11 @@ function interact(o = game.interactions.nearest) {
   switch (o.action) {
     case 'shop': case 'offering': return shop.open(o);
     case 'cat': selectedCat = o; return panels.open('catPanel');
-    case 'dialogue': return dialogue.open(o.dialogue).catch(error => toast(error.message));
+    case 'dialogue': {
+      const npc = game.scene.npcs.find(n => n.id === o.id);
+      if (npc && net.connected && storyState.talkers.includes(o.id)) return dialogue.openServer(npc);
+      return dialogue.open(o.dialogue).catch(error => toast(error.message));
+    }
     case 'wishes': return panels.open('wishPanel');
     case 'bell': return ringBell(o);
     case 'sit': game.player.setState(game.player.state === 'sit' ? 'idle' : 'sit'); return toast(game.player.state === 'sit' ? 'Ngồi nghỉ. Di chuyển để đứng dậy.' : 'Đã đứng dậy.');
@@ -166,8 +241,29 @@ function interact(o = game.interactions.nearest) {
     case 'fortune': return fortunes.open(o);
     case 'incense': return lightIncense(o);
     case 'water': return gardens.water(o);
+    case 'story': return net.connected ? dialogue.openServer(o) : toast('Cần kết nối máy chủ để xem vật này.');
+    case 'restore': return restoreWork(o);
+    case 'coop': return coop.object(o);
+    case 'hall': return hall.open(o);
+    case 'bowSession': return bowSession.open();
+    case 'beads': return beadRing.open();
+    case 'read': return reading.open();
+    case 'prayer': return prayerBook.open();
+    case 'puzzle': return coop.puzzle(o);
     default: return toast('Không có gì để làm ở đây.');
   }
+}
+// Shared work on the forgotten garden: the server validates every contribution and broadcasts the new stage.
+async function restoreWork(o) {
+  if (!['idle', 'walk'].includes(game.player.state)) return toast('Di chuyển để kết thúc hành động hiện tại.');
+  try {
+    net.sendMove(game.player, performance.now(), true);
+    const res = await net.request('world:interact', { objectId: o.id });
+    game.player.act('interact'); setStory(res.story); toast(res.result.message);
+    // NPCs nearby answer in a speech bubble too.
+    const npc = res.result.npc && game.scene.npcs.find(n => n.id === res.result.npc.id);
+    if (npc) npc.chat = { text: res.result.npc.text, age: 0 };
+  } catch (error) { toast(error.message); }
 }
 let selectedCat = null;
 function greetCat(kind) {
@@ -226,7 +322,13 @@ function keyAction(key) {
   const actions = { 1: 'bow', 2: 'bead', 3: 'pray', 4: 'wave' };
   if (actions[key]) act(actions[key]);
 }
+// Where the travelling NPCs are right now (the temple routine), so players can find them.
+function showWhereabouts() {
+  const maps = assets.get('maps'), slot = game.npcDirector.stateAt('novice', net.clock.now())?.slot ?? 0;
+  $('#whereabouts').replaceChildren(el('strong', { text: `${ROUTINE_NAMES[slot]} · mọi người đang ở đâu` }), el('ul', {}, [...game.travelers.values()].map(npc => el('li', { text: `${npc.name.split(' · ')[0]}: ${maps.get(npc.sceneId)?.name || '…'} — ${npc.activity}` }))));
+}
 function tick(dt) {
+  for (const npc of game.scene.npcs) npc.highlight = storyState.highlights.includes(npc.id);
   net.update(dt); game.remotes = [...net.remotes.values()];
   if (game.player.emote && (game.player.emote.age += dt) > 2.6) game.player.emote = null;
   if (game.player.chat && (game.player.chat.age += dt) > CHAT_SECONDS) game.player.chat = null;
@@ -243,7 +345,7 @@ function tick(dt) {
   if (chantLine && !lastChantLine) toast('Sư Tâm Hòa bắt đầu tụng kinh…', 3000);
   lastChantLine = chantLine;
   if (audio.chanting && game.scene.id !== 'mainHall') audio.setChant(false);
-  if (game.player.state === 'walk' && (stepTimer -= dt) <= 0) { audio.step(); stepTimer = .38; }
+  if (game.player.state === 'walk' && (stepTimer -= dt) <= 0) { audio.step(game.scene.indoor ? 'wood' : 'stone'); stepTimer = .38; }
   const nearest = game.interactions.nearest, p = game.player, env = game.env;
   $('#interact').textContent = nearest ? `E · ${nearest.label}` : 'E · Tương tác'; $('#interact').disabled = !entered || !nearest;
   $('#actionState').textContent = STATE_TEXT[p.state] || '';
@@ -295,7 +397,7 @@ async function boot() {
     const start = assets.get('maps').has(me.progress.lastScene) ? me.progress.lastScene : 'gate';
     game?.destroy();
     game = new Game($('#scene'), assets, $('#joystick'), keyAction, tick, { scene: start, room, time: store.get('sanmay-time', 'auto'), weather: store.get('sanmay-weather', 'auto') });
-    game.blocked = blocked; game.onApproach = interact;
+    game.blocked = blocked; game.onApproach = interact; game.clockNow = () => net.clock.now();
     game.reduced = store.get('sanmay-reduced', String(matchMedia('(prefers-reduced-motion: reduce)').matches)) === 'true';
     game.setQuality(store.get('sanmay-quality', matchMedia('(pointer: coarse)').matches ? 'medium' : 'high'));
     const spawn = game.scene.map.spawns.default; game.setScene(start, me.progress.lastX ?? spawn[0], me.progress.lastY ?? spawn[1]);
@@ -304,10 +406,14 @@ async function boot() {
     game.player.onComplete = state => {
       if (state !== 'bow' && state !== 'bead') return;
       audio.tone(state === 'bow' ? 350 : 580, .45);
-      net.request('practice:complete', { type: state }).then(res => { setProgress(res.progress); if (res.progress[`${state}sRound`] === ROUND) toast('Đã tròn 108. Chúc bạn bình an.'); })
-        .catch(error => { setProgress(error.data?.progress || progress); toast(net.connected ? error.message : 'Mất kết nối nên lần này chưa được lưu.'); });
+      net.request('practice:complete', { type: state }).then(res => {
+        setProgress(res.progress);
+        if (state === 'bow') bowSession.counted(res.session); else beadRing.update(res.progress);
+        if (res.progress[`${state}sRound`] === ROUND && !res.session) toast('Đã tròn 108. Chúc bạn bình an.');
+      }).catch(error => { setProgress(error.data?.progress || progress); if (state === 'bow') bowSession.counted(null); toast(net.connected ? error.message : 'Mất kết nối nên lần này chưa được lưu.'); });
     };
     dialogue = new DialoguePanel(new JsonDialogueProvider(assets.get('dialogues'), assets.get('stories').items), game);
+    dialogue.net = net; dialogue.onStory = setStory;
     // A distant temple bell every few minutes; at the bell tower the great bell visibly swings with it.
     audio.onTempleBell = () => { if (game.scene.id === 'bellTower') game.scene.bells.bigBell = game.time; if (entered && !audio.muted) toast('Có tiếng chuông chùa vọng lại…', 2600); };
     wishes = new WishPanel({ api, net, room, getMe: () => me, blocked, onBlock: block });
@@ -315,16 +421,26 @@ async function boot() {
     const shared = { net, game, api, audio, panels, celebrate };
     shop = new ShopPanel(shared);
     gardens = new GardenPanel({ ...shared, getMe: () => me, applyScene });
-    new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render() });
+    new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render(), onCoop: person => { panels.close(); coop.pick({ person }); } });
     new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
     fortunes = new FortunePanel({ ...shared, fortunes: assets.get('fortunes') });
     meditation = new MeditationPanel(shared); lanterns = new LanternPanel(shared); stories = new StoriesPanel(shared); minigames = new MinigameHost(shared);
-    panels.on('mapPanel', () => mapPanel.render(game.scene.id, progress?.scenesVisited, game.player));
+    coop = new CoopPanel({ ...shared, blocked, meditation });
+    hall = new HallPanel({ ...shared, onStory: setStory });
+    bowSession = new BowSession(shared);
+    beadRing = new BeadRing({ ...shared, getProgress: () => progress });
+    reading = new ReadingPanel({ ...shared, items: assets.get('stories').items, note: assets.get('stories').note, glossary: {}, onShared: item => { panels.close(); coop.pick({ kind: 'read', options: { item: item.id }, title: item.title }); } });
+    fetch('/data/glossary.json').then(r => r.ok ? r.json() : {}).then(g => { reading.glossary = g; }).catch(() => {});
+    prayerBook = new PrayerBook({ api, net, panels, room, blocked });
+    $('#journeyPause').onclick = () => pauseJourney(true); $('#journeyResume').onclick = () => pauseJourney(false);
+    $('#journeyCard').onclick = () => { $('#journeyCard').hidden = true; };
+    $('#finaleClose').onclick = () => $('#journeyFinale').close();
+    panels.on('mapPanel', () => { mapPanel.render(game.scene.id, progress?.scenesVisited, game.player); showWhereabouts(); });
     panels.on('wishPanel', () => wishes.load());
     setupSettings(); setupEmotes();
     creator.setup(me.appearance, me.items);
     // QA only: ?debug=1 exposes the game for screenshots; nothing here bypasses the server.
-    if (params.get('debug') === '1') window.sanmay = { game, net, panels, meditation, minigames };
+    if (params.get('debug') === '1') window.sanmay = { game, net, panels, meditation, minigames, dialogue, coop, hall, bowSession, beadRing, reading, prayerBook };
     $('#loading').textContent = 'Mọi thứ đã sẵn sàng'; $('#enter').disabled = false;
   } catch (error) { $('#loading').textContent = `Không thể mở Sân Mây: ${error.message}`; $('#retry').hidden = false; }
 }

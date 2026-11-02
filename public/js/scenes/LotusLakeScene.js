@@ -39,6 +39,8 @@ export class LotusLakeScene extends Scene {
     for (const l of this.visibleLanterns()) {
       const fade = Math.min(1, (LANTERN_LIFETIME - l.age) / 30, l.age / 1.5), bob = Math.sin(env.time * 2 + l.x) * 1.5;
       c.globalAlpha = fade; ellipse(c, l.x, l.y + 6, 18, 5, 'rgba(255,214,150,.25)');
+      // The flame's reflection: a broken, shimmering streak on the water below the lantern.
+      for (let k = 0; k < 4; k++) { const w = 7 - k * 1.3, shift = env.reduced ? 0 : Math.sin(env.time * 3 + k * 1.7 + l.x) * 2.5; c.fillStyle = `rgba(255,205,130,${(.32 - k * .07) * fade})`; c.fillRect(l.x - w + shift, l.y + 12 + k * 6, w * 2, 2); }
       if (l.style === 'boat') { polygon(c, [[l.x - 16, l.y + bob], [l.x + 16, l.y + bob], [l.x + 10, l.y + 7 + bob], [l.x - 10, l.y + 7 + bob]], '#c9a26a', '#8a6a46'); }
       else if (l.style === 'round') { ellipse(c, l.x, l.y + 4 + bob, 13, 4, '#7d5f40'); ellipse(c, l.x, l.y - 6 + bob, 10, 12, '#f1c27a'); ellipse(c, l.x - 3, l.y - 8 + bob, 3, 7, '#fff0c4'); }
       else for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; c.fillStyle = i % 2 ? '#e9a3b4' : '#f3c0cb'; c.beginPath(); c.ellipse(l.x + Math.cos(a) * 8, l.y + Math.sin(a) * 3 + bob, 9, 4, a, 0, Math.PI * 2); c.fill(); }

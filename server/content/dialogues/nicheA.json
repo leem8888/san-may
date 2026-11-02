@@ -1,0 +1,34 @@
+{
+  "npc": "nicheA",
+  "kind": "object",
+  "name": "HỐC TƯỜNG",
+  "title": "Hốc tường thứ nhất",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 3,
+            "step": "find"
+          }
+        }
+      },
+      "node": "search"
+    },
+    {
+      "node": "look"
+    }
+  ],
+  "nodes": {
+    "look": {
+      "lines": [
+        "Một hốc tường nhỏ, trống."
+      ]
+    },
+    "search": {
+      "lines": [
+        "Chỉ có bụi và một con nhện nhỏ đang giăng tơ. Không phải hốc này."
+      ]
+    }
+  }
+}

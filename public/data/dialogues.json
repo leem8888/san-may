@@ -20,7 +20,7 @@
     ]
   },
   "gardener": {
-    "name": "BÁC TÂM · NGƯỜI GIỮ VƯỜN",
+    "name": "BÁC LÂM · NGƯỜI GIỮ VƯỜN",
     "title": "Vườn cần người chậm rãi.",
     "pages": [
       "Chào cháu. Bác giữ khu vườn này đã lâu, chẳng nhớ bao nhiêu mùa lá rụng nữa.",
@@ -31,7 +31,7 @@
     ]
   },
   "librarian": {
-    "name": "THẦY TỊNH · NGƯỜI GIỮ THƯ VIỆN",
+    "name": "THẦY MINH · NGƯỜI GIỮ THƯ VIỆN",
     "title": "Mời con ngồi.",
     "pages": [
       "Mô Phật. Thư viện này nhỏ thôi, nhưng mỗi trang đều đã có người đọc chậm trước con.",
@@ -41,7 +41,7 @@
     ]
   },
   "abbot": {
-    "name": "THẦY VIÊN MINH · TRỤ TRÌ",
+    "name": "THẦY VIÊN GIÁC · TRỤ TRÌ",
     "title": "Mô Phật, con ngồi xuống đây.",
     "randomStory": true,
     "pages": [

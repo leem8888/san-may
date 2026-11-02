@@ -9,43 +9,340 @@
   "ground": {
     "base": "#2e4a3b",
     "layers": [
-      {"type":"noise","count":5000,"colors":["#385443","#314e40","#496044","#233e36"]},
-      {"type":"scatter","kind":"grass","x":60,"y":120,"w":1480,"h":1040,"count":240,"colors":["#4f7352","#5b7d58","#3f6449"]},
-      {"type":"scatter","x":1200,"y":120,"w":340,"h":300,"count":50,"colors":["#a5ad73","#d7b794","#e6c46e"],"size":3},
-      {"type":"scatter","x":80,"y":760,"w":400,"h":380,"count":60,"colors":["#d7b794","#e6a0ad","#a5ad73"],"size":3},
-      {"type":"dirt","points":[[1580,600],[1250,620],[1000,690],[900,600],[900,90]],"width":64,"color":"#7a705a","edge":"#8a8068"},
-      {"type":"sand","x":260,"y":300,"w":500,"h":300,"rocks":[[380,420,22],[600,490,30],[520,360,14]]},
-      {"type":"planks","x":1040,"y":760,"w":320,"h":200,"colors":["#8a6a48","#7d5f40","#93714d"]}
+      {
+        "type": "noise",
+        "count": 5000,
+        "colors": [
+          "#385443",
+          "#314e40",
+          "#496044",
+          "#233e36"
+        ]
+      },
+      {
+        "type": "scatter",
+        "kind": "grass",
+        "x": 60,
+        "y": 120,
+        "w": 1480,
+        "h": 1040,
+        "count": 240,
+        "colors": [
+          "#4f7352",
+          "#5b7d58",
+          "#3f6449"
+        ]
+      },
+      {
+        "type": "scatter",
+        "x": 1200,
+        "y": 120,
+        "w": 340,
+        "h": 300,
+        "count": 50,
+        "colors": [
+          "#a5ad73",
+          "#d7b794",
+          "#e6c46e"
+        ],
+        "size": 3
+      },
+      {
+        "type": "scatter",
+        "x": 80,
+        "y": 760,
+        "w": 400,
+        "h": 380,
+        "count": 60,
+        "colors": [
+          "#d7b794",
+          "#e6a0ad",
+          "#a5ad73"
+        ],
+        "size": 3
+      },
+      {
+        "type": "dirt",
+        "points": [
+          [
+            1580,
+            600
+          ],
+          [
+            1250,
+            620
+          ],
+          [
+            1000,
+            690
+          ],
+          [
+            900,
+            600
+          ],
+          [
+            900,
+            90
+          ]
+        ],
+        "width": 64,
+        "color": "#7a705a",
+        "edge": "#8a8068"
+      },
+      {
+        "type": "sand",
+        "x": 260,
+        "y": 300,
+        "w": 500,
+        "h": 300,
+        "rocks": [
+          [
+            380,
+            420,
+            22
+          ],
+          [
+            600,
+            490,
+            30
+          ],
+          [
+            520,
+            360,
+            14
+          ]
+        ]
+      },
+      {
+        "type": "planks",
+        "x": 1040,
+        "y": 760,
+        "w": 320,
+        "h": 200,
+        "colors": [
+          "#8a6a48",
+          "#7d5f40",
+          "#93714d"
+        ]
+      }
     ]
   },
-  "spawns": {"default":[1400,600],"fromCourtyard":[1430,610],"fromBamboo":[900,190],"fromGarden":[230,980]},
+  "spawns": {
+    "default": [
+      1400,
+      600
+    ],
+    "fromCourtyard": [
+      1430,
+      610
+    ],
+    "fromBamboo": [
+      900,
+      190
+    ],
+    "fromGarden": [
+      230,
+      980
+    ]
+  },
   "portals": [
-    {"id":"toCourtyard","x":1500,"y":540,"w":60,"h":120,"to":"courtyard","spawn":"fromZen","label":"Về Sân Chùa","dir":"right"},
-    {"id":"toBamboo","x":840,"y":70,"w":120,"h":50,"to":"bambooForest","spawn":"fromZen","label":"Vào Rừng Trúc","dir":"up"}
+    {
+      "id": "toCourtyard",
+      "x": 1500,
+      "y": 540,
+      "w": 60,
+      "h": 120,
+      "to": "courtyard",
+      "spawn": "fromZen",
+      "label": "Về Sân Chùa",
+      "dir": "right"
+    },
+    {
+      "id": "toBamboo",
+      "x": 840,
+      "y": 70,
+      "w": 120,
+      "h": 50,
+      "to": "bambooForest",
+      "spawn": "fromZen",
+      "label": "Vào Rừng Trúc",
+      "dir": "up"
+    }
   ],
   "obstacles": [
-    {"x":246,"y":286,"w":528,"h":328}
+    {
+      "x": 246,
+      "y": 286,
+      "w": 528,
+      "h": 328
+    }
   ],
   "props": [
-    {"type":"bonsai","x":1060,"y":330},
-    {"type":"bonsai","x":1160,"y":330},
-    {"type":"bonsai","x":1260,"y":330},
-    {"type":"stoneLantern","x":300,"y":720},
-    {"type":"stoneLantern","x":1000,"y":920},
-    {"type":"pine","x":1450,"y":320,"size":1.1},
-    {"type":"pine","x":1300,"y":1080},
-    {"type":"pine","x":160,"y":1040},
-    {"type":"bamboo","x":160,"y":260},
-    {"type":"bamboo","x":1460,"y":1060},
-    {"type":"bush","x":680,"y":1000,"flowers":"#e6a0ad"},
-    {"type":"lotusPot","x":1410,"y":760}
+    {
+      "type": "bonsai",
+      "x": 1060,
+      "y": 330
+    },
+    {
+      "type": "bonsai",
+      "x": 1160,
+      "y": 330
+    },
+    {
+      "type": "bonsai",
+      "x": 1260,
+      "y": 330
+    },
+    {
+      "type": "stoneLantern",
+      "x": 300,
+      "y": 720
+    },
+    {
+      "type": "stoneLantern",
+      "x": 1000,
+      "y": 920
+    },
+    {
+      "type": "pine",
+      "x": 1450,
+      "y": 320,
+      "size": 1.1
+    },
+    {
+      "type": "pine",
+      "x": 1300,
+      "y": 1080
+    },
+    {
+      "type": "pine",
+      "x": 160,
+      "y": 1040
+    },
+    {
+      "type": "bamboo",
+      "x": 160,
+      "y": 260
+    },
+    {
+      "type": "bamboo",
+      "x": 1460,
+      "y": 1060
+    },
+    {
+      "type": "bush",
+      "x": 680,
+      "y": 1000,
+      "flowers": "#e6a0ad"
+    },
+    {
+      "type": "lotusPot",
+      "x": 1410,
+      "y": 760
+    }
   ],
   "objects": [
-    {"id":"zenBench","type":"bench","x":1200,"y":520,"label":"Ngồi nghỉ trên ghế đá","action":"sit","radius":100,"hitW":64,"hitH":45},
-    {"id":"gardenGate","type":"gardenGate","x":230,"y":900,"label":"Vào vườn riêng","action":"garden","radius":100},
-    {"id":"sand","type":"rake","x":510,"y":650,"label":"Vẽ vườn cát","action":"sand","radius":110},
-    {"id":"zen1","type":"cushion","x":1130,"y":860,"label":"Ngồi thiền","action":"meditate","radius":80},
-    {"id":"zen2","type":"cushion","x":1270,"y":860,"label":"Ngồi thiền","action":"meditate","radius":80},
-    {"id":"gardener","type":"npc","x":820,"y":880,"name":"Bác Tâm · Người giữ vườn","appearance":{"hairStyle":"short","hairColor":"#77706a","outfitStyle":"tunic","outfitColor":"#6f8a5e","accessory":"hat"},"gestures":["wave","interact"],"label":"Trò chuyện với bác Tâm","action":"dialogue","dialogue":"gardener","radius":100}
+    {
+      "id": "zenBench",
+      "type": "bench",
+      "x": 1200,
+      "y": 520,
+      "label": "Ngồi nghỉ trên ghế đá",
+      "action": "sit",
+      "radius": 100,
+      "hitW": 64,
+      "hitH": 45
+    },
+    {
+      "id": "gardenGate",
+      "type": "gardenGate",
+      "x": 230,
+      "y": 900,
+      "label": "Vào vườn riêng",
+      "action": "garden",
+      "radius": 100
+    },
+    {
+      "id": "sand",
+      "type": "rake",
+      "x": 510,
+      "y": 650,
+      "label": "Vẽ vườn cát",
+      "action": "sand",
+      "radius": 110
+    },
+    {
+      "id": "zen1",
+      "type": "cushion",
+      "x": 1130,
+      "y": 860,
+      "label": "Ngồi thiền",
+      "action": "meditate",
+      "radius": 80
+    },
+    {
+      "id": "zen2",
+      "type": "cushion",
+      "x": 1270,
+      "y": 860,
+      "label": "Ngồi thiền",
+      "action": "meditate",
+      "radius": 80
+    },
+    {
+      "id": "gardener",
+      "type": "npc",
+      "schedule": true,
+      "x": 820,
+      "y": 880,
+      "name": "Bác Lâm · Người giữ vườn",
+      "appearance": {
+        "hairStyle": "short",
+        "hairColor": "#77706a",
+        "outfitStyle": "tunic",
+        "outfitColor": "#6f8a5e",
+        "accessory": "hat"
+      },
+      "gestures": [
+        "wave",
+        "interact"
+      ],
+      "label": "Trò chuyện với bác Lâm",
+      "action": "dialogue",
+      "dialogue": "gardener",
+      "radius": 100
+    },
+    {
+      "id": "oldGarden",
+      "type": "oldGarden",
+      "x": 1230,
+      "y": 215,
+      "label": "Chăm góc vườn cũ",
+      "action": "restore",
+      "radius": 120,
+      "solid": false,
+      "sortY": 150
+    },
+    {
+      "id": "teaForTwo",
+      "type": "teaTableTwo",
+      "x": 1000,
+      "y": 660,
+      "label": "Bàn trà đôi",
+      "action": "coop",
+      "coop": "tea",
+      "radius": 110
+    },
+    {
+      "id": "oldGardenBench",
+      "type": "bench",
+      "x": 1230,
+      "y": 290,
+      "label": "Ngồi ngắm góc vườn",
+      "action": "sit",
+      "stateOf": "oldGarden",
+      "solid": false,
+      "radius": 90
+    }
   ]
 }

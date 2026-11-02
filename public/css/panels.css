@@ -135,3 +135,33 @@ body.meditating .topbar,body.meditating .room,body.meditating .hud-bottom,body.m
 .fortune-card h3{font:normal 22px "Palatino Linotype","Book Antiqua",Georgia,serif;margin:6px 0 10px;color:#5a3020}
 .fortune-card p{color:#3a4636!important;font-size:13px!important}
 .fortune-card .verse{font:italic 15px/1.9 "Palatino Linotype","Book Antiqua",Georgia,serif!important;white-space:pre-line;color:#2f3a2e!important}
+.dialogue-choices{display:grid;gap:8px;margin:4px 0 10px}
+.dialogue-choices:empty{display:none}
+.dialogue-input{width:100%;box-sizing:border-box;resize:vertical;min-height:90px;padding:10px;font:15px/1.6 "Palatino Linotype","Book Antiqua",Georgia,serif;background:#f3ead4;color:#2f3a2e;border:1px solid #d9b77e;border-radius:8px}
+.dialogue-choices small{color:#cfc3a3;font-size:12px}
+.choice{display:flex;gap:10px;align-items:center;text-align:left;font-size:14px;padding:10px 12px;background:#23423b;border-color:#d9b77e55}
+.choice span{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:#d9b77e;color:#21352b;font-weight:700}
+.choice:hover:not(:disabled){background:#2f5246}
+#dialogueText{min-height:3.6em;cursor:pointer}
+.story-chapter{padding:10px 12px;border-radius:12px;background:#ffffff0a;border-left:2px solid #d9b77e88}
+.story-chapter.locked{opacity:.45;border-left-color:#ffffff22}
+.story-chapter strong{font-size:13px}
+.story-chapter ul{margin:6px 0 0;padding-left:16px;font-size:12px;color:#d0d9c9;line-height:1.7}
+.story-chapter .now{font-size:12px;color:#e5c894;margin-top:6px}
+.whereabouts{font-size:12px;color:#d0d9c9;border-top:1px solid #b7c3a822;padding-top:8px}
+.whereabouts strong{color:var(--gold);font-size:12px}
+.whereabouts ul{margin:6px 0 0;padding-left:16px;line-height:1.8}
+
+/* Main Hall practice (P2-8) */
+#beadCanvas{display:block;margin:6px auto;max-width:100%;cursor:pointer;touch-action:manipulation}
+.reading-tools{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:12px;margin-bottom:8px}
+.reading-tools input[type=range]{width:110px;vertical-align:middle}
+.reading-text{max-height:46vh;overflow:auto;padding:4px 2px;font-family:"Palatino Linotype","Book Antiqua",Georgia,serif;line-height:1.8}
+.reading-text p{margin:0 0 .7em;padding:4px 8px;border-left:3px solid transparent;border-radius:4px;cursor:pointer;color:#d9d2bf}
+.reading-text p.current{color:#fff6dd;background:#d9b77e1a;border-left-color:var(--gold)}
+.reading-text p.marked::after{content:" ✦";color:var(--gold)}
+.reading-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:8px 0}
+.reading-item{display:flex;flex-direction:column;gap:2px}
+.link-card{all:unset;cursor:pointer;display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:#ffffff08}
+.link-card:hover,.link-card:focus-visible{background:#d9b77e1f;outline:none}
+#readingGlossary div{margin:6px 0}#readingGlossary dt{font-weight:650;color:var(--gold)}#readingGlossary dd{margin:0;font-size:13px}

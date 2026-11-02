@@ -1,0 +1,346 @@
+{
+  "npc": "librarian",
+  "name": "THẦY MINH · NGƯỜI GIỮ THƯ VIỆN",
+  "title": "Thầy Minh",
+  "entries": [
+    {
+      "when": {
+        "met": false
+      },
+      "node": "intro"
+    },
+    {
+      "when": {
+        "story": {
+          "light-hall": {
+            "chapter": 2,
+            "step": "ask-minh"
+          }
+        }
+      },
+      "node": "hall-minh"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 2,
+            "step": "ask-minh"
+          }
+        }
+      },
+      "node": "bell-ask"
+    },
+    {
+      "when": {
+        "story": {
+          "minh-letters": {
+            "chapter": 3,
+            "step": "invite"
+          }
+        }
+      },
+      "node": "letters-3-write"
+    },
+    {
+      "when": {
+        "story": {
+          "minh-letters": {
+            "chapter": 2,
+            "step": "clue"
+          }
+        }
+      },
+      "node": "letters-2-clue"
+    },
+    {
+      "when": {
+        "story": {
+          "minh-letters": "none"
+        },
+        "met": true
+      },
+      "node": "letters-1"
+    },
+    {
+      "when": {
+        "phase": [
+          "evening",
+          "night"
+        ]
+      },
+      "node": "evening"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "intro": {
+      "mood": "calm",
+      "lines": [
+        "Mô Phật. Thầy là Minh, giữ thư viện này.",
+        "Mỗi trang ở đây đều đã có người đọc chậm trước con."
+      ],
+      "choices": [
+        {
+          "id": "read",
+          "text": "Con nên đọc gì trước ạ?",
+          "next": "read"
+        },
+        {
+          "id": "why",
+          "text": "Sao phải đọc chậm ạ?",
+          "next": "why"
+        }
+      ]
+    },
+    "read": {
+      "mood": "calm",
+      "lines": [
+        "Bàn đọc giữa phòng có vài truyện ngắn và lời kinh diễn ý, đều ghi nguồn.",
+        "Đọc một bài thôi cũng đủ, miễn là đọc cho trọn."
+      ],
+      "next": "menu"
+    },
+    "why": {
+      "mood": "smile",
+      "lines": [
+        "Đọc nhanh thì mắt đi qua chữ. Đọc chậm thì chữ đi qua lòng."
+      ],
+      "next": "menu"
+    },
+    "evening": {
+      "mood": "calm",
+      "lines": [
+        [
+          "Trời tối rồi. Thầy thắp thêm đèn bàn cho con nhé."
+        ],
+        [
+          "Giờ này thư viện yên nhất. Chỉ còn tiếng giấy lật."
+        ]
+      ],
+      "next": "menu"
+    },
+    "hello": {
+      "mood": "smile",
+      "lines": [
+        [
+          "Con lại đến. Hôm nay con muốn tìm gì?"
+        ],
+        [
+          "Ngồi đi con. Ấm trà góc kia vẫn còn ấm."
+        ]
+      ],
+      "next": "menu"
+    },
+    "menu": {
+      "lines": [
+        "Con muốn thưa chuyện gì?"
+      ],
+      "choices": [
+        {
+          "id": "question",
+          "text": "Thầy cho con một câu hỏi để suy ngẫm.",
+          "next": "question"
+        },
+        {
+          "id": "answer-again",
+          "when": {
+            "choices": {
+              "reflect": "kind"
+            }
+          },
+          "text": "Con vẫn đang tập nói lời tử tế.",
+          "next": "answer-kind"
+        },
+        {
+          "id": "read",
+          "text": "Con nên đọc gì ạ?",
+          "next": "read"
+        },
+        {
+          "id": "letters-after",
+          "when": {
+            "story": {
+              "minh-letters": "completed"
+            }
+          },
+          "text": "Thầy có lá thư chưa gửi nào không ạ?",
+          "next": "letters-after"
+        },
+        {
+          "id": "bye",
+          "text": "Con xin phép ạ."
+        }
+      ]
+    },
+    "question": {
+      "mood": "calm",
+      "lines": [
+        "Hôm nay, điều gì đã dẫn trước một lời con nói?"
+      ],
+      "choices": [
+        {
+          "id": "hurry",
+          "text": "Có lẽ là sự vội vàng.",
+          "remember": {
+            "key": "reflect",
+            "value": "hurry"
+          },
+          "next": "answer-hurry"
+        },
+        {
+          "id": "kind",
+          "text": "Con muốn nó là sự tử tế.",
+          "remember": {
+            "key": "reflect",
+            "value": "kind"
+          },
+          "next": "answer-kind"
+        },
+        {
+          "id": "unsure",
+          "text": "Con chưa biết.",
+          "remember": {
+            "key": "reflect",
+            "value": "unsure"
+          },
+          "next": "answer-unsure"
+        }
+      ]
+    },
+    "answer-hurry": {
+      "mood": "calm",
+      "lines": [
+        "Biết mình vội đã là chậm lại được một nửa rồi."
+      ],
+      "next": "menu"
+    },
+    "answer-kind": {
+      "mood": "smile",
+      "lines": [
+        "Muốn là bước đầu. Tập mỗi ngày một câu thôi, không cần nhiều."
+      ],
+      "next": "menu"
+    },
+    "answer-unsure": {
+      "mood": "smile",
+      "lines": [
+        "Chưa biết cũng là một câu trả lời thật thà. Cứ mang câu hỏi theo người."
+      ],
+      "next": "menu"
+    },
+    "bell-ask": {
+      "mood": "calm",
+      "lines": [
+        "Trang nhật ký của An à? Để thầy xem…",
+        "Nét chữ này của thầy trụ trì đời trước. Việc lớn nhỏ trong chùa thầy đều ghi vào cuốn sổ ghi chép.",
+        "Cuốn sổ đặt trên giá gỗ phía tây phòng này. Con đọc thử xem."
+      ]
+    },
+    "letters-1": {
+      "mood": "calm",
+      "lines": [
+        "Con ngồi đây. Thầy vừa tìm thấy mấy lá thư kẹp giữa các trang sách cũ.",
+        "Người viết không gửi đi. Có lẽ họ chỉ cần được viết ra."
+      ],
+      "choices": [
+        {
+          "id": "accept",
+          "text": "Con đọc được không ạ?",
+          "next": "letters-1-accept"
+        },
+        {
+          "id": "other",
+          "text": "Con muốn hỏi chuyện khác.",
+          "next": "menu"
+        },
+        {
+          "id": "later",
+          "text": "Để khi khác ạ."
+        }
+      ]
+    },
+    "letters-1-accept": {
+      "mood": "smile",
+      "startStory": "minh-letters",
+      "lines": [
+        "Thầy để chúng trong hộp gỗ trên bàn gần cửa sổ phía đông. Đọc chậm thôi con."
+      ]
+    },
+    "letters-2-clue": {
+      "mood": "calm",
+      "lines": [
+        "Lá thư ký tên “người trồng sen”…",
+        "Ngày trước có một bác hay ngồi trên phiến đá phẳng bên Hồ Sen. Có khi bác để lại gì ở đó."
+      ]
+    },
+    "letters-3-write": {
+      "mood": "smile",
+      "lines": [
+        "Con đã đọc hai lá thư của người khác rồi. Giờ đến lượt con.",
+        "Có điều gì con chưa nói được với ai không? Viết ra đây. Không ai đọc được, trừ con."
+      ],
+      "input": {
+        "placeholder": "Gửi…",
+        "max": 300,
+        "journal": "Lá thư chưa gửi: ",
+        "remember": "wroteLetter"
+      },
+      "next": "letters-3-choose"
+    },
+    "letters-3-choose": {
+      "mood": "calm",
+      "lines": [
+        "Con muốn làm gì với lá thư này?"
+      ],
+      "choices": [
+        {
+          "id": "keep",
+          "text": "Giữ lại trong nhật ký",
+          "setFlags": {
+            "minh.letterEnding": "keep"
+          },
+          "next": "ending-keep"
+        },
+        {
+          "id": "wind",
+          "text": "Gấp thành thuyền giấy, thả theo gió",
+          "setFlags": {
+            "minh.letterEnding": "wind"
+          },
+          "next": "ending-wind"
+        }
+      ]
+    },
+    "ending-keep": {
+      "mood": "smile",
+      "lines": [
+        "Giữ lại cũng tốt. Thỉnh thoảng mở ra đọc, con sẽ thấy mình đã đi được bao xa."
+      ]
+    },
+    "ending-wind": {
+      "mood": "smile",
+      "lines": [
+        "Thả đi cũng tốt. Lời đã viết rồi thì lòng đã nhẹ đi một phần."
+      ]
+    },
+    "letters-after": {
+      "mood": "calm",
+      "lines": [
+        "Có chứ. Thầy viết cho chính thầy năm hai mươi tuổi.",
+        "Đến giờ vẫn chưa gửi. Thầy nghĩ cậu ấy đã nhận được rồi."
+      ],
+      "next": "menu"
+    },
+    "hall-minh": {
+      "mood": "smile",
+      "lines": [
+        "Chiếc đèn cổ của Chánh Điện à? Lâu lắm mới có người hỏi.",
+        "Cuốn “Đồ thờ trong chùa” trên giá gần bàn đọc vẽ đủ cả. Con lật tìm trang có chiếc đèn ấy.",
+        "Đồ đồng nhiều chiếc giống nhau lắm. Nhìn kỹ chân đèn và hình khắc."
+      ]
+    }
+  }
+}

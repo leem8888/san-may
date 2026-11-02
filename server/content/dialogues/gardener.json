@@ -1,0 +1,428 @@
+{
+  "npc": "gardener",
+  "name": "BÁC LÂM · NGƯỜI GIỮ VƯỜN",
+  "title": "Bác Lâm",
+  "entries": [
+    {
+      "when": {
+        "met": false
+      },
+      "node": "intro"
+    },
+    {
+      "when": {
+        "story": {
+          "lam-garden": {
+            "chapter": 3,
+            "step": "tell"
+          }
+        }
+      },
+      "node": "garden-3-bloom"
+    },
+    {
+      "when": {
+        "story": {
+          "lam-garden": {
+            "chapter": 2,
+            "step": "ask-seed"
+          }
+        }
+      },
+      "node": "garden-2-seed"
+    },
+    {
+      "when": {
+        "story": {
+          "lam-garden": {
+            "status": "active"
+          }
+        }
+      },
+      "node": "garden-wait"
+    },
+    {
+      "when": {
+        "story": {
+          "lam-garden": "none"
+        },
+        "met": true
+      },
+      "node": "garden-1"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "zenGarden",
+            "object": "oldGarden",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 4
+          }
+        ]
+      },
+      "node": "garden-stage-4"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "zenGarden",
+            "object": "oldGarden",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 3
+          }
+        ]
+      },
+      "node": "garden-stage-3"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "zenGarden",
+            "object": "oldGarden",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 2
+          }
+        ]
+      },
+      "node": "garden-stage-2"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "zenGarden",
+            "object": "oldGarden",
+            "type": "restoration",
+            "field": "stage",
+            "gte": 1
+          }
+        ]
+      },
+      "node": "garden-stage-1"
+    },
+    {
+      "when": {
+        "weather": [
+          "rain"
+        ]
+      },
+      "node": "rain"
+    },
+    {
+      "when": {
+        "weather": [
+          "wind",
+          "leaves"
+        ]
+      },
+      "node": "windy"
+    },
+    {
+      "when": {
+        "phase": [
+          "noon"
+        ]
+      },
+      "node": "noon"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "intro": {
+      "mood": "calm",
+      "lines": [
+        "Chào cháu. Bác là Lâm, giữ khu vườn này đã lâu.",
+        "Vườn cần người chậm rãi. Cháu có vội đi đâu không?"
+      ],
+      "choices": [
+        {
+          "id": "slow",
+          "text": "Không ạ, cháu muốn ngồi lại một chút.",
+          "remember": {
+            "key": "pace",
+            "value": "slow"
+          },
+          "next": "intro-slow"
+        },
+        {
+          "id": "busy",
+          "text": "Cháu đang đi dạo quanh chùa.",
+          "remember": {
+            "key": "pace",
+            "value": "walk"
+          },
+          "next": "intro-walk"
+        }
+      ]
+    },
+    "intro-slow": {
+      "mood": "warm",
+      "lines": [
+        "Thế thì tốt. Ngồi bồ đoàn trên sàn gỗ kia, nghe gió qua trúc một lúc."
+      ],
+      "next": "intro-tips"
+    },
+    "intro-walk": {
+      "mood": "warm",
+      "lines": [
+        "Đi dạo cũng là một cách ngồi yên, nếu bước chân đủ chậm."
+      ],
+      "next": "intro-tips"
+    },
+    "intro-tips": {
+      "mood": "calm",
+      "lines": [
+        "Cát bên kia cháu cứ cào thử, cào xong xoá đi cào lại.",
+        "Cổng nhỏ góc vườn dẫn vào vườn riêng của cháu. Gieo một cây, nhớ thì tưới."
+      ],
+      "choices": [
+        {
+          "id": "thanks",
+          "text": "Cháu cảm ơn bác."
+        }
+      ]
+    },
+    "rain": {
+      "mood": "warm",
+      "lines": [
+        [
+          "Mưa xuống là cây mừng. Hôm nay bác khỏi phải tưới."
+        ],
+        [
+          "Nghe mưa rơi trên lá chuối không? Bác nghe mấy chục năm rồi mà vẫn thích."
+        ]
+      ],
+      "next": "menu"
+    },
+    "windy": {
+      "mood": "calm",
+      "lines": [
+        [
+          "Gió về, lá rụng nhiều. Quét rồi lại rụng, như suy nghĩ vậy."
+        ],
+        [
+          "Hôm nay gió to, trúc kêu kẽo kẹt cả buổi."
+        ]
+      ],
+      "next": "menu"
+    },
+    "noon": {
+      "mood": "tired",
+      "lines": [
+        [
+          "Trưa rồi, bác nghỉ tay một lát. Cây cũng cần nghỉ trưa đó cháu."
+        ]
+      ],
+      "next": "menu"
+    },
+    "hello": {
+      "mood": "warm",
+      "lines": [
+        [
+          "Lại gặp cháu. Vườn hôm nay thế nào trong mắt cháu?"
+        ],
+        [
+          "Cháu đến đúng lúc, bác vừa tỉa xong mấy chậu bonsai."
+        ]
+      ],
+      "next": "menu"
+    },
+    "menu": {
+      "lines": [
+        "Cháu muốn hỏi gì bác?"
+      ],
+      "choices": [
+        {
+          "id": "plant",
+          "text": "Trồng cây thế nào cho tốt ạ?",
+          "next": "plant"
+        },
+        {
+          "id": "story",
+          "when": {
+            "familiarity": 1
+          },
+          "text": "Bác kể chuyện ngày xưa đi.",
+          "next": "story"
+        },
+        {
+          "id": "pace-slow",
+          "when": {
+            "choices": {
+              "pace": "walk"
+            }
+          },
+          "text": "Hôm nay cháu muốn ngồi lại lâu hơn.",
+          "remember": {
+            "key": "pace",
+            "value": "slow"
+          },
+          "next": "pace-slow"
+        },
+        {
+          "id": "garden-after",
+          "when": {
+            "story": {
+              "lam-garden": "completed"
+            }
+          },
+          "text": "Góc vườn giờ sao rồi bác?",
+          "next": "garden-after"
+        },
+        {
+          "id": "bye",
+          "text": "Cháu chào bác."
+        }
+      ]
+    },
+    "plant": {
+      "mood": "calm",
+      "lines": [
+        "Gieo xong thì tưới. Đất còn ẩm thì để đó, đừng tưới dồn.",
+        "Cây không trách ai quên vài hôm. Nó chỉ lớn chậm hơn chút thôi."
+      ],
+      "next": "menu"
+    },
+    "story": {
+      "mood": "warm",
+      "lines": [
+        "Hồi bác mới về, góc vườn phía tây cỏ mọc ngang đầu gối.",
+        "Bác dọn mỗi ngày một ô nhỏ. Ba mùa sau mới thấy lối đi."
+      ],
+      "next": "menu"
+    },
+    "pace-slow": {
+      "mood": "warm",
+      "lines": [
+        "Ừ. Ngồi đi, bác pha ấm trà sau."
+      ],
+      "next": "menu"
+    },
+    "garden-1": {
+      "mood": "calm",
+      "lines": [
+        "Cháu có thấy góc vườn phía bắc không? Cỏ mọc ngang đầu gối rồi.",
+        "Ngày trước bác trồng hoa ở đó. Rồi lưng đau, bác bỏ dở."
+      ],
+      "choices": [
+        {
+          "id": "accept",
+          "text": "Cháu giúp bác dọn nhé.",
+          "next": "garden-1-accept"
+        },
+        {
+          "id": "other",
+          "text": "Cháu muốn hỏi chuyện khác.",
+          "next": "menu"
+        },
+        {
+          "id": "later",
+          "text": "Để hôm khác ạ."
+        }
+      ]
+    },
+    "garden-1-accept": {
+      "mood": "warm",
+      "startStory": "lam-garden",
+      "lines": [
+        "Tốt quá. Cứ nhổ từng khóm một, mệt thì nghỉ.",
+        "Rủ thêm bạn thì càng nhanh. Vườn đâu phải của riêng ai."
+      ]
+    },
+    "garden-wait": {
+      "mood": "warm",
+      "lines": [
+        [
+          "Cứ làm từng chút một cháu nhé. Góc vườn đâu có chạy đi đâu."
+        ],
+        [
+          "Bác vừa ra xem góc vườn. Đã khác nhiều rồi đấy."
+        ]
+      ],
+      "next": "menu"
+    },
+    "garden-2-seed": {
+      "mood": "warm",
+      "lines": [
+        "Đất sạch rồi đấy. Giờ trồng gì nhỉ…",
+        "Ngày trước có loài hoa dại màu tím, hạt bay vào Rừng Trúc. Phía đông rừng, dưới bóng trúc, vẫn còn mọc.",
+        "Cháu tìm giúp bác ít hạt nhé."
+      ]
+    },
+    "garden-3-bloom": {
+      "mood": "warm",
+      "lines": [
+        "Bác thấy rồi. Hoa tím nở cả góc vườn.",
+        "Bác giữ vườn mấy chục năm, mà ít khi vui như hôm nay.",
+        "Cầm lấy khóm hoa này, mang về vườn riêng mà trồng."
+      ]
+    },
+    "garden-after": {
+      "mood": "calm",
+      "lines": [
+        "Hoa thì nở rồi. Giá có thêm mấy chiếc đèn đá với cái ghế, tối ra ngồi ngắm thì đẹp."
+      ],
+      "next": "menu"
+    },
+    "garden-stage-1": {
+      "mood": "warm",
+      "lines": [
+        [
+          "Góc vườn cũ sạch cỏ rồi. Đất nâu thế kia là đất còn khỏe."
+        ],
+        [
+          "Bác ra nhìn mấy lần. Dọn xong mới thấy góc ấy rộng thật."
+        ]
+      ],
+      "next": "menu"
+    },
+    "garden-stage-2": {
+      "mood": "warm",
+      "lines": [
+        [
+          "Cây non lên đều lắm. Sáng nào cũng nhớ tưới một chút nhé."
+        ],
+        [
+          "Mầm nhú lên rồi. Đừng giẫm vào luống, cháu."
+        ]
+      ],
+      "next": "menu"
+    },
+    "garden-stage-3": {
+      "mood": "warm",
+      "lines": [
+        [
+          "Hoa tím nở rồi, bướm kéo về đấy. Giá có đèn đá với cái ghế thì tối ra ngắm được."
+        ],
+        [
+          "Cháu thấy bướm không? Mấy năm rồi bác mới thấy lại."
+        ]
+      ],
+      "next": "menu"
+    },
+    "garden-stage-4": {
+      "mood": "calm",
+      "lines": [
+        [
+          "Có ghế rồi đấy. Chiều nào rảnh, ra ngồi một lát."
+        ],
+        [
+          "Tối qua bác ngồi đó tới khi đèn đá tắt. Yên lắm."
+        ]
+      ],
+      "next": "menu"
+    }
+  }
+}

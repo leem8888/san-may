@@ -1,0 +1,34 @@
+{
+  "id": "lam-garden",
+  "title": "Khu vườn bị lãng quên",
+  "npc": "gardener",
+  "finale": "Góc vườn cũ đã nở hoa trở lại. Bác Lâm nói: vườn không cần người giỏi, chỉ cần người quay lại.",
+  "chapters": [
+    {
+      "n": 1, "title": "Góc vườn phía bắc",
+      "summary": "Bác Lâm nhờ bạn dọn góc vườn cũ đã bị cỏ dại phủ kín.",
+      "steps": [
+        { "id": "accept", "objective": "Trò chuyện với bác Lâm", "hint": "Bác Lâm ở Vườn Thiền, có giờ ra Hồ Sen tưới hoa", "trigger": { "type": "dialogue", "npc": "gardener", "node": "garden-1-accept" }, "log": "Bác Lâm kể về góc vườn phía bắc, nơi bác từng trồng hoa." },
+        { "id": "clear", "objective": "Dọn cỏ dại ở góc vườn cũ phía bắc Vườn Thiền (rủ bạn cùng làm cho nhanh)", "scene": "zenGarden", "trigger": { "type": "world", "scene": "zenGarden", "object": "oldGarden", "stateType": "restoration", "gte": 1 }, "log": "Cỏ dại đã được dọn sạch. Đất lộ ra, nâu và ẩm." }
+      ]
+    },
+    {
+      "n": 2, "title": "Hạt giống trong rừng trúc",
+      "summary": "Hạt của loài hoa dại năm xưa vẫn còn mọc trong Rừng Trúc.",
+      "steps": [
+        { "id": "ask-seed", "objective": "Hỏi bác Lâm nên trồng gì", "trigger": { "type": "dialogue", "npc": "gardener", "node": "garden-2-seed" }, "log": "Bác Lâm nhớ loài hoa dại năm xưa có hạt rơi vào Rừng Trúc." },
+        { "id": "find-seed", "objective": "Tìm khóm hoa dại có hạt trong Rừng Trúc", "hint": "Gần tảng đá phía đông, dưới bóng trúc", "scene": "bambooForest", "trigger": { "type": "dialogue", "npc": "wildSeed", "node": "gathered" }, "log": "Bạn gom một nắm hạt nhỏ, đen bóng." },
+        { "id": "plant", "objective": "Gieo hạt ở góc vườn cũ", "scene": "zenGarden", "trigger": { "type": "world", "scene": "zenGarden", "object": "oldGarden", "stateType": "restoration", "gte": 2 }, "log": "Hạt đã nằm dưới đất. Giờ chỉ còn chờ và tưới." }
+      ]
+    },
+    {
+      "n": 3, "title": "Vườn nở hoa",
+      "summary": "Nước, thời gian và những người quay lại đã làm góc vườn nở hoa.",
+      "steps": [
+        { "id": "water", "objective": "Tưới cây non ở góc vườn cũ cho tới khi nở hoa", "scene": "zenGarden", "trigger": { "type": "world", "scene": "zenGarden", "object": "oldGarden", "stateType": "restoration", "gte": 3 }, "log": "Những nụ hoa đầu tiên đã hé." },
+        { "id": "tell", "objective": "Báo tin cho bác Lâm", "trigger": { "type": "dialogue", "npc": "gardener", "node": "garden-3-bloom" } }
+      ],
+      "reward": { "items": ["decor:wildflower"] }
+    }
+  ]
+}

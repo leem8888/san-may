@@ -1,0 +1,50 @@
+{
+  "npc": "wildSeed",
+  "kind": "object",
+  "name": "KHÓM HOA DẠI",
+  "title": "Hoa dại dưới bóng trúc",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "lam-garden": {
+            "chapter": 2,
+            "step": "find-seed"
+          }
+        }
+      },
+      "node": "ready"
+    },
+    {
+      "node": "look"
+    }
+  ],
+  "nodes": {
+    "look": {
+      "lines": [
+        "Một khóm hoa dại màu tím mọc dưới bóng trúc, ong bay quanh."
+      ]
+    },
+    "ready": {
+      "lines": [
+        "Khóm hoa dại màu tím… đúng loài bác Lâm tả. Đài hoa khô đầy hạt."
+      ],
+      "choices": [
+        {
+          "id": "gather",
+          "text": "Gom một nắm hạt",
+          "next": "gathered",
+          "setFlags": {
+            "lam.seed": true
+          }
+        }
+      ]
+    },
+    "gathered": {
+      "mood": "happy",
+      "lines": [
+        "Bạn gom một nắm hạt nhỏ, đen bóng, gói vào vạt áo."
+      ]
+    }
+  }
+}

@@ -235,7 +235,7 @@ test('Migrations are idempotent and quest periods roll over at local midnight', 
   try {
     openDatabase(file).close();
     const db = openDatabase(file);
-    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').pluck().all(), [1, 2, 3]);
+    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').pluck().all(), [1, 2, 3, 4, 5, 6, 7]);
     assert.equal(db.prepare('SELECT COUNT(*) FROM quests').pluck().get(), 9);
     db.close();
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
@@ -402,12 +402,16 @@ test('Incense is lit at the censer, shared with the hall, rate limited; the monk
   for (const socket of [sa, sb]) await ask(socket, 'room:join', { room: 'INCENSE' });
   assert.match((await ask(sb, 'incense:light', { objectId: 'censer' })).error, /gần lư hương/);
   assert.match((await ask(sa, 'incense:light', { objectId: 'fortune' })).error, /Không tìm thấy/);
-  const seen = nextEvent(sb, 'incense:new');
+  const seen = nextEvent(sb, 'world:delta', d => d.objectId === 'censer');
   const lit = await ask(sa, 'incense:light', { objectId: 'censer' });
-  assert.equal(lit.ok, true); assert.equal((await seen).playerId, a.id);
+  assert.equal(lit.ok, true);
+  const delta = await seen;
+  assert.equal(delta.value.sticks[0].playerId, a.id); assert.equal(delta.scope, 'room'); assert.ok(!delta.id.includes('INCENSE'), 'room code is not exposed in state ids');
   assert.match((await ask(sa, 'incense:light', { objectId: 'censer' })).error, /vẫn đang cháy/);
   const sc = await connect(s.base, c.token); t.after(() => sc.close());
-  assert.deepEqual((await ask(sc, 'room:join', { room: 'INCENSE' })).scene.incense.map(x => x.id), [lit.stick.id], 'late joiners see burning incense');
+  const late = (await ask(sc, 'room:join', { room: 'INCENSE' })).scene;
+  assert.deepEqual(late.incense.map(x => x.id), [lit.stick.id], 'late joiners see burning incense');
+  assert.deepEqual(late.world.find(w => w.objectId === 'censer').value.sticks.map(x => x.id), [lit.stick.id], 'and receive it in the world snapshot');
   assert.ok((await s.http('GET', '/api/journal', undefined, a.token)).data.entries.some(e => e.text === 'Thắp một nén hương ở Chánh Điện.'));
 
   const { HallChant, CHANT, CHANT_LINE } = await import('../public/js/systems/HallChant.js');

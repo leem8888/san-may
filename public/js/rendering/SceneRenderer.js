@@ -1,4 +1,5 @@
 import { SpriteRenderer, polygon } from './SpriteRenderer.js';
+import { drawHeldFlower } from './StoryProps.js';
 import { LightingSystem } from './LightingSystem.js';
 import { bowDirection } from '../shared/rules.js';
 
@@ -45,10 +46,11 @@ export class SceneRenderer {
     const people = game.entered ? [player] : [];
     for (const remote of game.remotes) if (!game.blocked.has(remote.id) && cam.visible(remote.x, remote.y)) people.push(remote);
     // Seated players are shown on the bench seat instead of where they stand.
-    const views = people.map(p => { const seat = ['sit', 'meditate'].includes(p.state) && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, direction: 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
+    const views = people.map(p => { const seat = ['sit', 'meditate'].includes(p.state) && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, direction: seat.direction || 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
     for (const v of views) {
       v.direction = bowDirection(scene.id, v.state, v.direction);
-      list.push({ y: v.y, draw: () => this.sprites.draw(c, v) });
+      // Carrying a flower to the altar: a small stem held at the chest.
+      list.push({ y: v.y, draw: () => { this.sprites.draw(c, v); if (v.holding) drawHeldFlower(c, v); } });
     }
     list.sort((a, b) => a.y - b.y);
     for (const item of list) item.draw();

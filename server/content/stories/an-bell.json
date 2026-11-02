@@ -1,0 +1,40 @@
+{
+  "id": "an-bell",
+  "title": "Chiếc chuông bị lãng quên",
+  "npc": "novice",
+  "finale": "Chiếc chuông gió nhỏ lại ngân dưới mái cổng. An bảo: mỗi lần gió đi qua, chùa lại nhớ ra một điều tưởng đã quên.",
+  "chapters": [
+    {
+      "n": 1, "title": "Trang nhật ký cũ",
+      "summary": "An tìm được một trang nhật ký cũ nhắc tới chiếc chuông nhỏ từng treo ở cổng chùa.",
+      "steps": [
+        { "id": "listen", "objective": "Trò chuyện với chú tiểu An", "hint": "Mở bản đồ (M) để xem An đang ở đâu", "trigger": { "type": "dialogue", "npc": "novice", "node": "bell-1-accept" }, "log": "An cho bạn xem trang nhật ký cũ, nét mực đã phai." }
+      ]
+    },
+    {
+      "n": 2, "title": "Manh mối trong thư viện",
+      "summary": "Cuốn sổ ghi chép của chùa chỉ tới một hộc gỗ dưới chân Tháp Chuông.",
+      "steps": [
+        { "id": "ask-minh", "objective": "Hỏi thầy Minh về trang nhật ký", "hint": "Thầy Minh thường ở Thư Viện, có giờ dạo Rừng Trúc", "trigger": { "type": "dialogue", "npc": "librarian", "node": "bell-ask" }, "log": "Thầy Minh nhắc tới cuốn sổ ghi chép trên giá gỗ." },
+        { "id": "ledger", "objective": "Đọc cuốn sổ ghi chép trên giá gỗ ở Thư Viện", "scene": "library", "trigger": { "type": "dialogue", "npc": "oldLedger", "node": "bell-clue" }, "log": "Sổ ghi: chuông được cất trong hộc gỗ dưới chân Tháp Chuông, nắp khắc ba bông sen — nụ, hé, nở." }
+      ]
+    },
+    {
+      "n": 3, "title": "Bí mật ở Tháp Chuông",
+      "summary": "Ba bông sen trên nắp hộc gỗ mở ra theo thứ tự một đời hoa.",
+      "steps": [
+        { "id": "chest", "objective": "Mở hộc gỗ khắc ba bông sen ở Tháp Chuông", "hint": "Sổ ghi chép nói thứ tự: nụ, hé, nở", "scene": "bellTower", "trigger": { "type": "dialogue", "npc": "bellChest", "node": "opened" }, "log": "Trong hộc là chiếc chuông gió bằng đồng, phủ một lớp bụi mỏng." },
+        { "id": "tell-an", "objective": "Mang chiếc chuông về cho An", "trigger": { "type": "dialogue", "npc": "novice", "node": "bell-3-found" }, "log": "An ôm chiếc chuông, mắt sáng lên." }
+      ]
+    },
+    {
+      "n": 4, "title": "Tiếng chuông trở lại",
+      "summary": "Chiếc chuông gió được treo lại dưới mái cổng Tam Quan.",
+      "steps": [
+        { "id": "hang", "objective": "Treo chuông gió vào móc dưới mái cổng Tam Quan", "scene": "gate", "trigger": { "type": "dialogue", "npc": "bellHook", "node": "hung" }, "log": "Bạn treo chuông lên móc cũ. Gió vừa qua, chuông ngân một tiếng trong veo." },
+        { "id": "thank", "objective": "Kể với An là chuông đã được treo", "trigger": { "type": "dialogue", "npc": "novice", "node": "bell-4-thanks" } }
+      ],
+      "reward": { "items": ["decor:windbell", "badge:smallBell"], "world": [{ "scope": "room", "scene": "gate", "object": "bellHook", "type": "hung", "value": true }] }
+    }
+  ]
+}

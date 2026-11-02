@@ -1,0 +1,171 @@
+{
+  "id": "light-hall",
+  "title": "Ánh sáng trong Chánh điện",
+  "npc": "novice",
+  "journey": true,
+  "finale": "Chiếc đèn cổ lại sáng trong hốc tường. Ánh vàng ấm loang ra trên sàn gỗ, chạm tới từng chiếc bồ đoàn. An nói khẽ: “Có những thứ chỉ cần một người nhớ tới là sáng lại được.”",
+  "teaser": "An kể: thầy Viên Giác nói dưới đáy Hồ Sen còn một chiếc chuông đồng nhỏ. Hôm nào An sẽ kể tiếp…",
+  "chapters": [
+    {
+      "n": 1,
+      "title": "Lời nhắn của Chú Tiểu",
+      "summary": "An kể về chiếc đèn cổ trong Chánh Điện đã lâu không ai thắp.",
+      "mood": "curious",
+      "steps": [
+        {
+          "id": "accept",
+          "objective": "Trò chuyện với chú tiểu An",
+          "hint": "An có dấu ! trên đầu. Mở bản đồ (M) để xem An đang ở đâu.",
+          "trigger": {
+            "type": "dialogue",
+            "npc": "novice",
+            "node": "hall-accept"
+          },
+          "log": "An nhờ bạn tìm lại chiếc đèn cổ: chân đèn hình hoa sen, thân khắc ba áng mây."
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "title": "Tìm manh mối",
+      "summary": "Cuốn sách cũ trong Thư Viện vẽ đủ đồ thờ trong chùa.",
+      "mood": "gentle",
+      "steps": [
+        {
+          "id": "ask-minh",
+          "objective": "Hỏi thầy Minh về chiếc đèn cổ",
+          "hint": "Thầy Minh thường ở Thư Viện; có giờ dạo Rừng Trúc hoặc ngồi thiền ở Chánh Điện.",
+          "trigger": {
+            "type": "dialogue",
+            "npc": "librarian",
+            "node": "hall-minh"
+          },
+          "log": "Thầy Minh chỉ cuốn “Đồ thờ trong chùa” trên giá sách."
+        },
+        {
+          "id": "book",
+          "objective": "Tìm đúng trang vẽ chiếc đèn trong cuốn sách cũ",
+          "hint": "Cuốn sách đặt trên giá gần bàn đọc. An tả: chân sen, ba áng mây.",
+          "scene": "library",
+          "trigger": {
+            "type": "dialogue",
+            "npc": "oldBook",
+            "node": "lamp-page"
+          },
+          "log": "Trang 27 ghi: “Đèn nghỉ trong hốc tường thứ ba, đếm từ tượng Phật sang bên phải.”"
+        }
+      ],
+      "reward": {
+        "world": [
+          {
+            "scope": "personal",
+            "scene": "mainHall",
+            "object": "ancientLamp",
+            "type": "stage",
+            "value": "clue"
+          }
+        ]
+      }
+    },
+    {
+      "n": 3,
+      "title": "Chuẩn bị Chánh điện",
+      "summary": "Trước khi đón chiếc đèn về, Chánh Điện cần được chuẩn bị.",
+      "mood": "calm",
+      "steps": [
+        {
+          "id": "prepare",
+          "objective": "Chuẩn bị Chánh Điện: làm hai trong ba việc — dâng hoa, thắp nến, đọc một đoạn suy ngẫm",
+          "hint": "Bàn hoa bên phải, giá nến bên trái, kệ suy ngẫm gần cửa.",
+          "scene": "mainHall",
+          "trigger": {
+            "type": "flag",
+            "flag": "hall.prepared"
+          },
+          "log": "Chánh Điện thơm mùi hoa và sáp nến."
+        },
+        {
+          "id": "find",
+          "objective": "Tìm hốc tường dành cho chiếc đèn",
+          "hint": "Đếm các hốc tường từ tượng Phật sang bên phải.",
+          "scene": "mainHall",
+          "trigger": {
+            "type": "dialogue",
+            "npc": "nicheC",
+            "node": "found"
+          },
+          "log": "Trong hốc thứ ba có một khấc gỗ tròn vừa chân đèn."
+        }
+      ],
+      "reward": {
+        "world": [
+          {
+            "scope": "personal",
+            "scene": "mainHall",
+            "object": "ancientLamp",
+            "type": "stage",
+            "value": "preparing"
+          }
+        ]
+      }
+    },
+    {
+      "n": 4,
+      "title": "Cùng thắp đèn",
+      "summary": "Một người lau đèn, một người tìm dấu khắc trong hốc. Cùng nhau đặt đèn và thắp lửa.",
+      "mood": "warm",
+      "steps": [
+        {
+          "id": "lamp",
+          "objective": "Đặt và thắp chiếc đèn cổ — mời một người bạn, hoặc làm cùng An",
+          "hint": "Đèn đang phủ khăn trên bàn gỗ bên trái Chánh Điện. Chạm vào bàn để bắt đầu.",
+          "scene": "mainHall",
+          "trigger": {
+            "type": "coop",
+            "kind": "lamp"
+          },
+          "log": "Ngọn lửa nhỏ bén vào bấc. Chiếc đèn cổ sáng lên."
+        }
+      ],
+      "reward": {
+        "world": [
+          {
+            "scope": "personal",
+            "scene": "mainHall",
+            "object": "ancientLamp",
+            "type": "state",
+            "value": {
+              "placed": true,
+              "lit": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "n": 5,
+      "title": "Ánh sáng",
+      "summary": "Chiếc đèn đã sáng. An đang chờ nghe kể.",
+      "mood": "tender",
+      "steps": [
+        {
+          "id": "thank",
+          "objective": "Kể với An rằng chiếc đèn đã sáng",
+          "hint": "An có dấu ! trên đầu.",
+          "trigger": {
+            "type": "dialogue",
+            "npc": "novice",
+            "node": "hall-thanks"
+          },
+          "log": "An tặng bạn một chiếc đèn nhỏ để đặt ở vườn riêng."
+        }
+      ],
+      "reward": {
+        "items": [
+          "badge:hallLight",
+          "decor:hallLamp"
+        ]
+      }
+    }
+  ]
+}

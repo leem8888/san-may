@@ -12,38 +12,229 @@
     "base": "#1d130d",
     "void": "#120b07",
     "layers": [
-      {"type":"planks","x":50,"y":220,"w":1200,"h":740,"colors":["#6b4a33","#74503a","#5f412d"]},
-      {"type":"carpet","x":380,"y":450,"w":540,"h":360,"color":"#3f5a4e","border":"#a8865a"},
-      {"type":"rect","x":26,"y":560,"w":26,"h":120,"color":"#e8c98a"}
+      {
+        "type": "planks",
+        "x": 50,
+        "y": 220,
+        "w": 1200,
+        "h": 740,
+        "colors": [
+          "#6b4a33",
+          "#74503a",
+          "#5f412d"
+        ]
+      },
+      {
+        "type": "carpet",
+        "x": 380,
+        "y": 450,
+        "w": 540,
+        "h": 360,
+        "color": "#3f5a4e",
+        "border": "#a8865a"
+      },
+      {
+        "type": "rect",
+        "x": 26,
+        "y": 560,
+        "w": 26,
+        "h": 120,
+        "color": "#e8c98a"
+      }
     ]
   },
-  "spawns": {"default":[180,620],"fromBamboo":[170,620]},
+  "spawns": {
+    "default": [
+      180,
+      620
+    ],
+    "fromBamboo": [
+      170,
+      620
+    ]
+  },
   "portals": [
-    {"id":"toBamboo","x":56,"y":560,"w":56,"h":120,"to":"bambooForest","spawn":"fromLibrary","label":"Về Rừng Trúc","dir":"left"}
+    {
+      "id": "toBamboo",
+      "x": 56,
+      "y": 560,
+      "w": 56,
+      "h": 120,
+      "to": "bambooForest",
+      "spawn": "fromLibrary",
+      "label": "Về Rừng Trúc",
+      "dir": "left"
+    }
   ],
   "obstacles": [
-    {"x":0,"y":0,"w":1300,"h":236}
+    {
+      "x": 0,
+      "y": 0,
+      "w": 1300,
+      "h": 236
+    }
   ],
   "lights": [
-    [650,560,320,"255,200,140"]
+    [
+      650,
+      560,
+      320,
+      "255,200,140"
+    ]
   ],
   "props": [
-    {"type":"shelfWall","x":50,"y":232,"w":1200,"big":true,"solid":false,"sortY":0},
-    {"type":"bookshelf","x":220,"y":440,"w":140},
-    {"type":"bookshelf","x":220,"y":880,"w":140},
-    {"type":"bookshelf","x":1100,"y":470,"w":140},
-    {"type":"bookshelf","x":1100,"y":840,"w":140},
-    {"type":"desk","x":520,"y":600,"lamp":true},
-    {"type":"desk","x":780,"y":600,"lamp":true},
-    {"type":"desk","x":520,"y":770},
-    {"type":"desk","x":780,"y":770},
-    {"type":"scrollRack","x":380,"y":330},
-    {"type":"kettle","x":1110,"y":330},
-    {"type":"lotusPot","x":900,"y":320}
+    {
+      "type": "shelfWall",
+      "x": 50,
+      "y": 232,
+      "w": 1200,
+      "big": true,
+      "solid": false,
+      "sortY": 0
+    },
+    {
+      "type": "bookshelf",
+      "x": 220,
+      "y": 440,
+      "w": 140
+    },
+    {
+      "type": "bookshelf",
+      "x": 220,
+      "y": 880,
+      "w": 140
+    },
+    {
+      "type": "bookshelf",
+      "x": 1100,
+      "y": 470,
+      "w": 140
+    },
+    {
+      "type": "bookshelf",
+      "x": 1100,
+      "y": 840,
+      "w": 140
+    },
+    {
+      "type": "desk",
+      "x": 520,
+      "y": 600,
+      "lamp": true
+    },
+    {
+      "type": "desk",
+      "x": 780,
+      "y": 600,
+      "lamp": true
+    },
+    {
+      "type": "desk",
+      "x": 520,
+      "y": 770
+    },
+    {
+      "type": "desk",
+      "x": 780,
+      "y": 770
+    },
+    {
+      "type": "scrollRack",
+      "x": 380,
+      "y": 330
+    },
+    {
+      "type": "kettle",
+      "x": 1110,
+      "y": 330
+    },
+    {
+      "type": "lotusPot",
+      "x": 900,
+      "y": 320
+    }
   ],
   "objects": [
-    {"id":"librarian","type":"npc","x":650,"y":360,"name":"Thầy Tịnh · Người giữ thư viện","appearance":{"hairStyle":"shaved","hairColor":"#2b2823","outfitStyle":"robe","outfitColor":"#8a6a4a","accessory":"beads"},"gestures":["pray","interact"],"label":"Thưa chuyện với thầy Tịnh","action":"dialogue","dialogue":"librarian","radius":100},
-    {"id":"stories","type":"zone","x":650,"y":690,"label":"Đọc truyện và lời hay","action":"stories","radius":120},
-    {"id":"tea","type":"teaTable","x":1000,"y":345,"label":"Pha trà","action":"tea","radius":100}
+    {
+      "id": "librarian",
+      "type": "npc",
+      "schedule": true,
+      "x": 650,
+      "y": 360,
+      "name": "Thầy Minh · Người giữ thư viện",
+      "appearance": {
+        "hairStyle": "shaved",
+        "hairColor": "#2b2823",
+        "outfitStyle": "robe",
+        "outfitColor": "#8a6a4a",
+        "accessory": "beads"
+      },
+      "gestures": [
+        "pray",
+        "interact"
+      ],
+      "label": "Thưa chuyện với thầy Minh",
+      "action": "dialogue",
+      "dialogue": "librarian",
+      "radius": 100
+    },
+    {
+      "id": "stories",
+      "type": "zone",
+      "x": 650,
+      "y": 690,
+      "label": "Đọc truyện và lời hay",
+      "action": "stories",
+      "radius": 120
+    },
+    {
+      "id": "tea",
+      "type": "teaTable",
+      "x": 1000,
+      "y": 345,
+      "label": "Pha trà",
+      "action": "tea",
+      "radius": 100
+    },
+    {
+      "id": "oldLedger",
+      "type": "ledger",
+      "x": 340,
+      "y": 560,
+      "label": "Đọc sổ ghi chép của chùa",
+      "action": "story",
+      "narrative": true,
+      "radius": 90
+    },
+    {
+      "id": "letterBox",
+      "type": "letterBox",
+      "x": 1030,
+      "y": 650,
+      "label": "Mở hộp gỗ đựng thư",
+      "action": "story",
+      "narrative": true,
+      "radius": 90
+    },
+    {
+      "id": "clueScroll",
+      "type": "scrollStand",
+      "x": 440,
+      "y": 430,
+      "label": "Xem cuộn giấy trên giá",
+      "action": "puzzle",
+      "op": "read",
+      "radius": 80
+    },
+    {
+      "id": "oldBook",
+      "type": "bookStand",
+      "x": 780,
+      "y": 430,
+      "label": "Mở cuốn sách cũ",
+      "action": "story",
+      "narrative": true,
+      "radius": 80
+    }
   ]
 }

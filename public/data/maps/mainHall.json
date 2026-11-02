@@ -8,66 +8,524 @@
   "indoor": true,
   "zoom": 0.82,
   "ambient": "hall",
-  "margin": {"left":70,"right":70},
+  "margin": {
+    "left": 70,
+    "right": 70
+  },
   "ground": {
     "base": "#24170f",
     "void": "#140d09",
     "layers": [
-      {"type":"planks","x":60,"y":240,"w":1280,"h":710},
-      {"type":"rect","x":560,"y":240,"w":280,"h":130,"color":"#4a2c20","r":6},
-      {"type":"carpet","x":620,"y":440,"w":160,"h":500,"color":"#7d2a24"},
-      {"type":"rect","x":630,"y":948,"w":140,"h":52,"color":"#e8c98a"}
+      {
+        "type": "planks",
+        "x": 60,
+        "y": 240,
+        "w": 1280,
+        "h": 710
+      },
+      {
+        "type": "rect",
+        "x": 560,
+        "y": 240,
+        "w": 280,
+        "h": 130,
+        "color": "#4a2c20",
+        "r": 6
+      },
+      {
+        "type": "carpet",
+        "x": 620,
+        "y": 440,
+        "w": 160,
+        "h": 500,
+        "color": "#7d2a24"
+      },
+      {
+        "type": "rect",
+        "x": 630,
+        "y": 948,
+        "w": 140,
+        "h": 52,
+        "color": "#e8c98a"
+      }
     ]
   },
-  "spawns": {"default":[700,820],"fromCourtyard":[700,850]},
+  "spawns": {
+    "default": [
+      700,
+      820
+    ],
+    "fromCourtyard": [
+      700,
+      850
+    ]
+  },
   "portals": [
-    {"id":"toCourtyard","x":630,"y":896,"w":140,"h":60,"to":"courtyard","spawn":"fromMainHall","label":"Ra Sân Chùa","dir":"down"}
+    {
+      "id": "toCourtyard",
+      "x": 630,
+      "y": 896,
+      "w": 140,
+      "h": 60,
+      "to": "courtyard",
+      "spawn": "fromMainHall",
+      "label": "Ra Sân Chùa",
+      "dir": "down"
+    }
   ],
   "obstacles": [
-    {"x":0,"y":0,"w":1400,"h":262},
-    {"x":550,"y":262,"w":300,"h":200}
+    {
+      "x": 0,
+      "y": 0,
+      "w": 1400,
+      "h": 262
+    },
+    {
+      "x": 550,
+      "y": 262,
+      "w": 300,
+      "h": 200
+    }
   ],
   "lights": [
-    [700,640,300,"255,200,130"]
+    [
+      700,
+      640,
+      300,
+      "255,200,130"
+    ]
   ],
   "props": [
-    {"type":"hallBack","x":60,"y":252,"w":1280,"big":true,"solid":false,"sortY":0},
-    {"type":"altarDais","x":700,"y":462,"sortY":1,"solid":false,"big":true},
-    {"type":"statue","x":700,"y":345,"big":true},
-    {"type":"altar","x":700,"y":425},
-    {"type":"pillar","x":260,"y":480,"height":210},
-    {"type":"pillar","x":1140,"y":480,"height":210},
-    {"type":"pillar","x":260,"y":790,"height":210},
-    {"type":"pillar","x":1140,"y":790,"height":210},
-    {"type":"cushion","x":620,"y":560},
-    {"type":"cushion","x":700,"y":560},
-    {"type":"cushion","x":780,"y":560},
-    {"type":"cushion","x":620,"y":650},
-    {"type":"cushion","x":780,"y":650},
-    {"type":"lotusPot","x":470,"y":420},
-    {"type":"lotusPot","x":930,"y":420}
+    {
+      "type": "hallBack",
+      "x": 60,
+      "y": 252,
+      "w": 1280,
+      "big": true,
+      "solid": false,
+      "sortY": 0
+    },
+    {
+      "type": "altarDais",
+      "x": 700,
+      "y": 462,
+      "sortY": 1,
+      "solid": false,
+      "big": true
+    },
+    {
+      "type": "statue",
+      "x": 700,
+      "y": 345,
+      "big": true
+    },
+    {
+      "type": "altar",
+      "x": 700,
+      "y": 425
+    },
+    {
+      "type": "pillar",
+      "x": 260,
+      "y": 480,
+      "height": 210
+    },
+    {
+      "type": "pillar",
+      "x": 1140,
+      "y": 480,
+      "height": 210
+    },
+    {
+      "type": "pillar",
+      "x": 260,
+      "y": 790,
+      "height": 210
+    },
+    {
+      "type": "pillar",
+      "x": 1140,
+      "y": 790,
+      "height": 210
+    },
+    {
+      "type": "cushion",
+      "x": 620,
+      "y": 560
+    },
+    {
+      "type": "cushion",
+      "x": 700,
+      "y": 560
+    },
+    {
+      "type": "cushion",
+      "x": 780,
+      "y": 560
+    },
+    {
+      "type": "cushion",
+      "x": 620,
+      "y": 650
+    },
+    {
+      "type": "cushion",
+      "x": 780,
+      "y": 650
+    },
+    {
+      "type": "lotusPot",
+      "x": 470,
+      "y": 420
+    },
+    {
+      "type": "lotusPot",
+      "x": 930,
+      "y": 420
+    }
   ],
   "objects": [
-    {"id":"offeringStand","type":"offeringStand","x":900,"y":505,"label":"Dâng hương & mâm lễ","action":"offering","radius":110,"hitW":58,"hitH":50},
-    {"id":"goldenCat","type":"cat","x":1210,"y":850,"solid":false,"label":"Làm quen với mèo vàng","action":"cat","radius":90,"hitW":42,"hitH":55},
-    {"id":"bowCushion","type":"cushion","x":700,"y":650,"color":"#b8603f","label":"Lạy Phật tại bồ đoàn","action":"bow","radius":90},
-    {"id":"beadSpot","type":"cushion","x":440,"y":640,"color":"#7d5b3a","label":"Lần chuỗi","action":"bead","radius":80},
-    {"id":"chant","type":"mo","x":980,"y":560,"label":"Nghe tụng kinh","action":"chant","radius":100},
-    {"id":"abbot","type":"npc","x":530,"y":500,"name":"Thầy Viên Minh · Trụ trì","appearance":{"hairStyle":"shaved","hairColor":"#2b2823","outfitStyle":"robe","outfitColor":"#9a5b33","accessory":"beads"},"gestures":["pray","bow"],"label":"Thưa chuyện với thầy trụ trì","action":"dialogue","dialogue":"abbot","radius":100},
-    {"id":"hallZen1","type":"cushion","x":900,"y":730,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen2","type":"cushion","x":1030,"y":730,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen3","type":"cushion","x":340,"y":620,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen4","type":"cushion","x":540,"y":620,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen5","type":"cushion","x":900,"y":620,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen6","type":"cushion","x":1030,"y":620,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen7","type":"cushion","x":340,"y":730,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen8","type":"cushion","x":540,"y":730,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen9","type":"cushion","x":340,"y":840,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen10","type":"cushion","x":540,"y":840,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen11","type":"cushion","x":900,"y":840,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"hallZen12","type":"cushion","x":1030,"y":840,"color":"#6d5a8a","label":"Ngồi thiền trong Chánh Điện","action":"meditate","radius":75},
-    {"id":"censer","type":"censer","x":700,"y":500,"label":"Thắp một nén hương","action":"incense","radius":90},
-    {"id":"chanter","type":"npc","x":1050,"y":585,"name":"Sư Tâm Hòa · Tụng kinh","pose":"meditate","appearance":{"hairStyle":"shaved","hairColor":"#2b2823","outfitStyle":"robe","outfitColor":"#b5703c","accessory":"beads"},"gestures":[],"label":"Chào sư Tâm Hòa","action":"dialogue","dialogue":"chanter","radius":90},
-    {"id":"fortune","type":"fortune","x":460,"y":790,"label":"Xin một quẻ · lắc ống xăm","action":"fortune","radius":95}
+    {
+      "id": "offeringStand",
+      "type": "offeringStand",
+      "x": 900,
+      "y": 505,
+      "label": "Dâng hương & mâm lễ",
+      "action": "offering",
+      "radius": 110,
+      "hitW": 58,
+      "hitH": 50
+    },
+    {
+      "id": "goldenCat",
+      "type": "cat",
+      "x": 1210,
+      "y": 850,
+      "solid": false,
+      "label": "Làm quen với mèo vàng",
+      "action": "cat",
+      "radius": 90,
+      "hitW": 42,
+      "hitH": 55
+    },
+    {
+      "id": "bowCushion",
+      "type": "cushion",
+      "x": 700,
+      "y": 650,
+      "color": "#b8603f",
+      "label": "Lạy Phật (chọn phiên 9 · 27 · 54 · 108)",
+      "action": "bowSession",
+      "radius": 90
+    },
+    {
+      "id": "beadSpot",
+      "type": "cushion",
+      "x": 440,
+      "y": 640,
+      "color": "#7d5b3a",
+      "label": "Lần chuỗi 108 hạt",
+      "action": "beads",
+      "radius": 80
+    },
+    {
+      "id": "chant",
+      "type": "mo",
+      "x": 980,
+      "y": 560,
+      "label": "Nghe tụng kinh",
+      "action": "chant",
+      "radius": 100
+    },
+    {
+      "id": "abbot",
+      "type": "npc",
+      "x": 530,
+      "y": 500,
+      "name": "Thầy Viên Giác · Trụ trì",
+      "appearance": {
+        "hairStyle": "shaved",
+        "hairColor": "#2b2823",
+        "outfitStyle": "robe",
+        "outfitColor": "#9a5b33",
+        "accessory": "beads"
+      },
+      "gestures": [
+        "pray",
+        "bow"
+      ],
+      "label": "Thưa chuyện với thầy trụ trì",
+      "action": "dialogue",
+      "dialogue": "abbot",
+      "radius": 100
+    },
+    {
+      "id": "hallZen1",
+      "type": "cushion",
+      "x": 900,
+      "y": 730,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen2",
+      "type": "cushion",
+      "x": 1030,
+      "y": 730,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen3",
+      "type": "cushion",
+      "x": 340,
+      "y": 620,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen4",
+      "type": "cushion",
+      "x": 540,
+      "y": 620,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen5",
+      "type": "cushion",
+      "x": 900,
+      "y": 620,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen6",
+      "type": "cushion",
+      "x": 1030,
+      "y": 620,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen7",
+      "type": "cushion",
+      "x": 340,
+      "y": 730,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen8",
+      "type": "cushion",
+      "x": 540,
+      "y": 730,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen9",
+      "type": "cushion",
+      "x": 340,
+      "y": 840,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen10",
+      "type": "cushion",
+      "x": 540,
+      "y": 840,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen11",
+      "type": "cushion",
+      "x": 900,
+      "y": 840,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "hallZen12",
+      "type": "cushion",
+      "x": 1030,
+      "y": 840,
+      "color": "#6d5a8a",
+      "label": "Ngồi thiền trong Chánh Điện",
+      "action": "meditate",
+      "radius": 75
+    },
+    {
+      "id": "censer",
+      "type": "censer",
+      "x": 700,
+      "y": 500,
+      "label": "Thắp một nén hương",
+      "action": "incense",
+      "radius": 90
+    },
+    {
+      "id": "chanter",
+      "type": "npc",
+      "x": 1050,
+      "y": 585,
+      "name": "Sư Tâm Hòa · Tụng kinh",
+      "pose": "meditate",
+      "appearance": {
+        "hairStyle": "shaved",
+        "hairColor": "#2b2823",
+        "outfitStyle": "robe",
+        "outfitColor": "#b5703c",
+        "accessory": "beads"
+      },
+      "gestures": [],
+      "label": "Chào sư Tâm Hòa",
+      "action": "dialogue",
+      "dialogue": "chanter",
+      "radius": 90
+    },
+    {
+      "id": "fortune",
+      "type": "fortune",
+      "x": 460,
+      "y": 790,
+      "label": "Xin một quẻ · lắc ống xăm",
+      "action": "fortune",
+      "radius": 95
+    },
+    {
+      "id": "flowerTable",
+      "type": "flowerTable",
+      "x": 1250,
+      "y": 485,
+      "label": "Lấy hoa để dâng",
+      "action": "hall",
+      "op": "flower",
+      "radius": 90
+    },
+    {
+      "id": "candleRack",
+      "type": "candleRack",
+      "x": 160,
+      "y": 470,
+      "label": "Thắp nến",
+      "action": "hall",
+      "op": "candle",
+      "radius": 90
+    },
+    {
+      "id": "reflectStand",
+      "type": "reflectionStand",
+      "x": 1240,
+      "y": 620,
+      "label": "Đọc một đoạn suy ngẫm",
+      "action": "hall",
+      "op": "reflect",
+      "radius": 80
+    },
+    {
+      "id": "nicheA",
+      "type": "niche",
+      "x": 960,
+      "y": 300,
+      "label": "Xem hốc tường thứ nhất",
+      "action": "story",
+      "narrative": true,
+      "stateOf": "ancientLamp",
+      "radius": 80,
+      "solid": false,
+      "hitH": 80
+    },
+    {
+      "id": "nicheB",
+      "type": "niche",
+      "x": 1090,
+      "y": 300,
+      "label": "Xem hốc tường thứ hai",
+      "action": "story",
+      "narrative": true,
+      "stateOf": "ancientLamp",
+      "radius": 80,
+      "solid": false,
+      "hitH": 80
+    },
+    {
+      "id": "nicheC",
+      "type": "niche",
+      "x": 1220,
+      "y": 300,
+      "label": "Xem hốc tường thứ ba",
+      "action": "story",
+      "narrative": true,
+      "stateOf": "ancientLamp",
+      "radius": 80,
+      "solid": false,
+      "hitH": 80
+    },
+    {
+      "id": "lampTable",
+      "type": "lampTable",
+      "x": 400,
+      "y": 340,
+      "label": "Bàn gỗ phủ khăn",
+      "action": "coop",
+      "coop": "lamp",
+      "stateOf": "ancientLamp",
+      "radius": 90
+    },
+    {
+      "id": "altarVases",
+      "type": "altarVases",
+      "x": 610,
+      "y": 450,
+      "label": "Đặt hoa lên bàn thờ",
+      "action": "hall",
+      "op": "offer",
+      "stateOf": "flowerTable",
+      "radius": 70,
+      "solid": false
+    },
+    {
+      "id": "readingDesk",
+      "type": "readingDesk",
+      "x": 150,
+      "y": 730,
+      "label": "Góc đọc và tụng kinh",
+      "action": "read",
+      "radius": 90
+    },
+    {
+      "id": "prayerBook",
+      "type": "prayerBook",
+      "x": 1290,
+      "y": 745,
+      "label": "Mở sổ cầu nguyện",
+      "action": "prayer",
+      "radius": 80
+    }
   ]
 }

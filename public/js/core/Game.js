@@ -9,10 +9,15 @@ import { DayNightSystem } from '../systems/DayNightSystem.js';
 import { WeatherSystem } from '../systems/WeatherSystem.js';
 import { bowDirection } from '../shared/rules.js';
 import { Pathfinder } from '../systems/Pathfinder.js';
+import { NpcDirector } from '../shared/npcSchedule.js';
+import { NPC } from '../entities/NPC.js';
 
 export class Game {
   constructor(canvas, assets, joystick, onAction, onTick, options = {}) {
     this.player = new Player(); this.scenes = new SceneManager(assets.get('maps'));
+    // Travelling NPCs follow the shared temple routine; clockNow is replaced by the server clock once connected.
+    this.npcDirector = new NpcDirector(assets.get('maps')); this.clockNow = () => Date.now(); this.talkingTo = null;
+    this.travelers = new Map(this.npcDirector.ids.map(id => { const def = this.npcDirector.definitions.get(id), npc = new NPC(def); Object.assign(npc, { label: def.label, radius: def.radius || 100 }); return [id, npc]; }));
     const first = this.scenes.enter(options.scene || 'gate');
     this.camera = new Camera(first.map); this.renderer = new SceneRenderer(canvas, this.camera);
     this.input = new InputManager(canvas, this.camera, joystick, onAction);
@@ -60,7 +65,7 @@ export class Game {
     if (path !== null) this.input.setPath(path);
   }
   view() { const w = this.camera.width / this.camera.zoom, h = this.camera.height / this.camera.zoom; return { left: this.camera.x - w / 2, top: this.camera.y - h / 2, width: w, height: h }; }
-  environment(dt) { return { time: this.time, dt, wind: this.weather.wind, reduced: this.reduced, visitor: this.entered ? this.player : null, bells: this.scene.bells, fortuneShake: Math.min(1, this.fortuneShake || 0), ...this.dayNight.sample() }; }
+  environment(dt) { return { time: this.time, dt, ring: this.scene.ringLevel?.(this.scene.time) || 0, wind: this.weather.wind, reduced: this.reduced, visitor: this.entered ? this.player : null, bells: this.scene.bells, fortuneShake: Math.min(1, this.fortuneShake || 0), ...this.dayNight.sample() }; }
   spawnWeather(dt, view) {
     if (this.scene.indoor || this.reduced) return;
     const q = { low: .3, medium: .6, high: 1 }[this.renderer.quality], { levels, wind } = this.weather;
@@ -85,6 +90,7 @@ export class Game {
     this.weather.update(dt);
     if (this.fortuneShake > 0) this.fortuneShake -= dt;
     this.env = this.environment(dt);
+    this.placeTravelers(dt);
     scene.update(dt, this);
     const view = this.view();
     this.spawnWeather(dt, view);
@@ -92,6 +98,23 @@ export class Game {
     this.particles.update(dt, this.env.wind);
     this.interactions.update(p);
     onTick(dt, this.time);
+  }
+  // Puts each travelling NPC where the routine says (unless they are talking to this player) and exposes the
+  // ones in the current area for drawing and interaction.
+  placeTravelers(dt) {
+    const now = this.clockNow(), scene = this.scene, here = [];
+    for (const npc of this.travelers.values()) {
+      if (this.talkingTo !== npc.id) {
+        const s = this.npcDirector.stateAt(npc.id, now);
+        Object.assign(npc, { sceneId: s.sceneId, x: s.x, y: s.y, activity: s.activity });
+        if (s.moving) { if (npc.state !== 'walk') { npc.state = 'walk'; npc.elapsed = 0; } npc.direction = s.direction; }
+        else if (npc.state === 'walk' || npc.rest !== s.state) { Object.assign(npc, { rest: s.state, state: s.state, gestures: s.gestures, elapsed: 0, direction: s.direction }); }
+      }
+      if (npc.sceneId !== scene.id) continue;
+      npc.update(dt, this.player); here.push(npc);
+    }
+    scene.visitors = here;
+    scene.interactions.extra = here.map(n => ({ id: n.id, type: 'npc', x: n.x, y: n.y, label: n.label, action: 'dialogue', dialogue: n.dialogue, radius: n.radius }));
   }
   destroy() { this.loop.stop(); this.input.destroy(); window.removeEventListener('resize', this.resize); document.removeEventListener('visibilitychange', this.visibility); }
 }

@@ -1,0 +1,74 @@
+{
+  "npc": "bellHook",
+  "kind": "object",
+  "name": "MÓC SẮT DƯỚI MÁI CỔNG",
+  "title": "Móc sắt cũ",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 4,
+            "step": "hang"
+          }
+        }
+      },
+      "node": "ready"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": "completed"
+        }
+      },
+      "node": "chime"
+    },
+    {
+      "when": {
+        "world": [
+          {
+            "scope": "room",
+            "scene": "gate",
+            "object": "bellHook",
+            "type": "hung",
+            "equals": true
+          }
+        ]
+      },
+      "node": "chime"
+    },
+    {
+      "node": "empty"
+    }
+  ],
+  "nodes": {
+    "empty": {
+      "lines": [
+        "Một chiếc móc sắt cũ dưới mái cổng, đã gỉ một chút."
+      ]
+    },
+    "ready": {
+      "lines": [
+        "Chiếc móc sắt cũ dưới mái. Vừa tầm tay bạn."
+      ],
+      "choices": [
+        {
+          "id": "hang",
+          "text": "Treo chiếc chuông gió lên",
+          "next": "hung"
+        }
+      ]
+    },
+    "hung": {
+      "mood": "happy",
+      "lines": [
+        "Bạn treo chuông lên. Gió vừa qua — keng… một tiếng trong veo."
+      ]
+    },
+    "chime": {
+      "lines": [
+        "Chuông gió đung đưa dưới mái cổng. Keng… keng…"
+      ]
+    }
+  }
+}

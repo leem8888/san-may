@@ -1,0 +1,122 @@
+{
+  "npc": "bellChest",
+  "kind": "object",
+  "name": "HỘC GỖ CŨ",
+  "title": "Hộc gỗ dưới chân tháp",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapter": 3,
+            "step": "chest"
+          }
+        }
+      },
+      "node": "lid"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": {
+            "chapterAtLeast": 3
+          }
+        }
+      },
+      "node": "empty"
+    },
+    {
+      "when": {
+        "story": {
+          "an-bell": "completed"
+        }
+      },
+      "node": "empty"
+    },
+    {
+      "node": "closed"
+    }
+  ],
+  "nodes": {
+    "closed": {
+      "lines": [
+        "Một hộc gỗ cũ dưới chân tháp, nắp khắc ba bông sen. Nắp đóng chặt."
+      ]
+    },
+    "lid": {
+      "lines": [
+        "Ba bông sen trên nắp: một nụ, một hé, một nở. Hình như mỗi bông ấn xuống được."
+      ],
+      "choices": [
+        {
+          "id": "full",
+          "text": "Ấn bông sen nở",
+          "next": "stuck"
+        },
+        {
+          "id": "bud",
+          "text": "Ấn bông sen nụ",
+          "next": "lid-1"
+        },
+        {
+          "id": "half",
+          "text": "Ấn bông sen hé",
+          "next": "stuck"
+        }
+      ]
+    },
+    "lid-1": {
+      "lines": [
+        "Cạch. Bông sen nụ lún xuống."
+      ],
+      "choices": [
+        {
+          "id": "full",
+          "text": "Ấn bông sen nở",
+          "next": "stuck"
+        },
+        {
+          "id": "half",
+          "text": "Ấn bông sen hé",
+          "next": "lid-2"
+        }
+      ]
+    },
+    "lid-2": {
+      "lines": [
+        "Cạch. Bông sen hé cũng lún xuống."
+      ],
+      "choices": [
+        {
+          "id": "full",
+          "text": "Ấn bông sen nở",
+          "next": "opened"
+        },
+        {
+          "id": "bud",
+          "text": "Ấn lại bông sen nụ",
+          "next": "stuck"
+        }
+      ]
+    },
+    "stuck": {
+      "mood": "worried",
+      "lines": [
+        "Các bông sen bật trở lại. Nắp vẫn đóng."
+      ],
+      "next": "lid"
+    },
+    "opened": {
+      "mood": "surprised",
+      "lines": [
+        "Cạch. Nắp hộc bật mở.",
+        "Bên trong là một chiếc chuông gió nhỏ bằng đồng, lưỡi chuông còn nguyên."
+      ]
+    },
+    "empty": {
+      "lines": [
+        "Hộc gỗ trống, chỉ còn mùi gỗ cũ."
+      ]
+    }
+  }
+}

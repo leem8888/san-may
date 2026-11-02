@@ -1,0 +1,94 @@
+{
+  "npc": "letterBox",
+  "kind": "object",
+  "name": "HỘP GỖ ĐỰNG THƯ",
+  "title": "Những lá thư chưa gửi",
+  "entries": [
+    {
+      "when": {
+        "story": {
+          "minh-letters": {
+            "chapter": 1,
+            "step": "read1"
+          }
+        }
+      },
+      "node": "letter1"
+    },
+    {
+      "when": {
+        "story": {
+          "minh-letters": {
+            "chapterAtLeast": 2
+          }
+        }
+      },
+      "node": "reread"
+    },
+    {
+      "when": {
+        "story": {
+          "minh-letters": "completed"
+        }
+      },
+      "node": "reread"
+    },
+    {
+      "node": "closed"
+    }
+  ],
+  "nodes": {
+    "closed": {
+      "lines": [
+        "Một hộp gỗ nhỏ, nắp khép hờ. Thầy Minh dặn đừng mở khi chưa hỏi thầy."
+      ]
+    },
+    "letter1": {
+      "mood": "sad",
+      "lines": [
+        "Lá thư đầu tiên, giấy đã ngả vàng:",
+        "“Cha. Hôm con đi, con đã nói một câu rất khó nghe. Con vẫn nhớ nét mặt cha lúc ấy.”",
+        "“Con chưa bao giờ xin lỗi. Bây giờ thì không còn kịp nữa, nên con viết ra đây.”"
+      ],
+      "choices": [
+        {
+          "id": "call",
+          "text": "Nếu là mình, mình sẽ gọi về nhà ngay.",
+          "remember": {
+            "key": "letter1",
+            "value": "call"
+          },
+          "next": "letter1-reply"
+        },
+        {
+          "id": "self",
+          "text": "Có những lời xin lỗi vẫn kịp nói với chính mình.",
+          "remember": {
+            "key": "letter1",
+            "value": "self"
+          },
+          "next": "letter1-reply"
+        },
+        {
+          "id": "silent",
+          "text": "Mình chỉ lặng im một lúc.",
+          "remember": {
+            "key": "letter1",
+            "value": "silent"
+          },
+          "next": "letter1-reply"
+        }
+      ]
+    },
+    "letter1-reply": {
+      "lines": [
+        "Bạn gấp lá thư lại, đặt về chỗ cũ."
+      ]
+    },
+    "reread": {
+      "lines": [
+        "Bạn đọc lại những lá thư. Mỗi lần đọc lại thấy khác đi một chút."
+      ]
+    }
+  }
+}

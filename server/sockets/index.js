@@ -1,5 +1,11 @@
 import crypto from 'node:crypto';
 import { attachShop } from './shop.js';
+import { attachWorldSync } from './world.js';
+import { attachNarrative } from './narrative.js';
+import { attachCoop } from './coop.js';
+import { createCoop } from '../services/coop.js';
+import { ACTIVITIES } from '../services/coopActivities.js';
+import { stateKey } from '../services/worldState.js';
 import { bowDirection } from '../../public/js/shared/rules.js';
 import { validSandStrokes } from '../../public/js/shared/sand.js';
 import { ACTIONS, COOLDOWNS, DURATIONS, EMOTES, GARDEN, INCENSE_SECONDS, ITEMS, LANTERN_STYLES, LIMITS, MEDITATION_MINUTES, REACTIONS, ROUND, SCENE_IDS, SPEED } from '../../public/js/shared/rules.js';
@@ -33,7 +39,8 @@ const ACTIVITY_TEXT = {
  *   wish:react {wishId, emoji|null}        → {ok}; broadcast wish:reaction
  *   lantern:release {objectId, text, style, clientId} → {ok, lantern}; broadcast lantern:new
  *   meditation:start {minutes} / meditation:finish {} → session / result
- *   incense:light {objectId}               → {ok, stick}; broadcast incense:new; sticks burn INCENSE_SECONDS (memory only)
+ *   incense:light {objectId}               → {ok, stick}; room world state (censer/incense) → world:delta; burns INCENSE_SECONDS
+ *   world:delta {id, scope, sceneId, objectId, type, value, version, expiresAt, removed?} (server → client); join/portal snapshots carry scene.world
  *   chat:send {text}                       → {ok}; broadcast chat:message {id, name, text, at} to the same area (not stored)
  *   activity:complete {objectId, title?, tea?} → {ok}; journal entry for sand/sweep/tea/stories/chant, proximity + 20 s rate limit
  *   sand:apply {objectId, strokes}          → {ok}; saves room sand and broadcasts sand:update {sceneId, strokes}
@@ -45,7 +52,46 @@ const ACTIVITY_TEXT = {
 export function attachSockets(io, ctx) {
   const { repos, world, rooms, identity, progression, config } = ctx;
   const graceTimers = new Map();
+  const worldSync = attachWorldSync(io, ctx);
   let ticks = 0, closed = false;
+  const toPlayer = (id, event, payload) => { const p = rooms.findPlayer(id); if (p) io.to(p.socketId).emit(event, payload); };
+  // Cooperative sessions reuse the existing meditation, bell and action code through these hooks.
+  ctx.coop = createCoop({ repos, world, rooms, worldState: ctx.worldState, progression, activities: ACTIVITIES, send: toPlayer, graceMs: config.disconnectGraceMs, telemetry: (id, event, kind, solo) => ctx.journey.coop(id, event, kind, solo), hooks: {
+    startMeditation(p, chosen, now) {
+      if (!p || p.meditation || repos.progression.activeMeditation(p.id)) return;
+      const id = crypto.randomUUID();
+      repos.progression.startMeditation(id, p.id, p.room, chosen * 60, now);
+      p.meditation = { id, startedAt: now, plannedSeconds: chosen * 60, shared: true, together: true };
+      Object.assign(p, { state: 'meditate', actionAt: now, moved: false, dirty: true });
+      io.to(scene(p)).emit('player:action', { id: p.id, action: 'meditate', at: now });
+      toPlayer(p.id, 'meditation:begin', { meditation: p.meditation, serverNow: now });
+    },
+    endMeditation(id, at) {
+      const p = rooms.findPlayer(id);
+      if (!p?.meditation) return;
+      const result = finishMeditation(p, Math.min(Date.now(), at || Date.now()));
+      if (result) { toPlayer(id, 'meditation:ended', result); io.to(scene(p)).emit('player:action', { id, action: 'idle', at: Date.now() }); }
+    },
+    ringBell(session, players) {
+      const room = rooms.get(session.room), now = Date.now();
+      if (!room) return;
+      room.bells.set('bellTower|bigBell', now);
+      io.to(sceneChannel(session.room, 'bellTower')).emit('bell:ring', { sceneId: 'bellTower', objectId: 'bigBell', at: now, by: players[0]?.id, name: players.map(p => p.name).join(' & '), together: true });
+      for (const p of players) {
+        Object.assign(p, { state: 'bell', actionAt: now, moved: false, dirty: true });
+        repos.players.increment(p.id, 'bells_total', 1, now);
+        const result = progression.record(p.id, [['bells', 1]], now);
+        const s = io.sockets.sockets.get(p.socketId); if (s) notify(s, result);
+      }
+    },
+    storyEvent(id, event) { ctx.storyHooks?.get(id)?.(event); },
+    setAction(p, state) {
+      if (!p) return;
+      const now = Date.now();
+      Object.assign(p, { state, actionAt: now, moved: false, dirty: true });
+      io.to(scene(p)).emit('player:action', { id: p.id, action: state, at: now });
+    },
+  } });
 
   io.use((socket, next) => {
     const player = identity.authenticate(socket.handshake.auth?.token);
@@ -63,12 +109,9 @@ export function attachSockets(io, ctx) {
     return bells;
   }
   const hasLanterns = sceneId => Boolean(world.map(sceneId)?.objects?.some(o => o.action === 'lantern'));
-  // Incense sticks live in memory per room and area and burn out after INCENSE_SECONDS.
-  function liveIncense(p) {
-    const room = rooms.get(p.room), list = (room?.incense.get(p.sceneId) || []).filter(s => Date.now() - s.at < INCENSE_SECONDS * 1000);
-    room?.incense.set(p.sceneId, list);
-    return list;
-  }
+  // Incense is room-scoped world state: it survives a server restart and burns out after INCENSE_SECONDS.
+  const incenseKey = p => stateKey('room', p.room, p.sceneId, 'censer', 'incense');
+  const liveIncense = p => (ctx.worldState.value(incenseKey(p))?.sticks || []).filter(s => Date.now() - s.at < INCENSE_SECONDS * 1000);
   const gardenCode = sceneId => sceneId.startsWith('garden:') ? sceneId.slice(7) : null;
   function gardenSnapshot(code) {
     const garden = code && repos.gardens.byCode(code);
@@ -83,6 +126,7 @@ export function attachSockets(io, ctx) {
     lanterns: hasLanterns(p.sceneId) ? repos.content.lanterns(p.room, Date.now() - LANTERN_LIFETIME) : [],
     incense: liveIncense(p),
     garden: gardenSnapshot(gardenCode(p.sceneId)),
+    world: worldSync.snapshot(p),
   });
 
   function notify(socket, result) {
@@ -102,7 +146,11 @@ export function attachSockets(io, ctx) {
     const actual = Math.max(0, Math.min(session.planned_seconds, Math.round((now - session.started_at) / 1000)));
     const shared = Boolean(p.meditation?.shared);
     if (!repos.progression.finishMeditation(session.id, actual, shared, now)) return null;
+    const together = p.meditation?.together;
     p.meditation = null;
+    // Ending a shared sit early is fine: the session ends gently, the partner keeps sitting on their own.
+    const coopSession = together && ctx.coop.sessionOf(p.id);
+    if (coopSession?.kind === 'meditate' && coopSession.status === 'active' && !coopSession.data.ending) ctx.coop.leave(p, `${p.name} đã kết thúc thiền sớm. Bạn cứ ngồi tiếp nếu muốn.`);
     if (p.state === 'meditate') { p.state = 'idle'; p.actionAt = now; p.dirty = true; }
     repos.players.increment(p.id, 'meditation_seconds', actual);
     const completed = actual >= session.planned_seconds - 1, unlocked = [];
@@ -126,11 +174,13 @@ export function attachSockets(io, ctx) {
     const limiter = new RateLimiter(40, 30);
     let self = null, dropped = 0;
     attachShop(socket, ctx, () => self);
+    const story = attachNarrative(socket, ctx, () => self);
+    attachCoop(socket, ctx, () => self, limiter);
 
     socket.on('error', () => {});
     socket.use(([event, ...args], next) => {
       if (limiter.take('all')) {
-        if (self?.meditation && !['room:join', 'room:leave', 'player:move', 'player:action', 'player:emote', 'chat:send', 'meditation:start', 'meditation:finish'].includes(event)) {
+        if (self?.meditation && !['room:join', 'room:leave', 'player:move', 'player:action', 'player:emote', 'chat:send', 'meditation:start', 'meditation:finish', 'coop:state', 'coop:leave', 'coop:respond', 'coop:memories'].includes(event)) {
           const ack = args.at(-1);
           if (typeof ack === 'function') ack({ error: 'Bạn đang thiền. Hãy bấm Kết thúc thiền trước khi làm việc khác.' });
           return;
@@ -152,6 +202,7 @@ export function attachSockets(io, ctx) {
       io.to(roomChannel(p.room)).emit('room:online', { online: rooms.get(p.room)?.players.size || 0 });
       repos.rooms.recordLeave(p.historyId, now);
       repos.players.saveLocation(p.id, p.sceneId, p.x, p.y, now);
+      ctx.coop.away(p.id);
       if (p.meditation) scheduleGrace(p, now);
     }
 
@@ -162,6 +213,7 @@ export function attachSockets(io, ctx) {
       socket.join(scene(p));
       socket.to(scene(p)).emit('player:join', publicPlayer(p));
       repos.players.saveLocation(p.id, p.sceneId, p.x, p.y);
+      ctx.coop.sceneChanged(p);
     }
 
     socket.on('room:join', (data, ack) => {
@@ -208,7 +260,7 @@ export function attachSockets(io, ctx) {
       notify(socket, visited);
       socket.to(scene(self)).emit('player:join', publicPlayer(self));
       io.to(roomChannel(code)).emit('room:online', { online: room.players.size });
-      ack({ ok: true, self: publicPlayer(self), room: { code, private: room.isPrivate, online: room.players.size, capacity: config.maxPlayersPerRoom }, scene: snapshot(self), progress: repos.players.progress(playerId), meditation, meditationResult, serverNow: now });
+      ack({ ok: true, self: publicPlayer(self), room: { code, private: room.isPrivate, online: room.players.size, capacity: config.maxPlayersPerRoom }, scene: snapshot(self), progress: repos.players.progress(playerId), meditation, meditationResult, story: story.state(), coop: ctx.coop.back(self), practice: repos.practice.current(playerId, 'bow'), serverNow: now });
     });
 
     socket.on('room:leave', () => leave('left'));
@@ -242,6 +294,7 @@ export function attachSockets(io, ctx) {
       p.direction = oneOf(data.direction, DIRECTIONS, p.direction);
       if (distance > 1) {
         Object.assign(p, { x, y, moved: true, locationDirty: true });
+        if (now - (p.journeyTouch || 0) > 5000) { p.journeyTouch = now; ctx.journey.touch(p.id, now); }
         if (p.meditation) { const result = finishMeditation(p, now); if (result) socket.emit('meditation:ended', result); }
         if (p.state !== 'walk') { p.state = 'walk'; p.actionAt = now; }
       } else if (data.state === 'idle' && p.state === 'walk') { p.state = 'idle'; p.actionAt = now; }
@@ -288,11 +341,29 @@ export function attachSockets(io, ctx) {
       if (now - p.lastIncenseAt < COOLDOWNS.incense) return ack({ error: 'Nén hương của bạn vẫn đang cháy. Hãy đợi một lát.' });
       p.lastIncenseAt = now;
       const stick = { id: crypto.randomUUID(), playerId: p.id, name: p.name, at: now };
-      rooms.get(p.room).incense.set(p.sceneId, [...liveIncense(p), stick].slice(-12));
+      ctx.worldState.update(incenseKey(p), current => ({ sticks: [...(current?.sticks || []).filter(s => now - s.at < INCENSE_SECONDS * 1000), stick].slice(-12) }), { ttlMs: INCENSE_SECONDS * 1000 });
       Object.assign(p, { state: 'pray', actionAt: now, moved: false, dirty: true });
-      io.to(scene(p)).emit('incense:new', { sceneId: p.sceneId, ...stick });
       progression.journal(p.id, 'Thắp một nén hương ở Chánh Điện.', now);
       ack({ ok: true, stick, progress: notify(socket, progression.record(p.id, [['incense', 1]], now)) });
+    });
+
+    // practice:session {action: start|pause|resume|end, type: 'bow', target: 9|27|54|108} → {ok, session}
+    socket.on('practice:session', (data, ack) => {
+      ack = reply(ack);
+      const p = self, type = oneOf(data?.type, ['bow']), action = oneOf(data?.action, ['start', 'pause', 'resume', 'end']);
+      if (!p || !type || !action) return ack({ error: 'Dữ liệu không hợp lệ.' });
+      const now = Date.now(), current = repos.practice.current(p.id, type);
+      if (action === 'start') {
+        const target = [9, 27, 54, 108].includes(data.target) ? data.target : null;
+        if (!target) return ack({ error: 'Hãy chọn 9, 27, 54 hoặc 108 lần.' });
+        if (current) repos.practice.setStatus(current.id, 'ended', now);
+        return ack({ ok: true, session: repos.practice.start(crypto.randomUUID(), p.id, type, target, now) });
+      }
+      if (!current) return ack({ error: 'Không có phiên lạy nào đang mở.' });
+      const status = { pause: 'paused', resume: 'active', end: 'ended' }[action];
+      const session = repos.practice.setStatus(current.id, status, now);
+      if (action === 'end' && session.done > 0) progression.journal(p.id, `Lạy ${session.done} lần (phiên ${session.target}), dừng lại khi thấy đủ.`, now);
+      ack({ ok: true, session });
     });
 
     socket.on('practice:complete', (data, ack) => {
@@ -309,7 +380,10 @@ export function attachSockets(io, ctx) {
       repos.players.increment(p.id, `${type}s_total`, 1, now);
       if (next === ROUND) { repos.players.increment(p.id, `${type}_rounds`, 1, now); progression.journal(p.id, type === 'bow' ? 'Hoàn thành một vòng 108 lần lạy.' : 'Lần trọn một chuỗi 108 hạt.', now); }
       const result = progression.record(p.id, [[`${type}s`, 1]], now);
-      ack({ ok: true, progress: notify(socket, result) });
+      // A running session counts only bows the server accepted above (full animation, standing still).
+      const open = repos.practice.current(p.id, type), session = (open?.status === 'active' ? repos.practice.count(open.id, now) : open) ?? null;
+      if (session?.status === 'completed') progression.journal(p.id, `Hoàn thành phiên lạy ${session.target} lần.`, now);
+      ack({ ok: true, progress: notify(socket, result), session });
     });
 
     socket.on('bell:ring', (data, ack) => {
@@ -332,17 +406,20 @@ export function attachSockets(io, ctx) {
       if (!p || !isObject(data)) return ack({ error: 'Hãy vào phòng trước.' });
       const clientId = typeof data.clientId === 'string' ? data.clientId.slice(0, 64) : '';
       if (clientId && p.recent.has(clientId)) return ack({ ok: true, duplicate: true, wish: p.recent.get(clientId) });
-      const text = cleanText(data.text, LIMITS.wish), visibility = oneOf(data.visibility, ['public', 'private'], 'public'), now = Date.now();
+      // The Main Hall prayer book shares this path: kind "prayer", longer text, private unless chosen otherwise.
+      const kind = oneOf(data.kind, ['wish', 'prayer'], 'wish');
+      const text = cleanText(data.text, kind === 'prayer' ? LIMITS.prayer : LIMITS.wish), visibility = oneOf(data.visibility, ['public', 'private'], kind === 'prayer' ? 'private' : 'public'), now = Date.now();
       if (!text) return ack({ error: 'Lời chúc không được để trống.' });
       if (isOffensive(text)) return ack({ error: 'Lời chúc có từ ngữ chưa phù hợp. Hãy viết lại nhẹ nhàng hơn.' });
       if (now - p.lastWishAt < COOLDOWNS.wish) return ack({ error: 'Vui lòng chờ 5 giây giữa hai lời chúc.' });
-      const wish = { id: crypto.randomUUID(), room: p.room, playerId: p.id, name: p.name, text, visibility, createdAt: now };
+      const wish = { id: crypto.randomUUID(), room: p.room, playerId: p.id, name: p.name, text, visibility, kind, createdAt: now };
       repos.content.insertWish(wish);
       repos.players.increment(p.id, 'wishes_total', 1, now);
       p.lastWishAt = now;
-      const out = { id: wish.id, playerId: p.id, name: p.name, text, visibility, createdAt: now, reactions: {}, mine: null };
+      const out = { id: wish.id, playerId: p.id, name: p.name, text, visibility, kind, createdAt: now, reactions: {}, mine: null };
       if (clientId) { p.recent.set(clientId, out); if (p.recent.size > 20) p.recent.delete(p.recent.keys().next().value); }
       if (visibility === 'public') socket.to(roomChannel(p.room)).emit('wish:new', out);
+      if (kind === 'prayer') { progression.journal(p.id, visibility === 'private' ? 'Viết một lời nguyện riêng vào sổ cầu nguyện.' : 'Viết một lời nguyện vào sổ cầu nguyện của Chánh Điện.', now); return ack({ ok: true, wish: out }); }
       ack({ ok: true, wish: out, progress: notify(socket, progression.record(p.id, [['wishes', 1]], now)) });
     });
 
@@ -391,6 +468,7 @@ export function attachSockets(io, ctx) {
       if (now - (p.activities.get(o.action) || 0) < 20000) return ack({ ok: true, repeated: true });
       p.activities.set(o.action, now);
       progression.journal(p.id, ACTIVITY_TEXT[o.action](data), now);
+      story.handle({ type: 'activity', activity: o.action, scene: p.sceneId });
       ack({ ok: true, progress: notify(socket, progression.record(p.id, [[`activity:${o.action}`, 1]], now)) });
     });
 
@@ -415,6 +493,7 @@ export function attachSockets(io, ctx) {
       if (p.meditation) { const result = finishMeditation(p); if (result) socket.emit('meditation:ended', result); }
       changeScene(p, portal.to, world.spawn(portal.to, portal.spawn));
       const result = visit(p);
+      story.handle({ type: 'visit', scene: p.sceneId });
       notify(socket, result);
       ack({ ok: true, self: publicPlayer(p), scene: snapshot(p) });
     });
@@ -524,6 +603,7 @@ export function attachSockets(io, ctx) {
   // 10 Hz snapshots per scene; every second a reliable full keyframe repairs any dropped volatile update.
   const timer = setInterval(() => {
     const now = Date.now(), full = ++ticks % 10 === 0, persist = ticks % 50 === 0;
+    if (full) ctx.coop.sweep(now);
     for (const room of rooms.rooms.values()) {
       const byScene = new Map(), meditating = new Map();
       const add = (map, key, value) => { if (!map.has(key)) map.set(key, []); map.get(key).push(value); };
@@ -543,5 +623,5 @@ export function attachSockets(io, ctx) {
   }, config.tickMs);
   timer.unref();
 
-  return { close() { closed = true; clearInterval(timer); for (const t of graceTimers.values()) clearTimeout(t); graceTimers.clear(); } };
+  return { close() { closed = true; worldSync.close(); clearInterval(timer); for (const t of graceTimers.values()) clearTimeout(t); graceTimers.clear(); } };
 }

@@ -2,10 +2,12 @@
 export const SPEED = 180;
 export const PLAYER_RADIUS = 14;
 export const bowDirection = (sceneId, state, direction) => sceneId === 'mainHall' && state === 'bow' ? 'up' : direction;
-export const DURATIONS = { idle: Infinity, walk: Infinity, bow: 2.4, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, sit: Infinity, wave: 1.3 };
+export const DURATIONS = { idle: Infinity, walk: Infinity, bow: 3.6, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, sit: Infinity, wave: 1.3 };
 export const ACTIONS = Object.keys(DURATIONS);
 export const ROUND = 108;
-export const LIMITS = { name: 18, wish: 120, lantern: 80, journal: 400, report: 120, chat: 100 };
+export const LIMITS = {
+  prayer: 300,
+  name: 18, wish: 120, lantern: 80, journal: 400, report: 120, chat: 100 };
 export const CHAT_SECONDS = 6;
 export const INCENSE_SECONDS = 600;
 export const CHANT_CYCLE_SECONDS = 180;
@@ -50,6 +52,14 @@ export const ITEMS = {
   'badge:bell': { kind: 'badge', value: 'bell', name: 'Huy hiệu Tiếng chuông', default: false },
   'badge:lotus': { kind: 'badge', value: 'lotus', name: 'Huy hiệu Hoa sen', default: false },
   'badge:path': { kind: 'badge', value: 'path', name: 'Huy hiệu Lữ khách', default: false },
+  // Story keepsakes (Parse 2): only granted by finishing a story chapter.
+  'decor:windbell': { kind: 'decor', value: 'windbell', name: 'Chuông gió kỷ niệm', default: false },
+  'decor:wildflower': { kind: 'decor', value: 'wildflower', name: 'Khóm hoa vườn cũ', default: false },
+  'badge:smallBell': { kind: 'badge', value: 'smallBell', name: 'Huy hiệu Chiếc chuông nhỏ', default: false },
+  'badge:letter': { kind: 'badge', value: 'letter', name: 'Huy hiệu Lá thư chưa gửi', default: false },
+  'badge:twoKeys': { kind: 'badge', value: 'twoKeys', name: 'Huy hiệu Hai mảnh ghép', default: false },
+  'badge:hallLight': { kind: 'badge', value: 'hallLight', name: 'Huy hiệu Ánh sáng Chánh Điện', default: false },
+  'decor:hallLamp': { kind: 'decor', value: 'hallLamp', name: 'Đèn đồng chân sen (kỷ niệm)', default: false },
 };
 export const DEFAULT_APPEARANCE = { hairStyle: 'short', hairColor: '#2b2823', outfitStyle: 'robe', outfitColor: '#b79a65', accessory: 'none' };
 export const APPEARANCE_KEYS = Object.keys(DEFAULT_APPEARANCE);

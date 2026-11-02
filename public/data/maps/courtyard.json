@@ -9,60 +9,567 @@
   "ground": {
     "base": "#29483e",
     "layers": [
-      {"type":"noise","count":5500,"colors":["#385443","#314e40","#496044","#233e36"]},
-      {"type":"tiles","x":540,"y":430,"w":720,"h":620,"border":"#8a8061"},
-      {"type":"tiles","x":794,"y":1050,"w":212,"h":300,"tile":[70,45],"colors":["#a0977b","#998f75"],"grout":"#8f866b"},
-      {"type":"water","shape":"ellipse","x":1375,"y":795,"rx":180,"ry":112,"lotus":14,"fish":3},
-      {"type":"path","points":[[320,780],[512,876]]},
-      {"type":"path","points":[[1280,1040],[1504,1112]]},
-      {"type":"path","points":[[520,700],[130,700]]},
-      {"type":"path","points":[[1270,470],[1680,370]]},
-      {"type":"scatter","x":180,"y":350,"w":300,"h":800,"count":75,"colors":["#a5ad73","#d7b794"],"size":3},
-      {"type":"scatter","x":1300,"y":950,"w":320,"h":220,"count":30,"colors":["#a5ad73","#d7b794"],"size":3},
-      {"type":"scatter","x":1300,"y":350,"w":320,"h":260,"count":40,"colors":["#a5ad73","#d7b794"],"size":3},
-      {"type":"sideWall","x":90,"y":160,"h":470},
-      {"type":"sideWall","x":90,"y":770,"h":490},
-      {"type":"sideWall","x":1690,"y":160,"h":140},
-      {"type":"sideWall","x":1690,"y":440,"h":820},
-      {"type":"rect","x":90,"y":1260,"w":700,"h":18,"color":"#7e8973"},
-      {"type":"rect","x":1010,"y":1260,"w":700,"h":18,"color":"#7e8973"}
+      {
+        "type": "noise",
+        "count": 5500,
+        "colors": [
+          "#385443",
+          "#314e40",
+          "#496044",
+          "#233e36"
+        ]
+      },
+      {
+        "type": "tiles",
+        "x": 540,
+        "y": 430,
+        "w": 720,
+        "h": 620,
+        "border": "#8a8061"
+      },
+      {
+        "type": "tiles",
+        "x": 794,
+        "y": 1050,
+        "w": 212,
+        "h": 300,
+        "tile": [
+          70,
+          45
+        ],
+        "colors": [
+          "#a0977b",
+          "#998f75"
+        ],
+        "grout": "#8f866b"
+      },
+      {
+        "type": "water",
+        "shape": "ellipse",
+        "x": 1375,
+        "y": 795,
+        "rx": 180,
+        "ry": 112,
+        "lotus": 14,
+        "fish": 3
+      },
+      {
+        "type": "path",
+        "points": [
+          [
+            320,
+            780
+          ],
+          [
+            512,
+            876
+          ]
+        ]
+      },
+      {
+        "type": "path",
+        "points": [
+          [
+            1280,
+            1040
+          ],
+          [
+            1504,
+            1112
+          ]
+        ]
+      },
+      {
+        "type": "path",
+        "points": [
+          [
+            520,
+            700
+          ],
+          [
+            130,
+            700
+          ]
+        ]
+      },
+      {
+        "type": "path",
+        "points": [
+          [
+            1270,
+            470
+          ],
+          [
+            1680,
+            370
+          ]
+        ]
+      },
+      {
+        "type": "scatter",
+        "x": 180,
+        "y": 350,
+        "w": 300,
+        "h": 800,
+        "count": 75,
+        "colors": [
+          "#a5ad73",
+          "#d7b794"
+        ],
+        "size": 3
+      },
+      {
+        "type": "scatter",
+        "x": 1300,
+        "y": 950,
+        "w": 320,
+        "h": 220,
+        "count": 30,
+        "colors": [
+          "#a5ad73",
+          "#d7b794"
+        ],
+        "size": 3
+      },
+      {
+        "type": "scatter",
+        "x": 1300,
+        "y": 350,
+        "w": 320,
+        "h": 260,
+        "count": 40,
+        "colors": [
+          "#a5ad73",
+          "#d7b794"
+        ],
+        "size": 3
+      },
+      {
+        "type": "sideWall",
+        "x": 90,
+        "y": 160,
+        "h": 470
+      },
+      {
+        "type": "sideWall",
+        "x": 90,
+        "y": 770,
+        "h": 490
+      },
+      {
+        "type": "sideWall",
+        "x": 1690,
+        "y": 160,
+        "h": 140
+      },
+      {
+        "type": "sideWall",
+        "x": 1690,
+        "y": 440,
+        "h": 820
+      },
+      {
+        "type": "rect",
+        "x": 90,
+        "y": 1260,
+        "w": 700,
+        "h": 18,
+        "color": "#7e8973"
+      },
+      {
+        "type": "rect",
+        "x": 1010,
+        "y": 1260,
+        "w": 700,
+        "h": 18,
+        "color": "#7e8973"
+      }
     ]
   },
-  "spawns": {"default":[900,790],"fromGate":[900,1230],"fromMainHall":[900,500],"fromZen":[170,700],"fromLake":[1610,370]},
+  "spawns": {
+    "default": [
+      900,
+      790
+    ],
+    "fromGate": [
+      900,
+      1230
+    ],
+    "fromMainHall": [
+      900,
+      500
+    ],
+    "fromZen": [
+      170,
+      700
+    ],
+    "fromLake": [
+      1610,
+      370
+    ]
+  },
   "portals": [
-    {"id":"toGate","x":820,"y":1292,"w":160,"h":50,"to":"gate","spawn":"fromCourtyard","label":"Ra Cổng Tam Quan","dir":"down"},
-    {"id":"toHall","x":850,"y":412,"w":100,"h":36,"to":"mainHall","spawn":"fromCourtyard","label":"Vào Chánh Điện","dir":"up"},
-    {"id":"toZen","x":56,"y":640,"w":60,"h":120,"to":"zenGarden","spawn":"fromCourtyard","label":"Đến Vườn Thiền","dir":"left"},
-    {"id":"toLake","x":1684,"y":310,"w":66,"h":120,"to":"lotusLake","spawn":"fromCourtyard","label":"Đến Hồ Sen","dir":"right"}
+    {
+      "id": "toGate",
+      "x": 820,
+      "y": 1292,
+      "w": 160,
+      "h": 50,
+      "to": "gate",
+      "spawn": "fromCourtyard",
+      "label": "Ra Cổng Tam Quan",
+      "dir": "down"
+    },
+    {
+      "id": "toHall",
+      "x": 850,
+      "y": 412,
+      "w": 100,
+      "h": 36,
+      "to": "mainHall",
+      "spawn": "fromCourtyard",
+      "label": "Vào Chánh Điện",
+      "dir": "up"
+    },
+    {
+      "id": "toZen",
+      "x": 56,
+      "y": 640,
+      "w": 60,
+      "h": 120,
+      "to": "zenGarden",
+      "spawn": "fromCourtyard",
+      "label": "Đến Vườn Thiền",
+      "dir": "left"
+    },
+    {
+      "id": "toLake",
+      "x": 1684,
+      "y": 310,
+      "w": 66,
+      "h": 120,
+      "to": "lotusLake",
+      "spawn": "fromCourtyard",
+      "label": "Đến Hồ Sen",
+      "dir": "right"
+    }
   ],
   "obstacles": [
-    {"x":80,"y":150,"w":40,"h":480},
-    {"x":80,"y":770,"w":40,"h":500},
-    {"x":1680,"y":150,"w":40,"h":150},
-    {"x":1680,"y":440,"w":40,"h":830},
-    {"x":80,"y":1252,"w":712,"h":30},
-    {"x":1008,"y":1252,"w":712,"h":30},
-    {"shape":"ellipse","x":1375,"y":795,"rx":178,"ry":110}
+    {
+      "x": 80,
+      "y": 150,
+      "w": 40,
+      "h": 480
+    },
+    {
+      "x": 80,
+      "y": 770,
+      "w": 40,
+      "h": 500
+    },
+    {
+      "x": 1680,
+      "y": 150,
+      "w": 40,
+      "h": 150
+    },
+    {
+      "x": 1680,
+      "y": 440,
+      "w": 40,
+      "h": 830
+    },
+    {
+      "x": 80,
+      "y": 1252,
+      "w": 712,
+      "h": 30
+    },
+    {
+      "x": 1008,
+      "y": 1252,
+      "w": 712,
+      "h": 30
+    },
+    {
+      "shape": "ellipse",
+      "x": 1375,
+      "y": 795,
+      "rx": 178,
+      "ry": 110
+    }
   ],
   "props": [
-    {"type":"temple","x":900,"y":410,"big":true},
-    {"type":"tree","x":405,"y":650,"size":1.25},
-    {"type":"tree","x":1420,"y":1080,"size":1},
-    {"type":"tree","x":290,"y":1055,"size":0.9},
-    {"type":"lamp","x":570,"y":490},
-    {"type":"lamp","x":1230,"y":490},
-    {"type":"lamp","x":700,"y":730},
-    {"type":"lamp","x":1090,"y":730},
-    {"type":"lamp","x":700,"y":1000},
-    {"type":"lamp","x":990,"y":1130},
-    {"type":"lamp","x":390,"y":900},
-    {"type":"lamp","x":1510,"y":590}
+    {
+      "type": "temple",
+      "x": 900,
+      "y": 410,
+      "big": true
+    },
+    {
+      "type": "tree",
+      "x": 405,
+      "y": 650,
+      "size": 1.25
+    },
+    {
+      "type": "tree",
+      "x": 1420,
+      "y": 1080,
+      "size": 1
+    },
+    {
+      "type": "tree",
+      "x": 290,
+      "y": 1055,
+      "size": 0.9
+    },
+    {
+      "type": "lamp",
+      "x": 570,
+      "y": 490
+    },
+    {
+      "type": "lamp",
+      "x": 1230,
+      "y": 490
+    },
+    {
+      "type": "lamp",
+      "x": 700,
+      "y": 730
+    },
+    {
+      "type": "lamp",
+      "x": 1090,
+      "y": 730
+    },
+    {
+      "type": "lamp",
+      "x": 700,
+      "y": 1000
+    },
+    {
+      "type": "lamp",
+      "x": 990,
+      "y": 1130
+    },
+    {
+      "type": "lamp",
+      "x": 390,
+      "y": 900
+    },
+    {
+      "type": "lamp",
+      "x": 1510,
+      "y": 590
+    }
   ],
   "objects": [
-    {"id":"bench1","type":"bench","x":570,"y":825,"label":"Ngồi nghỉ","action":"sit","radius":100},
-    {"id":"bench2","type":"bench","x":1140,"y":1055,"label":"Ngồi nghỉ","action":"sit","radius":100},
-    {"id":"bell","type":"bell","x":1200,"y":535,"label":"Thỉnh chuông","action":"bell","cooldown":"bell","radius":115},
-    {"id":"board","type":"board","x":690,"y":545,"label":"Bảng lời chúc","action":"wishes","radius":100},
-    {"id":"sweep","type":"broom","x":470,"y":770,"label":"Quét lá trong sân","action":"sweep","radius":100}
+    {
+      "id": "bench1",
+      "type": "bench",
+      "x": 570,
+      "y": 825,
+      "label": "Ngồi nghỉ",
+      "action": "sit",
+      "radius": 100
+    },
+    {
+      "id": "bench2",
+      "type": "bench",
+      "x": 1140,
+      "y": 1055,
+      "label": "Ngồi nghỉ",
+      "action": "sit",
+      "radius": 100
+    },
+    {
+      "id": "bell",
+      "type": "bell",
+      "x": 1200,
+      "y": 535,
+      "label": "Thỉnh chuông",
+      "action": "bell",
+      "cooldown": "bell",
+      "radius": 115
+    },
+    {
+      "id": "board",
+      "type": "board",
+      "x": 690,
+      "y": 545,
+      "label": "Bảng lời chúc",
+      "action": "wishes",
+      "radius": 100
+    },
+    {
+      "id": "sweep",
+      "type": "broom",
+      "x": 470,
+      "y": 770,
+      "label": "Quét lá trong sân",
+      "action": "sweep",
+      "radius": 100
+    },
+    {
+      "id": "pile1",
+      "type": "leafPile",
+      "x": 520,
+      "y": 620,
+      "label": "Quét đống lá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "sweep",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false,
+      "sortY": 580
+    },
+    {
+      "id": "pile2",
+      "type": "leafPile",
+      "x": 820,
+      "y": 640,
+      "label": "Quét đống lá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "sweep",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false,
+      "sortY": 600
+    },
+    {
+      "id": "pile3",
+      "type": "leafPile",
+      "x": 1060,
+      "y": 620,
+      "label": "Quét đống lá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "sweep",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false,
+      "sortY": 580
+    },
+    {
+      "id": "pile4",
+      "type": "leafPile",
+      "x": 600,
+      "y": 1000,
+      "label": "Quét đống lá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "sweep",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false,
+      "sortY": 960
+    },
+    {
+      "id": "pile5",
+      "type": "leafPile",
+      "x": 990,
+      "y": 1060,
+      "label": "Quét đống lá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "sweep",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false,
+      "sortY": 1020
+    },
+    {
+      "id": "pile6",
+      "type": "leafPile",
+      "x": 1240,
+      "y": 960,
+      "label": "Quét đống lá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "sweep",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false,
+      "sortY": 920
+    },
+    {
+      "id": "leafCart",
+      "type": "leafCart",
+      "x": 420,
+      "y": 1160,
+      "label": "Gom lá vào xe",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "collect",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": true
+    },
+    {
+      "id": "stoneBasin",
+      "type": "stoneBasin",
+      "x": 1330,
+      "y": 600,
+      "label": "Lau bể nước đá",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "wipe",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": true
+    },
+    {
+      "id": "decorLeft",
+      "type": "decorSpot",
+      "x": 760,
+      "y": 520,
+      "label": "Trang trí bậc thềm",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "decorate",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false
+    },
+    {
+      "id": "decorRight",
+      "type": "decorSpot",
+      "x": 1040,
+      "y": 520,
+      "label": "Trang trí bậc thềm",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "decorate",
+      "stateOf": "yard",
+      "radius": 80,
+      "solid": false
+    },
+    {
+      "id": "lanternSwitch",
+      "type": "lanternPost",
+      "x": 1110,
+      "y": 575,
+      "label": "Thắp / tắt dây đèn lồng",
+      "action": "restore",
+      "restore": "courtyard",
+      "op": "light",
+      "stateOf": "yard",
+      "radius": 70,
+      "solid": false,
+      "string": [
+        [
+          700,
+          452
+        ],
+        [
+          1100,
+          452
+        ]
+      ]
+    }
   ]
 }

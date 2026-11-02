@@ -3,13 +3,14 @@ export function createContentRepo(db) {
   const s = {
     roomSand: db.prepare('SELECT strokes FROM room_sand WHERE room = ?'),
     saveRoomSand: db.prepare('INSERT INTO room_sand (room, strokes, updated_at) VALUES (?, ?, ?) ON CONFLICT(room) DO UPDATE SET strokes = excluded.strokes, updated_at = excluded.updated_at'),
-    insertWish: db.prepare('INSERT INTO wishes (id, room, player_id, name, text, visibility, created_at) VALUES (@id, @room, @playerId, @name, @text, @visibility, @createdAt)'),
+    insertWish: db.prepare('INSERT INTO wishes (id, room, player_id, name, text, visibility, kind, created_at) VALUES (@id, @room, @playerId, @name, @text, @visibility, @kind, @createdAt)'),
+    deleteWish: db.prepare('DELETE FROM wishes WHERE id = ? AND player_id = ?'),
     wish: db.prepare('SELECT * FROM wishes WHERE id = ?'),
     // Public wishes of the room plus the viewer's own private ones, newest first, minus blocked authors.
     wishes: db.prepare(`SELECT w.id, w.player_id AS playerId, w.name, w.text, w.visibility, w.created_at AS createdAt,
         (SELECT emoji FROM wish_reactions WHERE wish_id = w.id AND player_id = @viewer) AS mine
       FROM wishes w
-      WHERE w.room = @room AND w.hidden = 0 AND w.created_at < @before
+      WHERE w.room = @room AND w.kind = @kind AND w.hidden = 0 AND w.created_at < @before
         AND (w.visibility = 'public' OR w.player_id = @viewer)
         AND w.player_id NOT IN (SELECT blocked_id FROM player_blocks WHERE player_id = @viewer)
       ORDER BY w.created_at DESC LIMIT @limit`),
@@ -40,10 +41,11 @@ export function createContentRepo(db) {
   return {
     roomSand: room => { const row = s.roomSand.get(room); return row ? JSON.parse(row.strokes) : null; },
     saveRoomSand: (room, strokes) => s.saveRoomSand.run(room, JSON.stringify(strokes), Date.now()),
-    insertWish: wish => s.insertWish.run(wish),
+    insertWish: wish => s.insertWish.run({ kind: 'wish', ...wish }),
+    deleteWish: (id, playerId) => s.deleteWish.run(id, playerId).changes > 0,
     wish: id => s.wish.get(id),
-    wishes({ room, viewer, before = Number.MAX_SAFE_INTEGER, limit = 20 }) {
-      const rows = s.wishes.all({ room, viewer, before, limit });
+    wishes({ room, viewer, before = Number.MAX_SAFE_INTEGER, limit = 20, kind = 'wish' }) {
+      const rows = s.wishes.all({ room, viewer, before, limit, kind });
       const reactions = reactionMap(rows.map(row => row.id));
       return rows.map(row => ({ ...row, reactions: reactions[row.id] }));
     },
