@@ -2,6 +2,7 @@ import { SpriteRenderer, polygon } from './SpriteRenderer.js';
 import { drawHeldFlower } from './StoryProps.js';
 import { LightingSystem } from './LightingSystem.js';
 import { bowDirection } from '../shared/rules.js';
+import { drawLitter } from './LitterArt.js';
 
 export const QUALITY = { low: { dpr: 1, particles: 70 }, medium: { dpr: 1.5, particles: 180 }, high: { dpr: 2, particles: 360 } };
 
@@ -46,6 +47,7 @@ export class SceneRenderer {
     scene.drawWater(c, env, this.quality);
     scene.drawBelow(c, env);
     const list = scene.entities(c, env).filter(e => e.big || cam.visible(e.x, e.vy ?? e.y, 320));
+    for (const item of scene.litter) if (cam.visible(item.x, item.y)) list.push({ y: item.y, draw: () => drawLitter(c, item) });
     const npcs = [...scene.npcs, ...(game.visitors?.inScene(scene.id) || [])];
     for (const npc of npcs) if (cam.visible(npc.x, npc.y)) list.push({ y: npc.y, draw: () => this.sprites.draw(c, npc) });
     const people = game.entered ? [player] : [];
@@ -55,7 +57,7 @@ export class SceneRenderer {
     for (const v of views) {
       v.direction = bowDirection(scene.id, v.state, v.direction);
       // Carrying a flower to the altar: a small stem held at the chest.
-      list.push({ y: v.y, draw: () => { this.sprites.draw(c, v); if (v.holding) drawHeldFlower(c, v); } });
+      list.push({ y: v.y, draw: () => { this.sprites.draw(c, v); if (v.holding) drawHeldFlower(c, v); if (v.litterCarried) drawLitter(c, { x: v.x + 15, y: v.y - 28, kind: v.litterCarried }); } });
     }
     list.sort((a, b) => a.y - b.y);
     for (const item of list) item.draw();

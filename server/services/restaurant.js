@@ -95,6 +95,13 @@ export function createRestaurant(ctx) {
   function seat(p, { seatId, tableId }) {
     if (p.sceneId !== 'gate') throw Error('QuÃ¡n Äƒn chay á»Ÿ cá»•ng chÃ¹a.');
     const state = ensure(p.room);
+    if (p.restaurantSeat) {
+      const ownSeat = seatFor(state, p.restaurantSeat);
+      const ownTable = state.tables.find(t => t.seats.includes(ownSeat));
+      if (!ownSeat || ownSeat.playerId !== p.id || !ownTable) throw Error('Chỗ ngồi của bạn không còn được giữ.');
+      if ((seatId && seatId !== ownSeat.id) || (tableId && tableId !== ownTable.id)) throw Error('Hãy đứng dậy khỏi chỗ hiện tại trước nhé.');
+      return { seatId: ownSeat.id, tableId: ownTable.id, restaurant: view(state), shop: repos.shop.state(p.id, progression.keys().daily) };
+    }
     let chair = seatId ? seatFor(state, seatId) : null;
     const table = seatId ? state.tables.find(t => t.seats.includes(chair)) : findTable(state, tableId);
     if (!table) throw Error('KhÃ´ng tÃ¬m tháº¥y bÃ n nÃ y.');

@@ -9,6 +9,7 @@ test('walking to another spot closes the open panel for both tap and manual move
   const panels = { current: 'fishShopPanel', close() { this.current = null; } };
   const game = {
     player: { state: 'idle' }, pointHandler: () => false,
+    scene: { portalAt: () => null },
     interactions: { at: () => null }, input: { cancelPath() {} },
     navigate() {}, onMove: () => panels.close(),
   };
@@ -19,6 +20,23 @@ test('walking to another spot closes the open panel for both tap and manual move
   const input = { active: true, keys: new Set(['d']), stick: { x: 0, y: 0 }, cancelPath() {}, onManual: () => game.onMove() };
   InputManager.prototype.vector.call(input, { state: 'idle' });
   assert.equal(panels.current, null);
+});
+
+test('a seated guest can tap their table again without leaving the chair', () => {
+  const opened = [];
+  const ownTable = { id: 'vegTable1', action: 'restaurantTable' };
+  const otherTable = { id: 'vegTable2', action: 'restaurantTable' };
+  const game = {
+    player: { state: 'sit', restaurantSeat: 'vegSeat1A' },
+    scene: { objects: [{ id: 'vegSeat1A', tableId: 'vegTable1' }] },
+    interactions: { at: x => x === 1 ? ownTable : otherTable },
+    input: { clear() {} }, onApproach: target => opened.push(target.id),
+  };
+  Game.prototype.tap.call(game, { x: 1, y: 1 });
+  Game.prototype.tap.call(game, { x: 2, y: 2 });
+  assert.deepEqual(opened, ['vegTable1']);
+  assert.equal(game.player.state, 'sit');
+  assert.equal(game.player.restaurantSeat, 'vegSeat1A');
 });
 
 test('changing maps closes popups, while a same-map position correction does not', () => {

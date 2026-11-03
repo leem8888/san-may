@@ -52,7 +52,13 @@ export class Game {
   // Tapping an interactive object walks to it; the interaction fires on arrival.
   tap(point) {
     if (this.player.state === 'meditate') return true;
-    if (this.player.restaurantSeat) { this.input.clear(); this.approach = null; return true; }
+    if (this.player.restaurantSeat) {
+      this.input.clear(); this.approach = null;
+      const seat = this.scene.objects.find(o => o.id === this.player.restaurantSeat);
+      const target = this.interactions.at(point.x, point.y);
+      if (seat && target && (target.id === seat.tableId || target.tableId === seat.tableId)) this.onApproach?.(target);
+      return true;
+    }
     if (this.pointHandler?.(point)) { this.input.cancelPath(); this.approach = null; return true; }
     // Portal hit areas can overlap nearby props (the shoe rack sits just below the main hall entrance).
     // A tap on an entrance is a movement target; otherwise the prop can steal every attempt to enter.
@@ -125,7 +131,10 @@ export class Game {
       npc.update(dt, this.player); here.push(npc);
     }
     scene.visitors = here;
-    scene.interactions.extra = here.map(n => ({ id: n.id, type: 'npc', x: n.x, y: n.y, label: n.label, action: 'dialogue', dialogue: n.dialogue, radius: n.radius }));
+    scene.interactions.extra = [
+      ...here.map(n => ({ id: n.id, type: 'npc', x: n.x, y: n.y, label: n.label, action: 'dialogue', dialogue: n.dialogue, radius: n.radius })),
+      ...scene.litter.map(o => ({ ...o, action: 'litter', label: 'Nhặt rác', radius: 52, hitW: 20, hitH: 25 })),
+    ];
   }
   destroy() { this.loop.stop(); this.input.destroy(); window.removeEventListener('resize', this.resize); document.removeEventListener('visibilitychange', this.visibility); }
 }

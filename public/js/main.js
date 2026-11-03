@@ -141,6 +141,7 @@ function syncBells(bells, serverNow) {
 }
 function applyScene(self, snapshot, announce = true) {
   game.player.appearance = self.appearance;
+  game.player.litterCarried = self.litterCarried || null;
   if (game.player.restaurantSeat !== (self.restaurantSeat || null)) {
     game.player.restaurantSeat = self.restaurantSeat || null;
     if (!game.player.restaurantSeat && game.player.state === 'sit') game.player.setState(self.state || 'idle');
@@ -157,6 +158,7 @@ function applyScene(self, snapshot, announce = true) {
   game.scene.setGarden?.(snapshot.garden, net.selfId);
   game.scene.setSand?.(snapshot.sand);
   game.scene.setRestaurantState?.(snapshot.restaurant, now);
+  game.scene.setLitter(snapshot.litter || []);
   game.scene.setOfferings?.(snapshot.offerings, now);
   game.scene.setFishFeed?.(snapshot.fishFeed, now);
   gardens?.refresh();
@@ -191,6 +193,8 @@ const net = new SocketClient(io, {
     if (game.player.restaurantSeat && !occupied) { game.player.restaurantSeat = null; if (game.player.state === 'sit') game.player.setState('idle'); }
     restaurantPanel?.syncHud();
   },
+  'litter:spawn'(item) { if (item.sceneId === game.scene.id) game.scene.addLitter(item); },
+  'litter:removed'(data) { if (data.sceneId === game.scene.id) game.scene.removeLitter(data.id); },
   error(error) { toast(error.message); },
   unauthorized() { api.setToken(''); toast('Phiên khách không còn hợp lệ. Đang tải lại…'); setTimeout(() => location.reload(), 1500); },
   'player:correct'(data) { if (data.sceneId === game.scene.id) game.player.place(data.x, data.y, data.direction); },
@@ -252,6 +256,22 @@ function interact(o = game.interactions.nearest) {
   if (!o) return toast('Hãy đến gần một người, một vật hoặc chạm vào nó để tương tác.');
   game.input.clear();
   switch (o.action) {
+    case 'litter': return (async () => {
+      try {
+        net.sendMove(game.player, performance.now(), true);
+        const res = await net.request('litter:pick', { id: o.id });
+        game.player.litterCarried = res.carried;
+        game.player.act('pick'); toast('Đã nhặt rác. Hãy bỏ vào thùng rác gần đó.');
+      } catch (error) { toast(error.message); }
+    })();
+    case 'litterBin': return (async () => {
+      try {
+        net.sendMove(game.player, performance.now(), true);
+        await net.request('litter:deposit');
+        game.player.litterCarried = null;
+        game.player.act('interact'); toast('Đã bỏ rác vào thùng. Cảm ơn bạn đã giữ chùa sạch đẹp!');
+      } catch (error) { toast(error.message); }
+    })();
     case 'shop': case 'fishShop': case 'offering': case 'fishFeed': case 'fishRelease': return shop.open(o);
     case 'cat': selectedCat = o; return panels.open('catPanel');
     case 'dialogue': {
@@ -470,6 +490,7 @@ async function boot() {
     const start = assets.get('maps').has(me.progress.lastScene) ? me.progress.lastScene : 'gate';
     game?.destroy();
     game = new Game($('#scene'), assets, $('#joystick'), keyAction, tick, { scene: start, room, time: store.get('sanmay-time', 'auto'), weather: store.get('sanmay-weather', 'auto') });
+    game.visitors.onDrop = data => { if (entered && net.connected && game.player.state !== 'meditate') net.request('litter:drop', data).catch(() => {}); };
     game.onSceneChange = () => {
       closeScenePopups({ panels, dialogue, minigames, game });
       restaurantPanel?.closeForScene();

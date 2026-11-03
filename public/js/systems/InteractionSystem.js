@@ -7,5 +7,8 @@ export class InteractionSystem {
     this.nearest = best;
   }
   // Touch/click selection: the interactive object under a world point, if any.
-  at(x, y) { return this.all().find(o => !o.hidden && Math.abs(o.x - x) < (o.hitW || 46) && y > o.y - (o.hitH || 100) && y < o.y + 24) || null; }
+  at(x, y) {
+    const hit = o => !o.hidden && Math.abs(o.x - x) < (o.hitW || 46) && y > o.y - (o.hitH || 100) && y < o.y + 24;
+    return this.extra.find(o => o.action === 'litter' && hit(o)) || this.all().find(hit) || null;
+  }
 }

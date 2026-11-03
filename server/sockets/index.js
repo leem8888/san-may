@@ -16,6 +16,7 @@ import { isOffensive, RateLimiter } from '../services/moderation.js';
 import { publicPlayer, roomChannel, sceneChannel } from '../services/rooms.js';
 import { insideRect } from '../services/world.js';
 import { LOVE_FORTUNES } from '../content/loveFortunes.js';
+import { LITTER_BINS } from '../../public/js/shared/litterBins.js';
 
 export const LANTERN_LIFETIME = 10 * 60 * 1000;
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -56,6 +57,10 @@ export function attachSockets(io, ctx) {
   const { repos, world, rooms, identity, progression, config } = ctx;
   const fishFeeding = createFishFeeding(ctx);
   const graceTimers = new Map();
+  // Small, shared, temporary traces left by ambient visitors. No database writes.
+  const litter = new Map(), lastLitterDrop = new Map();
+  const litterKey = p => `${p.room}|${p.sceneId}`;
+  const litterFor = p => litter.get(litterKey(p)) || [];
   const worldSync = attachWorldSync(io, ctx);
   let ticks = 0, closed = false;
   const toPlayer = (id, event, payload) => { const p = rooms.findPlayer(id); if (p) io.to(p.socketId).emit(event, payload); };
@@ -123,6 +128,7 @@ export function attachSockets(io, ctx) {
   }
   const snapshot = p => ({
     sceneId: p.sceneId,
+    litter: litterFor(p),
     restaurant: p.sceneId === 'gate' ? ctx.restaurant.snapshot(p.room) : null,
     offerings: p.sceneId === 'mainHall' ? repos.shop.offerings(p.room) : [],
     fishFeed: fishFeeding.snapshot(p),
@@ -202,6 +208,13 @@ export function attachSockets(io, ctx) {
     function leave(reason) {
       const p = self;
       if (!p) return;
+      if (p.litterCarried && world.walkable(p.sceneId, p.x, p.y)) {
+        const key = litterKey(p), items = litterFor(p);
+        if (items.length < 8) {
+          const item = { id: crypto.randomUUID(), x: Math.round(p.x), y: Math.round(p.y), kind: p.litterCarried, sceneId: p.sceneId };
+          litter.set(key, [...items, item]); io.to(scene(p)).emit('litter:spawn', item);
+        }
+      }
       ctx.restaurant.leave(p);
       self = null;
       socket.leave(roomChannel(p.room)); socket.leave(scene(p));
@@ -277,6 +290,43 @@ export function attachSockets(io, ctx) {
 
     socket.on('room:leave', () => leave('left'));
     socket.on('disconnect', () => leave('disconnect'));
+
+    socket.on('litter:drop', (data, ack) => {
+      ack = reply(ack);
+      const p = self, now = Date.now();
+      if (!p || p.meditation || !isObject(data) || data.sceneId !== p.sceneId || !Number.isInteger(data.botId) || data.botId < 0 || data.botId > 15 || !['paper', 'leaf', 'wrapper'].includes(data.kind)) return ack({ error: 'Không thể làm rơi rác.' });
+      const map = world.map(p.sceneId), x = data.x, y = data.y;
+      if (!map || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0 || x > map.width || y > map.height || !world.walkable(p.sceneId, x, y)) return ack({ error: 'Vị trí rác không hợp lệ.' });
+      const key = litterKey(p), items = litterFor(p);
+      if (items.length >= 8 || now - (lastLitterDrop.get(key) || 0) < 12000) return ack({ error: 'Khu này đã đủ sạch.' });
+      const item = { id: crypto.randomUUID(), x, y, kind: data.kind, sceneId: p.sceneId };
+      litter.set(key, [...items, item]); lastLitterDrop.set(key, now);
+      io.to(scene(p)).emit('litter:spawn', item);
+      ack({ ok: true, item });
+    });
+
+    socket.on('litter:pick', (data, ack) => {
+      ack = reply(ack);
+      const p = self;
+      if (!p || p.meditation || p.sweeping || p.restaurantSeat || typeof data?.id !== 'string') return ack({ error: 'Bạn chưa thể nhặt rác lúc này.' });
+      if (p.litterCarried) return ack({ error: 'Hãy bỏ món rác đang cầm vào thùng trước.' });
+      const key = litterKey(p), items = litterFor(p), item = items.find(o => o.id === data.id);
+      if (!item) return ack({ error: 'Rác đã được nhặt rồi.' });
+      if (Math.hypot(p.x - item.x, p.y - item.y) > 68) return ack({ error: 'Hãy đến gần rác hơn.' });
+      litter.set(key, items.filter(o => o.id !== item.id));
+      p.litterCarried = item.kind; p.dirty = true;
+      io.to(scene(p)).emit('litter:removed', { sceneId: p.sceneId, id: item.id });
+      ack({ ok: true, carried: item.kind });
+    });
+
+    socket.on('litter:deposit', (_data, ack) => {
+      ack = reply(ack);
+      const p = self, bin = p && LITTER_BINS[p.sceneId];
+      if (!p || !bin || !p.litterCarried) return ack({ error: 'Bạn chưa cầm rác để bỏ vào thùng.' });
+      if (p.meditation || p.sweeping || p.restaurantSeat || Math.hypot(p.x - bin.x, p.y - bin.y) > 74) return ack({ error: 'Hãy đến gần thùng rác hơn.' });
+      p.litterCarried = null; p.dirty = true;
+      ack({ ok: true });
+    });
 
     socket.on('player:move', data => {
       const p = self;

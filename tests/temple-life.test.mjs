@@ -31,6 +31,24 @@ test('fish seller is separate; purchase and release are atomic and idempotent', 
   assert.ok((await ask(socket, 'fish:release', { objectId: 'fishRelease', requestId: 'fish-drop-2' })).error);
 });
 
+test('returning to an occupied restaurant table shows the same order and seat', async t => {
+  const s = await startServer(); t.after(s.close);
+  const a = guest(s.game);
+  const socket = await connect(s.base, a.token); t.after(() => socket.close());
+  await ask(socket, 'room:join', { room: 'TEMPLE' });
+  const p = s.game.ctx.rooms.findPlayer(a.id); p.x = 1100; p.y = 1005;
+  const first = await ask(socket, 'restaurant:sit', { tableId: 'vegTable1' });
+  assert.ok(first.seatId);
+  const ordered = await ask(socket, 'restaurant:order', { seatId: first.seatId, sku: 'veggieDumplings', requestId: 'reopen-1' });
+  p.x = 800; p.y = 1000;
+  const reopened = await ask(socket, 'restaurant:sit', { seatId: first.seatId });
+  assert.equal(reopened.seatId, first.seatId);
+  assert.equal(reopened.shop.points, ordered.shop.points);
+  assert.ok(reopened.restaurant.tables[0].seats.find(seat => seat.id === first.seatId).order);
+  assert.equal(reopened.restaurant.tables[0].seats.filter(seat => seat.playerId === a.id).length, 1);
+  assert.ok((await ask(socket, 'restaurant:sit', { tableId: 'vegTable2' })).error);
+});
+
 test('gender is fixed; shaving title and automatic hall footwear changes persist', async t => {
   const s = await startServer(); t.after(s.close);
   const a = guest(s.game), repo = s.game.ctx.repos.players;

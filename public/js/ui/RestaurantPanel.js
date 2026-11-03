@@ -10,13 +10,16 @@ export class RestaurantPanel {
   }
   async open(target) {
     if (this.opening) return;
-    const isTable = target.action === 'restaurantTable';
-    this.seatId = isTable ? null : target.id;
-    this.tableId = isTable ? target.id : target.tableId;
+    const seated = this.game.player.restaurantSeat;
+    const ownSeat = seated && this.game.scene.objects.find(o => o.id === seated);
+    if (seated && (!ownSeat || (target.id !== ownSeat.tableId && target.tableId !== ownSeat.tableId))) return toast('Hãy đứng dậy trước khi sang bàn khác nhé.');
+    const isTable = target.action === 'restaurantTable' && !seated;
+    this.seatId = seated || (isTable ? null : target.id);
+    this.tableId = ownSeat?.tableId || (isTable ? target.id : target.tableId);
     this.opening = true;
     this.state = this.game.scene.restaurant; this.error = ''; this.pendingId = null;
     try {
-      const result = await this.net.request('restaurant:sit', isTable ? { tableId: target.id } : { seatId: target.id });
+      const result = await this.net.request('restaurant:sit', this.seatId ? { seatId: this.seatId } : { tableId: target.id });
       if (this.game.scene.id !== 'gate') return;
       this.seatId = result.seatId; this.tableId = result.tableId;
       this.state = result.restaurant; this.points = result.shop.points; this.error = '';

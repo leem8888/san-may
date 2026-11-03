@@ -18,7 +18,7 @@ const LINES = {
 export class AmbientVisitors {
   constructor(scenes, count = 16) {
     this.scenes = scenes;
-    this.people = Array.from({ length: count }, (_,i) => this.place(Object.assign(new Player(),{name:VISITOR_NAMES[i%VISITOR_NAMES.length]})));
+    this.people = Array.from({ length: count }, (_,i) => this.place(Object.assign(new Player(), { visitorId: i, name: VISITOR_NAMES[i % VISITOR_NAMES.length] })));
   }
   point(scene) {
     for (let n = 0; n < 100; n++) {
@@ -32,6 +32,7 @@ export class AmbientVisitors {
     const point = this.point(this.scenes.get(p.sceneId)); p.place(point.x, point.y); p.setState('idle');
     p.npc = true; p.path = []; p.wait = 1 + Math.random() * 7; p.stay = 60 + Math.random() * 180;
     p.chat = null; p.emote = null; p.nextExpression = 5 + Math.random() * 15;
+    p.nextLitter = 35 + Math.random() * 70;
     p.appearance = { ...DEFAULT_APPEARANCE, outfitColor: ['#9aa58a','#b19a72','#829e9a','#ad8c85','#8b91a1'][Math.floor(Math.random()*5)], hairStyle: ['short','bun','shaved'][Math.floor(Math.random()*3)] };
     return p;
   }
@@ -61,6 +62,10 @@ export class AmbientVisitors {
         if (length < .2) p.path.shift(); else vector = { x: dx/length, y: dy/length, maxDistance: length };
       }
       p.update(dt, vector, scene.collision); p.direction = bowDirection(id, p.state, p.direction);
+      if ((p.nextLitter -= dt) <= 0) {
+        p.nextLitter = 55 + Math.random() * 90;
+        if (p.state === 'walk' && Math.random() < .65) this.onDrop?.({ botId: p.visitorId, sceneId: id, x: Math.round(p.x), y: Math.round(p.y), kind: ['paper', 'leaf', 'wrapper'][Math.floor(Math.random() * 3)] });
+      }
     }
   }
 }

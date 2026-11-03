@@ -137,6 +137,7 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   // Keep the feet close to the ground: a small double-step bounce replaces the old hopping motion.
   c.translate(0, walk ? -Math.abs(Math.sin(phase * 2)) * .65 : 0);
   c.rotate(walk ? Math.sin(phase) * .018 : 0);
+  if (state === 'pick') c.rotate((side < 0 ? -.16 : .16) * Math.sin(t * Math.PI));
 
   const hip = sit ? -25 : meditate ? -8 : -38 + kneel * 20;
   const shoulder = (sit ? -46 : meditate ? -29 : -59) - breathe * .6 + kneel * 20 + bow * (back ? -2 : 17);
@@ -228,6 +229,7 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   if (state === 'wave') hr = [15 + Math.sin(t * TAU * 2) * 3, shoulder - 13];
   if (state === 'bell') { const pull = Math.sin(t * Math.PI); hl = [-4, shoulder - 6 + pull * 8]; hr = [4, shoulder - 6 + pull * 8]; }
   if (state === 'interact') hr = [14, shoulder + 5];
+  if (state === 'pick') { const reach = Math.sin(t * Math.PI); hl = [-9, hip + 2 + reach * 25]; hr = [9, hip + 2 + reach * 25]; }
   if (state === 'sweep') { hr = [8 + Math.sin(t * TAU) * 3, shoulder + 10]; hl = [4 + Math.sin(t * TAU) * 3, shoulder + 15]; }
   const sleeve = cloth(c, outfit, -16, 16);
   // Outline sleeves before filling them so arms do not merge into the torso.

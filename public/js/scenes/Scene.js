@@ -6,6 +6,7 @@ import { PROPS, propLights } from '../rendering/props.js';
 import { HIDDEN } from '../rendering/StoryProps.js';
 import { ellipse, polygon } from '../rendering/SpriteRenderer.js';
 import { drawKoi } from '../rendering/FishArt.js';
+import { LITTER_BINS } from '../shared/litterBins.js';
 
 export const insideRect = (r, x, y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
 
@@ -14,9 +15,11 @@ export class Scene {
   constructor(map) {
     this.map = map; this.id = map.id; this.indoor = Boolean(map.indoor);
     this.collision = new CollisionSystem(map);
-    this.objects = map.objects || [];
+    this.objects = [...(map.objects || [])];
+    if (LITTER_BINS[this.id]) this.objects.push({ id: 'litterBin', type: 'litterBin', action: 'litterBin', label: 'Bỏ rác vào thùng', radius: 74, hitW: 28, hitH: 54, ...LITTER_BINS[this.id] });
     for (const o of this.objects) o.hidden = Boolean(HIDDEN[o.type]?.(o));
     this.props = map.props || [];
+    this.litter = [];
     const tableInteractions = this.id === 'gate' ? this.props.filter(o => o.type === 'restaurantTable').map(o => ({ ...o, action: 'restaurantTable', label: 'Chạm vào bàn để chọn chỗ ngồi', radius: 130, hitW: 82, hitH: 70 })) : [];
     this.interactions = new InteractionSystem([...this.objects.filter(o => !o.schedule), ...tableInteractions]);
     // Residents stay in this area; travelling NPCs (schedule) are placed here by the game when they visit.
@@ -28,6 +31,9 @@ export class Scene {
     this.fish = this.water.flatMap(w => Array.from({ length: w.fish }, (_, i) => ({ w, phase: random() * 6.28, speed: .08 + random() * .1, color: ['#ddaa71', '#e7e2d3', '#c77f5a', '#b9bc99'][i % 4], r: .35 + random() * .5, size: .62 + random() * .68 })));
   }
   get npcs() { return this.visitors.length ? [...this.residents, ...this.visitors] : this.residents; }
+  setLitter(items) { this.litter = Array.isArray(items) ? items : []; }
+  addLitter(item) { if (!this.litter.some(o => o.id === item.id)) this.litter.push(item); }
+  removeLitter(id) { this.litter = this.litter.filter(o => o.id !== id); }
   enter() { this.ground ||= buildGround(this.map); }
   release() { this.ground = null; this.navigation = null; }
   // Someone sitting next to a bench is drawn on its seat (left or right half, facing out). Their logical,

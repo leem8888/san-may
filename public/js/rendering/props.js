@@ -29,6 +29,15 @@ function roof(c, cx, y, w, h, color = '#2b4541', trim = '#cfad6e') {
 }
 
 export const PROPS = {
+  litterBin(c, o, env) {
+    const { x, y } = o; shadow(c, x, y + 3, 19, 5, env);
+    box(c, x - 16, y - 31, 32, 29, '#6b765d', 4);
+    box(c, x - 18, y - 36, 36, 7, '#394e42', 3);
+    box(c, x - 11, y - 28, 22, 19, '#819071', 2);
+    box(c, x - 8, y - 24, 16, 5, '#263f37', 2);
+    line(c, x - 12, y - 3, x + 12, y - 3, '#c7ad79', 2);
+    c.textAlign = 'center'; c.fillStyle = '#f2dfaa'; c.font = 'bold 7px system-ui'; c.fillText('RÁC', x, y - 11);
+  },
   vegetablePatch, bookStack, fern, libraryWindow,
   fishFeeder: drawFishFeeder,
   fishTub(c, o, env) {

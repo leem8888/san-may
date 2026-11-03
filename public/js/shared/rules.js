@@ -4,7 +4,7 @@ export const PLAYER_RADIUS = 14;
 export const nameWithoutPrefix = value => String(value ?? '').replace(/^Thích(?:\s+|$)/iu, '').trim();
 export const characterName = value => `Thích ${nameWithoutPrefix(value).slice(0, 13) || 'Khách'}`;
 export const bowDirection = (sceneId, state, direction) => sceneId === 'mainHall' && state === 'bow' ? 'up' : direction;
-export const DURATIONS = { idle: Infinity, walk: Infinity, sweep: Infinity, bow: 3.6, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, sit: Infinity, wave: 1.3 };
+export const DURATIONS = { idle: Infinity, walk: Infinity, sweep: Infinity, bow: 3.6, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, pick: .9, sit: Infinity, wave: 1.3 };
 export const ACTIONS = Object.keys(DURATIONS);
 export const ROUND = 108;
 export const LIMITS = {
