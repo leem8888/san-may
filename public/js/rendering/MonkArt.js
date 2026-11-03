@@ -19,12 +19,13 @@ function broom(c,standing){
 export function drawNovice(c,state,frame,dir){
   const t=frame/8,side=dir==='left'?-1:dir==='right'?1:0,back=dir==='up';
   const joined=['pray','bow','bead'].includes(state),bow=state==='bow'?Math.sin(t*Math.PI):0;
-  const seated=['sit','meditate'].includes(state),swing=state==='walk'?Math.sin(t*TAU):0;
+  const teaSit=state==='teaSit',seated=['sit','teaSit','meditate'].includes(state),swing=state==='walk'?Math.sin(t*TAU):0;
   c.translate(32,80);oval(c,0,1,18,4,'#11292255');
   c.scale(side ? .9 : 1,1);c.translate(0,-Math.abs(swing)*1.1);
   const shoulder=(seated?-25:-36)+bow*5,head=shoulder-16+bow*4;
-  if(!back)broom(c,joined||state==='wave'||seated);
-  if(seated){oval(c,0,-3,17,6,'#4d5048');oval(c,-11,-2,6,3,'#353a34');oval(c,11,-2,6,3,'#353a34');}
+  if(!back&&!teaSit)broom(c,joined||state==='wave'||seated);
+  if(teaSit){oval(c,0,-9,19,6,'#45483f');oval(c,-10,-8,10,4,'#64695d');oval(c,10,-8,10,4,'#555b50');}
+  else if(seated){oval(c,0,-3,17,6,'#4d5048');oval(c,-11,-2,6,3,'#353a34');oval(c,11,-2,6,3,'#353a34');}
   else for(const s of [-1,1]){
     const y=-Math.max(0,s*swing)*3;
     line(c,[[s*7,-17],[s*8,y-4]],'#66695d',7);line(c,[[s*8,-9],[s*8,y-3]],'#c3bba3',4.5);
@@ -38,6 +39,7 @@ export function drawNovice(c,state,frame,dir){
   let left=[-8,-38],right=[8,-20];
   if(joined){left=[-2,shoulder+12];right=[2,shoulder+12];}
   else if(state==='wave'){left=[-13,shoulder+14];right=[22+Math.sin(t*TAU)*2,shoulder-8];}
+  else if(teaSit){left=[side*16,shoulder+8];right=[side*8,-13];}
   else if(seated){left=[-5,-8];right=[5,-8];}
   else if(state==='walk'){left=[-15,shoulder+16+swing*3];right=[15,shoulder+16-swing*3];}
   // Hands stay visible against the dark vest even when viewed from behind.

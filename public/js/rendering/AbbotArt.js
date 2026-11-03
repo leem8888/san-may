@@ -21,10 +21,10 @@ function staff(c,x){
 }
 export function drawAbbot(c,state,frame,dir){
   const t=frame/8,side=dir==='left'?-1:dir==='right'?1:0,back=dir==='up';
-  const seated=['sit','meditate'].includes(state),joined=['pray','bow','bead'].includes(state),bow=state==='bow'?Math.sin(t*Math.PI):0;
+  const teaSit=state==='teaSit',seated=['sit','teaSit','meditate'].includes(state),joined=['pray','bow','bead'].includes(state),bow=state==='bow'?Math.sin(t*Math.PI):0;
   c.translate(32,80);oval(c,1,1,17,3.4,'#10291f45');
   if(side)c.scale(.86,1);
-  const shoulder=(seated?-32:-56)+bow*7,head=shoulder-13+bow*4,hem=seated?-2:-3;
+  const shoulder=(seated?-32:-56)+bow*7,head=shoulder-13+bow*4,hem=teaSit?-12:seated?-2:-3;
   const inner=silk(c,-16,32,['#a57841','#ddbd82','#c79b5d','#986f3c']);
   if(!seated){oval(c,-6,-1,4.5,2,'#473e32');oval(c,6,-1,4.5,2,'#473e32');}
   fill(c,inner,()=>{
@@ -33,7 +33,8 @@ export function drawAbbot(c,state,frame,dir){
     c.quadraticCurveTo(0,hem+4,17,hem);c.bezierCurveTo(12,hem-15,14,shoulder+16,12,shoulder+3);
     c.quadraticCurveTo(9,shoulder-3,4,shoulder-2);
   });
-  if(seated)oval(c,0,-3,19,6,inner);
+  if(teaSit){oval(c,0,-9,20,6,'#634831');oval(c,-10,-8,10,4,inner);oval(c,10,-8,10,4,inner);}
+  else if(seated)oval(c,0,-3,19,6,inner);
   // Draped outer robe: a curved shoulder wrap rather than a rectangular grid.
   const outer=silk(c,-15,31,['#684030','#a36b48','#855039','#633d2e']);
   fill(c,outer,()=>{
@@ -47,9 +48,10 @@ export function drawAbbot(c,state,frame,dir){
   for(let y=shoulder+28;y<hem-5;y+=13)ink(c,'#c09a6338',.5,()=>{c.moveTo(-10,y);c.quadraticCurveTo(0,y+3,11,y+2);});
   let left=[-9,shoulder+25],right=[23,shoulder+23];
   if(joined){left=[-1.6,shoulder+12];right=[1.6,shoulder+12];}
-  if(seated){left=[-4,-10];right=[4,-10];}
+  if(teaSit){left=[side*16,shoulder+8];right=[side*8,-13];}
+  else if(seated){left=[-4,-10];right=[4,-10];}
   if(state==='wave')right=[19,shoulder-7];
-  staff(c,joined||seated?27:23);
+  if(!teaSit)staff(c,joined||seated?27:23);
   sleeve(c,-11,shoulder+4,...left,outer,-1);sleeve(c,11,shoulder+4,...right,inner,1);
   if(!back)for(let i=0;i<9;i++){const a=Math.PI*(.12+i*.095);oval(c,Math.cos(a)*6.7,shoulder+2+Math.sin(a)*9,1.05,1.05,'#514032');}
   oval(c,0,shoulder-2,3,4,'#c6a282');

@@ -20,17 +20,60 @@ function limb(c, from, to, color, width, bend) {
 
 function shoes(c, feet, side, barefoot = false) { for (const [x, y] of feet) ellipse(c, x + side * 1.5, y - 1.2, side ? 4 : 3.3, 2.2, barefoot ? SKIN : SHOE); }
 
-function backHair(c, look, headY, shoulder, back) {
+function backHair(c, look, headY, shoulder, back, young = false) {
   if (look.hairStyle !== 'long' || back) return;
+  if (young) {
+    const color = shade(look.hairColor, .82);
+    ellipse(c, 0, headY + 5, 10.5, 14, color);
+    ellipse(c, -7, headY + 14, 4.5, 7, color);
+    ellipse(c, 7, headY + 14, 4.5, 7, color);
+    return;
+  }
   c.fillStyle = shade(look.hairColor, .72); c.beginPath();
   c.moveTo(-7.5, headY - 5); c.quadraticCurveTo(-12, headY + 9, -8, shoulder + 20);
   c.lineTo(8, shoulder + 20); c.quadraticCurveTo(12, headY + 9, 7.5, headY - 5); c.closePath(); c.fill();
   stroke(c, [[-7, headY + 4], [-8, shoulder + 17]], shade(look.hairColor, 1.25), .8);
 }
 
-function hair(c, look, headY, side, back, bowing) {
+function hair(c, look, headY, side, back, bowing, young = false) {
   const color = look.hairColor, hi = shade(color, 1.45), style = look.hairStyle;
   if (style === 'shaved') { ellipse(c, 0, headY - (back ? 2.6 : 4.6), 9, back ? 10 : 5, 'rgba(70,64,62,.24)'); ellipse(c, -3, headY - 6, 2.5, 1.3, 'rgba(255,255,255,.22)'); return; }
+  if (young) {
+    if (back) {
+      if (style === 'long') for (const x of [-7, 7]) ellipse(c, x, headY + 9, 3.5, 10, shade(color, .82));
+      if (style === 'bun') ellipse(c, 0, headY - 10, 4.5, 4, shade(color, .8));
+      ellipse(c, 0, headY - 2.5, 9.5, 9, color);
+      ellipse(c, -3, headY - 8, 2.5, .8, hi);
+      return;
+    }
+    if (style === 'bun') {
+      ellipse(c, side * 2, headY - 11, 4.7, 4.2, shade(color, .76));
+      ellipse(c, side * 2 - 1, headY - 12, 2.7, 1.4, hi);
+    }
+    ellipse(c, 0, headY - 5.5 + (bowing ? 1 : 0), 9.5, bowing ? 7 : 5.5, shade(color, .85));
+    c.fillStyle = color; c.beginPath(); c.moveTo(-8.8, headY - 5);
+    if (style === 'short') {
+      c.bezierCurveTo(-7, headY - 1, -3, headY - 2, -1, headY - 3.5);
+      c.bezierCurveTo(2, headY - 1.5, 6, headY - 2, 8.8, headY - 4.5);
+    } else {
+      c.bezierCurveTo(-6, headY - 2, -2, headY - 3, 0, headY - 4.5);
+      c.bezierCurveTo(3, headY - 2.5, 6, headY - 2, 8.8, headY - 5);
+    }
+    c.closePath(); c.fill();
+    if (style === 'short') {
+      for (const x of [-1, 1]) ellipse(c, x * 8.5, headY - .5, 1.5, look.gender === 'female' ? 3.3 : 2.5, color);
+    }
+    if (style === 'long') {
+      for (const x of [-1, 1]) {
+        c.fillStyle = color; c.beginPath(); c.moveTo(x * 8, headY - 4);
+        c.quadraticCurveTo(x * 10, headY + 4, x * 8, headY + 10);
+        c.quadraticCurveTo(x * 6, headY + 11, x * 6.8, headY + 3);
+        c.closePath(); c.fill();
+      }
+    }
+    stroke(c, [[-5, headY - 8], [-1, headY - 9], [3, headY - 8]], shade(color, 1.28), .65);
+    return;
+  }
   if (back) {
     ellipse(c, 0, headY - 1, 9.5, 10, color);
     if (style === 'long') shape(c, [[-8, headY], [8, headY], [7, headY + 26], [-7, headY + 26]], color);
@@ -47,16 +90,17 @@ function hair(c, look, headY, side, back, bowing) {
   stroke(c, [[-5, headY - 7], [0, headY - 8], [4, headY - 7]], shade(color, 1.28), .75);
 }
 
-function face(c, headY, side, closed, feminine) {
+function face(c, headY, side, closed, feminine, young = false) {
   const dx = side * 2.3;
   headY += 1;
   if (side) ellipse(c, -side * 6, headY + 1, 1.4, 2.1, SKIN_SHADE);
   stroke(c, [[-4.2 + dx, headY - 2.1], [-1.6 + dx, headY - (feminine ? 2.4 : 2.1)]], shade(INK, 1.2), feminine ? .65 : 1.1);
   stroke(c, [[1.6 + dx, headY - (feminine ? 2.4 : 2.1)], [4.2 + dx, headY - 2.1]], shade(INK, 1.2), feminine ? .65 : 1.1);
   if (closed) for (const ex of [-2.8, 2.8]) { c.strokeStyle = INK; c.lineWidth = .8; c.beginPath(); c.arc(ex + dx, headY, 1.2, .15, Math.PI - .15); c.stroke(); }
-  else for (const ex of [-2.8, 2.8]) { ellipse(c, ex + dx, headY + .2, .95, 1.25, INK); ellipse(c, ex + dx + .3, headY - .2, .3, .3, '#fff'); }
-  ellipse(c, -3.6 + dx, headY + 2.6, 1.3, .7, 'rgba(214,120,100,.22)'); ellipse(c, 3.6 + dx, headY + 2.6, 1.3, .7, 'rgba(214,120,100,.22)');
-  c.strokeStyle = '#9b5b4a'; c.lineWidth = .8; c.beginPath(); c.arc(dx, headY + 3.4, feminine ? 1.6 : 1.25, .25, Math.PI - .25); c.stroke();
+  else for (const ex of [-2.8, 2.8]) { ellipse(c, ex + dx, headY + .2, young ? 1.15 : .95, young ? 1.45 : 1.25, INK); ellipse(c, ex + dx + .3, headY - .2, .3, .3, '#fff'); }
+  ellipse(c, -4 + dx, headY + 2.8, young ? 2.1 : 1.3, young ? 1.2 : .7, `rgba(214,120,100,${young ? .35 : .22})`);
+  ellipse(c, 4 + dx, headY + 2.8, young ? 2.1 : 1.3, young ? 1.2 : .7, `rgba(214,120,100,${young ? .35 : .22})`);
+  c.strokeStyle = '#9b5b4a'; c.lineWidth = young ? 1 : .8; c.beginPath(); c.arc(dx, headY + 3.4, young ? 1.8 : feminine ? 1.6 : 1.25, .25, Math.PI - .25); c.stroke();
 }
 
 function hat(c, headY) {
@@ -78,15 +122,17 @@ export function bowPhases(t) {
 export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   if (look.characterStyle === 'child') return drawNovice(c, state, Math.floor(frame * 8 / frames), dir);
   if (look.characterStyle === 'abbot') return drawAbbot(c, state, Math.floor(frame * 8 / frames), dir);
+  const young = look.characterStyle === 'youngPlayer';
   const t = frame / frames, walk = state === 'walk', phase = t * TAU, swing = walk ? Math.sin(phase) : 0;
-  const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', feminine = look.gender === 'female', w = (side ? .8 : 1) * (feminine ? .94 : 1);
+  const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', feminine = look.gender === 'female', w = (side ? young ? .9 : .8 : 1) * (feminine ? .94 : 1);
   const { kneel, lean } = state === 'bow' ? bowPhases(t) : { kneel: 0, lean: 0 }, bow = lean, breathe = Math.sin(t * TAU) * (state === 'meditate' ? .9 : .35);
   const idleSway = state === 'idle' ? Math.sin(t * TAU) * .45 : 0;
   const style = look.outfitStyle, outfit = look.outfitColor, dark = shade(outfit, .7);
-  const trousers = style === 'robe' ? '#4e453b' : style === 'tunic' ? '#3a3730' : '#ece3cc';
-  const sit = state === 'sit', meditate = state === 'meditate';
+  const trousers = style === 'robe' ? young ? shade(outfit, .58) : '#4e453b' : style === 'tunic' ? '#3a3730' : '#ece3cc';
+  const teaSit = state === 'teaSit', sit = state === 'sit' || teaSit, meditate = state === 'meditate';
 
   c.translate(32, 80);
+  if (young) c.scale(1.24, .76);
   ellipse(c, 0, 0, sit ? 18 : meditate ? 19 : 14, 4.2, 'rgba(8,29,33,.38)');
   // Keep the feet close to the ground: a small double-step bounce replaces the old hopping motion.
   c.translate(0, walk ? -Math.abs(Math.sin(phase * 2)) * .65 : 0);
@@ -96,7 +142,7 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   const shoulder = (sit ? -46 : meditate ? -29 : -59) - breathe * .6 + kneel * 20 + bow * (back ? -2 : 17);
   const headY = shoulder - 13 + bow * (back ? -3 : 9);
 
-  backHair(c, look, headY, shoulder, back);
+  backHair(c, look, headY, shoulder, back, young);
 
   // Legs and feet.
   if (meditate) {
@@ -106,6 +152,12 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
     // Kneeling: knees on the floor in front, feet tucked behind.
     for (const s of [-1, 1]) { ellipse(c, s * 5, hip + 3, 4.6, 4.6, style === 'robe' ? dark : trousers); limb(c, [s * 5.5, hip + 5], [s * 6, -3], trousers, 4.8, 0); }
     ellipse(c, -6, -1, 3.4, 2, '#3a2a1e'); ellipse(c, 6, -1, 3.4, 2, '#3a2a1e');
+  } else if (teaSit) {
+    // A low, cross-legged cushion pose: the folded knees stay visible below the robe hem.
+    ellipse(c, 0, -10, 19, 6.5, dark);
+    ellipse(c, -9, -10, 10, 4.3, cloth(c, outfit, -19, 0), -.12);
+    ellipse(c, 9, -10, 10, 4.3, cloth(c, outfit, 0, 19), .12);
+    shoes(c, [[-13, -4], [13, -4]], 0, look.footwear === 'stored');
   } else if (sit) {
     for (const s of [-1, 1]) { ellipse(c, s * 5, hip + 4, 4.6, 5, style === 'robe' ? dark : trousers); limb(c, [s * 5.5, hip + 7], [s * 6, -3], trousers, 4.8, 0); }
     shoes(c, [[-6, 0], [6, 0]], 0, look.footwear === 'stored');
@@ -125,12 +177,20 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   // Garment.
   const sx = 11 * w, wx = (feminine ? 7 : 8) * w, hx = 9 * w, fill = cloth(c, outfit, -14, 14);
   if (style === 'robe') {
-    const hem = sit ? hip + 9 : meditate ? -6 : -5 + (walk ? Math.sin(phase + .6) * 1.2 : 0), flare = sit ? 11 : meditate ? 15 : (feminine ? 16 : 13) * w;
+    const hem = sit ? hip + 9 : meditate ? -6 : young ? kneel > .05 ? hip + 8 : -24 + (walk ? Math.sin(phase + .6) * .7 : 0) : -5 + (walk ? Math.sin(phase + .6) * 1.2 : 0);
+    const flare = young ? sit || meditate ? 12 : 10 * w : sit ? 11 : meditate ? 15 : (feminine ? 16 : 13) * w;
     c.fillStyle = fill; c.beginPath(); c.moveTo(-sx, shoulder+2);
     c.quadraticCurveTo(0,shoulder-3,sx,shoulder+2);c.quadraticCurveTo(wx,hip-6,flare,hem);
-    c.quadraticCurveTo(0,hem+3,-flare,hem);c.quadraticCurveTo(-wx,hip-6,-sx,shoulder+2);c.fill();
-    stroke(c, [[-wx * .5, hip - 2], [-flare * .55, hem - 1]], 'rgba(0,0,0,.12)', 1); stroke(c, [[wx * .6, hip - 3], [flare * .6, hem - 1]], 'rgba(0,0,0,.12)', 1);
-    stroke(c, [[-flare + 2, hem - 2], [0, hem], [flare - 2, hem - 2]], shade(outfit, .62), 1);
+    if (young && !sit && !meditate) { c.lineTo(2, hem); c.lineTo(0, hem - 4); c.lineTo(-2, hem); }
+    else c.quadraticCurveTo(0,hem+3,-flare,hem);
+    c.lineTo(-flare,hem);c.quadraticCurveTo(-wx,hip-6,-sx,shoulder+2);c.fill();
+    if (young) {
+      stroke(c, [[-7, hip - 6], [7, hip - 6]], shade(outfit, .65), 1.6);
+      if (!back) { stroke(c, [[1, shoulder + 6], [1, hem - 5]], 'rgba(40,28,25,.16)', .8); ellipse(c, 2, hip - 6, 1.2, 1.2, '#e9d6ab'); }
+    } else {
+      stroke(c, [[-wx * .5, hip - 2], [-flare * .55, hem - 1]], 'rgba(0,0,0,.12)', 1); stroke(c, [[wx * .6, hip - 3], [flare * .6, hem - 1]], 'rgba(0,0,0,.12)', 1);
+      stroke(c, [[-flare + 2, hem - 2], [0, hem], [flare - 2, hem - 2]], shade(outfit, .62), 1);
+    }
   } else if (style === 'tunic') {
     shape(c, [[-sx, shoulder], [sx, shoulder], [wx, hip - 6], [hx + 1, hip + 4], [-hx - 1, hip + 4], [-wx, hip - 6]], fill);
     stroke(c, [[-wx - .5, hip - 4], [wx + .5, hip - 4]], dark, 2);
@@ -145,7 +205,11 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   shape(c, [[-3.2, headY + 3], [3.2, headY + 3], [4.5, shoulder + 1], [-4.5, shoulder + 1]], neck);
   // Collar / neckline.
   if (!back) {
-    if (style === 'robe') { stroke(c, [[-4, shoulder - .5], [2.5, shoulder + 9]], '#f1e2bf', 1.6); stroke(c, [[4, shoulder - .5], [-1, shoulder + 6]], '#f1e2bf', 1.6); stroke(c, [[-6, hip - 8], [6, hip - 8]], shade(outfit, .62), 1.8); ellipse(c, feminine ? -3 : 3, hip - 8, 1.5, 1.5, '#f1d8a4'); }
+    if (style === 'robe') {
+      stroke(c, [[-4, shoulder - .5], [2.5, shoulder + 9]], '#f1e2bf', 1.6);
+      stroke(c, [[4, shoulder - .5], [-1, shoulder + 6]], '#f1e2bf', 1.6);
+      if (!young) { stroke(c, [[-6, hip - 8], [6, hip - 8]], shade(outfit, .62), 1.8); ellipse(c, feminine ? -3 : 3, hip - 8, 1.5, 1.5, '#f1d8a4'); }
+    }
     else if (style === 'tunic') stroke(c, [[-3.5, shoulder], [0, shoulder + 3], [3.5, shoulder]], shade(outfit, .6), 1.2);
     else { c.fillStyle = shade(outfit, 1.2); c.fillRect(-3.4, shoulder - 2.5, 6.8, 3); }
   }
@@ -159,7 +223,8 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   // Bowing to the floor: joined hands open and rest on the ground in front.
   if (lean > 0 && !back) { hl = [hl[0] + (-7 - hl[0]) * lean, hl[1] + (-2 - hl[1]) * lean]; hr = [hr[0] + (7 - hr[0]) * lean, hr[1] + (-2 - hr[1]) * lean]; }
   if (meditate) { hl = [-2.5, hip + 1]; hr = [2.5, hip + 1]; }
-  if (sit) { hl = [-6, hip + 3]; hr = [6, hip + 3]; }
+  if (teaSit) { hl = [side * 18, shoulder + 8]; hr = [side * 9, hip + 2]; }
+  else if (sit) { hl = [-6, hip + 3]; hr = [6, hip + 3]; }
   if (state === 'wave') hr = [15 + Math.sin(t * TAU * 2) * 3, shoulder - 13];
   if (state === 'bell') { const pull = Math.sin(t * Math.PI); hl = [-4, shoulder - 6 + pull * 8]; hr = [4, shoulder - 6 + pull * 8]; }
   if (state === 'interact') hr = [14, shoulder + 5];
@@ -184,21 +249,15 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   if (look.accessory === 'beads' && !back) for (let i = 0; i < 9; i++) { const a = Math.PI * (.1 + i / 8 * .8); ellipse(c, Math.cos(a) * 6.5, shoulder + 1 + Math.sin(a) * 8, 1.05, 1.05, '#6e3d27'); }
 
   // Neck and head.
-  const child = look.characterStyle === 'child';
   c.save();
-  if (child) { c.translate(0, headY); c.scale(1.3, 1.16); c.translate(0, -headY); }
-  // Adults use a slightly smaller head and longer neck, torso and legs for a more natural silhouette.
-  c.translate(0, headY); c.scale(.88, .78); c.translate(0, -headY);
+  // A fuller face and shorter silhouette give playable characters a novice-like proportion.
+  c.translate(0, headY); c.scale(young ? 1.12 : .88, young ? 1.13 : .78); c.translate(0, -headY);
   const skinLight=c.createLinearGradient(-7,headY,7,headY);skinLight.addColorStop(0,'#cfa47d');skinLight.addColorStop(.35,'#f0d1ad');skinLight.addColorStop(1,'#d8af87');
   ellipse(c, side * .8, headY, (feminine ? 8.5 : 9.2) * (side ? .94 : 1), feminine ? 10 : 10.4, skinLight);
   ellipse(c, side * .8 + 2.5, headY + 2, 4, 5.5, 'rgba(160,100,70,.08)');
-  if (!back && bow < .55) face(c, headY, side, ['pray', 'meditate', 'bow'].includes(state), feminine);
-  hair(c, look, headY, side, back, bow > .55);
+  if (!back && bow < .55) face(c, headY, side, ['pray', 'meditate', 'bow'].includes(state), feminine, young);
+  hair(c, look, headY, side, back, bow > .55, young);
   if (look.accessory === 'lotus' && !back) { ellipse(c, 6.5, headY - 5, 2.6, 1.8, '#e9a3b4'); ellipse(c, 6.5, headY - 5.5, 1, 1, '#f6d58d'); }
   if (look.accessory === 'hat') hat(c, headY - 5);
-  if (child && !back && bow < .55) {
-    ellipse(c, -4 + side * 2, headY + 3, 1.7, 1, 'rgba(225,123,109,.35)');
-    ellipse(c, 4 + side * 2, headY + 3, 1.7, 1, 'rgba(225,123,109,.35)');
-  }
   c.restore();
 }

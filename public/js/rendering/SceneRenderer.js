@@ -50,8 +50,8 @@ export class SceneRenderer {
     for (const npc of npcs) if (cam.visible(npc.x, npc.y)) list.push({ y: npc.y, draw: () => this.sprites.draw(c, npc) });
     const people = game.entered ? [player] : [];
     for (const remote of game.remotes) if (!game.blocked.has(remote.id) && cam.visible(remote.x, remote.y)) people.push(remote);
-    // Seated players are shown on the bench seat instead of where they stand.
-    const views = people.map(p => { const seat = ['sit', 'meditate'].includes(p.state) && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, direction: seat.direction || 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
+    // Seated players are shown on the cushion or bench instead of where they stand.
+    const views = people.map(p => { const seat = ['sit', 'meditate'].includes(p.state) && scene.seatFor(p); return seat ? { ...p, x: seat.x, y: seat.y, state: seat.pose === 'tea' ? 'teaSit' : p.state, direction: seat.direction || 'down', self: p === player } : Object.assign(Object.create(p), { self: p === player }); });
     for (const v of views) {
       v.direction = bowDirection(scene.id, v.state, v.direction);
       // Carrying a flower to the altar: a small stem held at the chest.

@@ -87,3 +87,44 @@ body.meditating .coop{opacity:.85}
   #practiceCount{grid-column:1;grid-row:3}
   .practice-card .link{grid-column:2;grid-row:3;justify-self:end}
 }
+
+/* First-run profile: show the name and live portrait first, keep deep appearance choices available on demand. */
+@media(max-width:760px){
+  #intro{padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 10px);overflow:auto;place-items:center}
+  .intro-card{width:min(520px,100%);max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 20px);padding:20px 18px;border-radius:20px}
+  .intro h1{font-size:25px;line-height:1.12;margin:10px 0}
+  .intro p{font-size:12px;line-height:1.55;margin-bottom:8px}
+  .creator{display:grid;grid-template-columns:94px minmax(0,1fr);grid-template-areas:'preview label' 'preview name' 'options options';align-items:center;gap:2px 12px;margin-top:12px}
+  .creator-fields{display:contents}
+  #preview{grid-area:preview;width:94px;height:120px;border-radius:14px}
+  .creator-fields>label{grid-area:label;margin:0 0 2px;font-size:11px}
+  .character-name{grid-area:name;min-width:0;gap:6px}
+  .character-name span{font-size:13px}
+  .character-name input{min-width:0;padding:10px 9px}
+  .creator-options{grid-area:options;width:100%}
+  .creator-options>summary{margin:10px 0 4px;padding:9px 11px}
+  .look-options{gap:7px;margin-top:8px}
+  .look-row{gap:5px}
+  .look-row>span{width:64px;font-size:10px}
+  .chip{font-size:10px;padding:6px 8px}
+  .swatch{width:40px;height:40px;min-height:40px;flex:none}
+  #enter{margin:12px 0 8px;padding:12px}
+  #controlHint{display:none}
+}
+
+/* Mobile HUD: keep room status, chat, co-op card, and thumb controls in separate lanes. */
+@media(max-width:760px){
+  .room{top:calc(74px + env(safe-area-inset-top,0px));left:12px;right:12px;width:max-content;max-width:calc(100vw - 24px);flex-wrap:nowrap;gap:7px;padding:7px 10px;white-space:nowrap;overflow:hidden}
+  #connection,#skyLabel{display:none}
+  #online{flex:0 1 auto;min-width:0;padding:0 2px;font-size:10px;white-space:nowrap}
+  .chat{top:calc(116px + env(safe-area-inset-top,0px));left:12px;right:12px;bottom:auto;width:auto;min-width:0;gap:6px}
+  .chat input{flex:1 1 auto;min-width:0;padding:9px 11px;font-size:16px;text-overflow:ellipsis}
+  .chat button{flex:0 0 auto;padding:8px 12px}
+  .coop{top:auto;bottom:calc(28dvh + env(safe-area-inset-bottom,0px));left:12px;right:12px;width:auto;max-height:40dvh;max-height:min(40dvh,calc(100dvh - 250px));overflow:auto}
+  .coop-card,.coop-invite{padding:10px 12px;gap:7px}
+  .coop h3{font-size:15px}
+  .hud-bottom{left:auto;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));max-width:calc(100vw - 126px);align-items:stretch}
+  .interaction{align-self:flex-end;width:fit-content;max-width:100%;white-space:nowrap;padding:9px 13px}
+  .actions button{flex:0 0 48px;min-width:48px;padding:5px 3px}
+  .actions b{font-size:8px;line-height:1.15;white-space:nowrap}
+}

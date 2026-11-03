@@ -68,7 +68,10 @@
         <div class="creator-fields">
           <label for="name">Tên của bạn</label>
           <div class="character-name"><span id="characterNamePrefix">Thích</span><input id="name" maxlength="13" autocomplete="nickname" aria-describedby="characterNamePrefix" placeholder="Ví dụ: An"></div>
-          <div id="lookOptions" class="look-options"></div>
+          <details id="creatorOptions" class="creator-options" open>
+            <summary>Tùy chỉnh nhân vật</summary>
+            <div id="lookOptions" class="look-options"></div>
+          </details>
         </div>
       </div>
       <button class="primary" id="enter" disabled>Bước vào chùa →</button>
@@ -76,7 +79,7 @@
       <small id="loading" role="status">Đang tải…</small>
       <button id="retry" hidden>Thử tải lại</button>
       <button id="cancelEdit" class="ghost" hidden>Huỷ, giữ như cũ</button>
-      <small>WASD / mũi tên để đi · E tương tác · M bản đồ · Chạm vào cảnh để di chuyển</small>
+      <small id="controlHint">WASD / mũi tên để đi · E tương tác · M bản đồ · Chạm vào cảnh để di chuyển</small>
     </div>
   </section>
 
@@ -373,7 +376,7 @@
   <aside id="coop" class="coop" hidden aria-live="polite" aria-label="Cùng chơi"></aside>
 
   <form id="chatForm" class="chat" hidden autocomplete="off">
-    <input id="chatInput" maxlength="100" placeholder="Nhấn Enter để trò chuyện với người cùng khu…" aria-label="Tin nhắn cho người cùng khu">
+    <input id="chatInput" maxlength="100" placeholder="Trò chuyện với mọi người…" aria-label="Tin nhắn cho người cùng khu">
     <button aria-label="Gửi tin nhắn">Gửi</button>
   </form>
 

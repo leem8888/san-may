@@ -45,7 +45,7 @@ export class Scene {
     }
     // The tea table for two has a cushion on each side.
     const table = this.objects.find(o => o.type === 'teaTableTwo' && Math.hypot(o.x - p.x, o.y - p.y) < 120);
-    if (table) return { x: table.x + (p.x < table.x ? -62 : 62), y: table.y + 6, direction: p.x < table.x ? 'right' : 'left' };
+    if (table) return { x: table.x + (p.x < table.x ? -62 : 62), y: table.y + 6, direction: p.x < table.x ? 'right' : 'left', pose: 'tea' };
     let bench = null, best = 120;
     for (const o of this.objects) if (o.type === 'bench' && o.action === 'sit') { const d = Math.hypot(o.x - p.x, o.y - p.y); if (d < best) { bench = o; best = d; } }
     return bench && { x: bench.x + (p.x < bench.x ? -26 : 26), y: bench.y + 11 };

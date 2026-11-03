@@ -174,14 +174,54 @@ export const STORY_PROPS = {
   // the tea being poured and the cups being filled — the same picture for everyone in the area.
   teaTableTwo(c, o, env) {
     const { x, y } = o, coop = o.world?.coop, now = Date.now();
-    for (const dx of [-62, 62]) { ellipse(c, x + dx, y + 8, 22, 9, '#6b3e2e'); ellipse(c, x + dx, y + 5, 18, 7, '#8a5340'); }
-    shadow(c, x, y, 46, 10, env);
-    box(c, x - 38, y - 22, 76, 22, '#5d3f2a', 4); box(c, x - 44, y - 30, 88, 10, '#86603f', 4);
-    box(c, x - 10, y - 46, 20, 16, '#4c5a52', 6); box(c, x + 6, y - 42, 8, 4, '#4c5a52', 2); box(c, x - 4, y - 50, 8, 5, '#3c4842', 2);
-    const filled = coop && ['talk', 'sip'].includes(coop.step), cups = coop && ['pour', 'sip', 'talk'].includes(coop.step);
-    if (cups) for (const dx of [-26, 26]) { box(c, x + dx - 6, y - 38, 12, 8, '#cfe0d6', 3); if (filled) ellipse(c, x + dx, y - 37, 4.5, 1.5, coop.tea === 'xanh' ? '#a7b86a' : '#c79a4a'); }
-    if (coop?.tea && !env.reduced) for (let i = 0; i < 3; i++) { const t = (env.time * .6 + i / 3) % 1; c.globalAlpha = (1 - t) * .5; ellipse(c, x + 2 + Math.sin(t * 6 + i) * 4, y - 54 - t * 30, 3 + t * 4, 2 + t * 3, '#eef2ee'); c.globalAlpha = 1; }
-    if (coop?.pourAt && now - coop.pourAt < 2500) { c.strokeStyle = '#c79a4a'; c.lineWidth = 2; c.beginPath(); c.moveTo(x + 12, y - 44); c.quadraticCurveTo(x + 22, y - 48, x + 26, y - 38); c.stroke(); }
+    // Soft brocade cushions sit just outside the table corners, with a piped edge and a pressed centre.
+    for (const dx of [-62, 62]) {
+      const cg = c.createLinearGradient(x + dx, y - 3, x + dx, y + 16);
+      cg.addColorStop(0, '#b47b58'); cg.addColorStop(.5, '#82533d'); cg.addColorStop(1, '#56392f');
+      ellipse(c, x + dx, y + 9, 28, 11, '#443229'); ellipse(c, x + dx, y + 5, 27, 10, cg);
+      ellipse(c, x + dx, y + 3, 21, 6, '#a87555');
+      c.strokeStyle = '#d2a77a99'; c.lineWidth = .8; c.beginPath(); c.ellipse(x + dx, y + 5, 24, 8, 0, .18, Math.PI - .18); c.stroke();
+      for (const side of [-1, 1]) ellipse(c, x + dx + side * 23, y + 5, 1, 1, '#e2bd8c');
+    }
+    shadow(c, x, y + 4, 58, 12, env);
+    const wood = c.createLinearGradient(x - 36, 0, x + 36, 0);
+    wood.addColorStop(0, '#4e3328'); wood.addColorStop(.28, '#805438'); wood.addColorStop(.58, '#68432e'); wood.addColorStop(1, '#3e2b25');
+    // Tapered legs and an inset apron give the low table a lighter, crafted silhouette.
+    for (const dx of [-33, 27]) {
+      box(c, x + dx, y - 24, 6, 25, '#50352a', 2);
+      box(c, x + dx - 2, y - 3, 10, 3, '#382923', 1);
+    }
+    box(c, x - 38, y - 23, 76, 18, wood, 4);
+    box(c, x - 34, y - 21, 68, 12, '#6e4933', 3);
+    line(c, x - 30, y - 19, x + 30, y - 19, '#bd9460', 1);
+    // A small carved cloud motif on the front rail.
+    c.strokeStyle = '#d7b77d'; c.lineWidth = 1; c.beginPath(); c.moveTo(x - 9, y - 13); c.quadraticCurveTo(x - 5, y - 19, x, y - 13); c.quadraticCurveTo(x + 5, y - 19, x + 9, y - 13); c.stroke();
+    for (const dx of [-15, 15]) ellipse(c, x + dx, y - 14, 1.3, 1.3, '#d7b77d');
+    // Layered lacquer top: dark edge, warm surface, a thin gilt line and a soft reflection.
+    ellipse(c, x, y - 29, 51, 12, '#3e2b24');
+    ellipse(c, x, y - 32, 49, 11, '#8c6040');
+    const top = c.createLinearGradient(0, y - 42, 0, y - 22);
+    top.addColorStop(0, '#c08a58'); top.addColorStop(.42, '#986541'); top.addColorStop(1, '#68432f');
+    ellipse(c, x, y - 34, 46, 9, top);
+    c.strokeStyle = '#dfbd7c'; c.lineWidth = .8; c.beginPath(); c.ellipse(x, y - 34, 43, 7, 0, .14, Math.PI - .14); c.stroke();
+    c.strokeStyle = '#e4c79a66'; c.lineWidth = 1; c.beginPath(); c.ellipse(x - 3, y - 37, 31, 3, -.03, Math.PI * 1.08, Math.PI * 1.83); c.stroke();
+    // A small woven mat, two celadon cups and a rounded teapot make the setting read clearly as a tea table.
+    box(c, x - 22, y - 41, 44, 4, '#70513a', 2);
+    for (let i = 0; i < 7; i++) line(c, x - 17 + i * 5, y - 40, x - 17 + i * 5, y - 38, '#c19c6a88', .7);
+    const filled = coop && ['talk', 'sip'].includes(coop.step);
+    for (const dx of [-27, 27]) {
+      ellipse(c, x + dx, y - 42, 8, 2.5, '#d6c8a7');
+      box(c, x + dx - 5, y - 51, 10, 9, '#d5e2d6', 3);
+      ellipse(c, x + dx, y - 51, 5, 1.7, '#eef0df');
+      if (filled) ellipse(c, x + dx, y - 50, 3.6, 1, coop.tea === 'xanh' ? '#9aa968' : '#bd8750');
+      c.strokeStyle = '#9ab2a0'; c.lineWidth = .8; c.beginPath(); c.arc(x + dx + (dx < 0 ? -5 : 5), y - 47, 2.4, dx < 0 ? -Math.PI / 2 : Math.PI / 2, dx < 0 ? Math.PI / 2 : Math.PI * 1.5); c.stroke();
+    }
+    ellipse(c, x, y - 47, 10, 7, '#4d716b'); ellipse(c, x, y - 49, 8, 5.2, '#71988a');
+    ellipse(c, x, y - 53, 5.5, 2, '#80a497'); ellipse(c, x, y - 54, 2, 1.5, '#c6a66d');
+    c.strokeStyle = '#51756d'; c.lineWidth = 2.2; c.beginPath(); c.arc(x - 8, y - 47, 5, Math.PI * .55, Math.PI * 1.45); c.stroke();
+    c.beginPath(); c.moveTo(x + 8, y - 49); c.quadraticCurveTo(x + 13, y - 51, x + 14, y - 47); c.stroke();
+    if (coop?.tea && !env.reduced) for (let i = 0; i < 3; i++) { const t = (env.time * .6 + i / 3) % 1; c.globalAlpha = (1 - t) * .5; ellipse(c, x + Math.sin(t * 6 + i) * 4, y - 59 - t * 23, 2.5 + t * 3, 2 + t * 3, '#eef2ee'); c.globalAlpha = 1; }
+    if (coop?.pourAt && now - coop.pourAt < 2500) { c.strokeStyle = '#c79a4a'; c.lineWidth = 1.8; c.beginPath(); c.moveTo(x + 13, y - 47); c.quadraticCurveTo(x + 20, y - 47, x + 27, y - 46); c.stroke(); }
   },
   scrollStand(c, o, env) {
     const { x, y } = o; shadow(c, x, y, 22, 6, env);

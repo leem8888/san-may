@@ -6,7 +6,7 @@ export const SPRITE_FRAME = { width: 96, height: 128, paddingX: 16, paddingY: 24
 // Walking gets extra frames for a grounded stride; prostration needs enough frames for its full sequence.
 const FRAMES = 8, FRAMES_BY_STATE = { walk: 12, bow: 24 }, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
 
-const STATES = Object.keys(DURATIONS), DIRS = ['down', 'left', 'right', 'up'];
+const STATES = [...Object.keys(DURATIONS), 'teaSit'], DIRS = ['down', 'left', 'right', 'up'];
 export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.gender, look.footwear, look.characterStyle || 'adult'].join('|');
 
 // Rasterises one (appearance, state, direction) strip of 8 frames on demand and keeps a bounded LRU cache,
@@ -33,7 +33,9 @@ export class SpriteRenderer {
     return { state, index: Math.floor((Number.isFinite(duration) ? Math.min(.999, p.elapsed / duration) : p.elapsed / (state === 'meditate' ? 4 : state === 'walk' ? 1.05 : 1.2) % 1) * (FRAMES_BY_STATE[state] || FRAMES)) };
   }
   draw(c, p) {
-    const { state, index } = this.frame(p), look = p.appearance || DEFAULT_APPEARANCE;
+    const { state, index } = this.frame(p);
+    const appearance = p.appearance || DEFAULT_APPEARANCE;
+    const look = p.npc ? appearance : { ...appearance, characterStyle: 'youngPlayer' };
     const scale = p.renderScale || 1;
     c.drawImage(this.strip(look, state, DIRS.includes(p.direction) ? p.direction : 'down'), index * CELL_W, 0, CELL_W, CELL_H, p.x - CELL_W * scale / 2, p.y - FOOT_Y * scale, CELL_W * scale, CELL_H * scale);
   }
@@ -41,7 +43,7 @@ export class SpriteRenderer {
   label(c, p, self = false) {
     if (!p.name) return;
     const title = p.appearance?.shaved ? p.appearance.gender === 'male' ? 'Chú tiểu' : p.appearance.gender === 'female' ? 'Tiểu ni' : '' : '';
-    const labelOffset = p.appearance?.characterStyle === 'abbot' ? 124 : p.appearance?.accessory === 'hat' ? 120 : 111;
+    const labelOffset = p.appearance?.characterStyle === 'abbot' ? 124 : p.npc ? p.appearance?.accessory === 'hat' ? 120 : 111 : p.appearance?.accessory === 'hat' ? 103 : ['sit', 'teaSit', 'meditate'].includes(p.state) ? 80 : 91;
     const top = p.y - labelOffset * (p.renderScale || 1) - (title ? 20 : 0);
     c.textAlign = 'center'; c.font = '500 13px Arial';
     const width = Math.max(c.measureText(p.name).width, title ? c.measureText(title).width : 0) + 18;

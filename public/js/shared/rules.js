@@ -30,8 +30,14 @@ export const ITEMS = {
   'hairColor:chestnut': { kind: 'hairColor', value: '#5a3c2a', name: 'Hạt dẻ', default: true },
   'hairColor:ash': { kind: 'hairColor', value: '#77706a', name: 'Tro bạc', default: true },
   'outfit:robe': { kind: 'outfitStyle', value: 'robe', name: 'Áo tràng', default: true },
-  'outfit:tunic': { kind: 'outfitStyle', value: 'tunic', name: 'Áo vạt hò', default: true },
   'outfit:longcoat': { kind: 'outfitStyle', value: 'longcoat', name: 'Áo dài', default: true },
+  'color:indigo': { kind: 'outfitColor', value: '#37394e', name: 'Chàm đậm', default: true, palette: true },
+  'color:lavender': { kind: 'outfitColor', value: '#77799e', name: 'Tím lam', default: true, palette: true },
+  'color:ochre': { kind: 'outfitColor', value: '#d9a36c', name: 'Vàng đất', default: true, palette: true },
+  'color:terracotta': { kind: 'outfitColor', value: '#a75e52', name: 'Đỏ đất', default: true, palette: true },
+  'color:lightGreen': { kind: 'outfitColor', value: '#82a873', name: 'Xanh lá nhạt', default: true, palette: true },
+  'color:deepGreen': { kind: 'outfitColor', value: '#4e8654', name: 'Xanh lá đậm', default: true },
+  // Older colours remain valid so saved outfits and earned rewards keep working.
   'color:sand': { kind: 'outfitColor', value: '#b79a65', name: 'Cát', default: true },
   'color:sage': { kind: 'outfitColor', value: '#8ba59b', name: 'Lá xô thơm', default: true },
   'color:dusk': { kind: 'outfitColor', value: '#7d8fb0', name: 'Hoàng hôn lam', default: true },
@@ -63,7 +69,7 @@ export const ITEMS = {
   'badge:hallLight': { kind: 'badge', value: 'hallLight', name: 'Huy hiệu Ánh sáng Chánh Điện', default: false },
   'decor:hallLamp': { kind: 'decor', value: 'hallLamp', name: 'Đèn đồng chân sen (kỷ niệm)', default: false },
 };
-export const DEFAULT_APPEARANCE = { hairStyle: 'short', hairColor: '#2b2823', outfitStyle: 'robe', outfitColor: '#b79a65', accessory: 'none' };
+export const DEFAULT_APPEARANCE = { hairStyle: 'short', hairColor: '#2b2823', outfitStyle: 'robe', outfitColor: '#d9a36c', accessory: 'none' };
 export const APPEARANCE_KEYS = Object.keys(DEFAULT_APPEARANCE);
 
 // Personal garden. Trees grow with time and care but never wither, so nobody has to log in daily.
