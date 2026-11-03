@@ -47,6 +47,17 @@ const api = new Api(store, `sanmay-token${slot ? `-${slot}` : ''}`);
 const savedVolumes = (() => { try { return JSON.parse(store.get('sanmay-volumes', '{}')); } catch { return {}; } })();
 const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolumes);
 const panels = new Panels(), creator = new CharacterCreator();
+const supportDialog = $('#supportDialog');
+const supportQr = supportDialog.querySelector('.support-qr');
+$('#supportOpen').addEventListener('click', () => {
+  if (!supportQr.complete || !supportQr.naturalWidth) { toast('Chưa tìm thấy ảnh QR ủng hộ.'); return; }
+  panels.close();
+  supportDialog.showModal();
+});
+$('#supportClose').addEventListener('click', () => supportDialog.close());
+supportDialog.addEventListener('click', event => {
+  if (event.target === supportDialog) supportDialog.close();
+});
 const blocked = new Set();
 let coop, hall, bowSession, beadRing, reading, prayerBook, game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, restaurantPanel, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
 let loveObject = null, loveCard = null, incenseObject = null;

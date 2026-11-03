@@ -26,9 +26,23 @@
       <button data-panel="wishPanel" title="Lời chúc">Lời chúc</button>
       <button data-panel="profilePanel" title="Hồ sơ & thành tựu">Hồ sơ</button>
       <button data-panel="settingsPanel" title="Cài đặt">Cài đặt</button>
+      <button id="supportOpen" class="accent" type="button">Ủng hộ</button>
       <button id="copy" class="accent">Mời bạn ↗</button>
     </nav>
   </header>
+
+  <dialog id="supportDialog" class="support-dialog" aria-labelledby="supportTitle" aria-describedby="supportDescription">
+    <div class="support-head">
+      <span class="eyebrow">SÂN MÂY · TỰ NGUYỆN</span>
+      <button id="supportClose" class="close" type="button" aria-label="Đóng cửa sổ ủng hộ">×</button>
+    </div>
+    <h2 id="supportTitle">Ủng hộ nhà phát triển</h2>
+    <p id="supportDescription" class="support-intro">Nếu bạn yêu thích trò chơi này, bạn có thể ủng hộ chi phí duy trì và phát triển.</p>
+    <img class="support-qr" src="/assets/support-qr.PNG" alt="Mã QR ủng hộ nhà phát triển" width="320" height="320">
+    <p class="support-voluntary">Hoàn toàn tự nguyện <span aria-hidden="true">·</span> Không bắt buộc</p>
+    <p class="support-note">Khoản ủng hộ không đổi lấy vật phẩm, tiền game hoặc lợi ích trong trò chơi.</p>
+    <p class="support-footer">Bạn có thể đóng cửa sổ này và tiếp tục chơi bình thường.</p>
+  </dialog>
 
   <div class="room" role="status">
     <span class="dot" id="statusDot"></span><span id="roomLabel">PHÒNG</span><button id="online" class="link-button" data-panel="peoplePanel" title="Xem người trong khu">Chưa vào phòng</button><small id="connection">Sẵn sàng</small><small id="skyLabel"></small>

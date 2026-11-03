@@ -74,6 +74,7 @@ body.meditating .story-objective{opacity:0;pointer-events:none}
   .dialogue-foot .primary{min-height:44px}
 }
 @media(pointer:coarse){button{min-height:44px}nav button,.close{min-width:44px}}
+@media(max-width:760px){.support-dialog{padding:22px 18px;border-radius:22px}.support-qr{width:min(280px,68vw);margin:20px auto;border-width:14px;border-radius:24px}.support-dialog h2{font-size:25px}.support-footer{font-size:12px}}
 body.meditating .coop{opacity:.85}
 /* Phones: the bowing card shrinks to two short rows so the character stays visible. */
 @media(max-width:760px){
