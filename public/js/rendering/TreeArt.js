@@ -18,6 +18,9 @@ function treeImage(o, pine) {
   const clusters = pine ? Array.from({length:5},(_,i)=>[0,-49-i*33,62-i*10,20]) : [[-61,-116,48,32],[53,-119,50,33],[-34,-151,54,37],[29,-154,55,37],[0,-120,65,38],[0,-178,43,28]];
   for (const [x,y,rx,ry] of clusters) {
     const g = c.createRadialGradient(x-rx*.3,y-ry*.45,2,x,y,rx); g.addColorStop(0,palette[3]); g.addColorStop(.55,palette[2]); g.addColorStop(1,palette[0]); oval(c,x,y,rx,ry,g);
+    // Layer a quiet underside shadow and a few broad leaf highlights so the crown reads as layered foliage.
+    const shade=c.createLinearGradient(x,y-ry,x,y+ry);shade.addColorStop(0,'#ffffff00');shade.addColorStop(.62,'#142c2540');shade.addColorStop(1,'#10251f70');oval(c,x,y,rx,ry,shade);
+    for(let k=0;k<4;k++)oval(c,x-rx*.52+k*rx*.28,y-ry*.35+(k%2)*ry*.16,rx*.13,ry*.09,'#d7d69a20');
     for (let i=0;i<45;i++) {
       const a=random()*Math.PI*2,d=Math.sqrt(random()),lx=x+Math.cos(a)*rx*d,ly=y+Math.sin(a)*ry*d;
       oval(c,lx,ly,2+random()*4,pine?1.3:1.5+random()*2,palette[Math.floor(random()*palette.length)]);

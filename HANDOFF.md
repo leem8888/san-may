@@ -307,3 +307,25 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 - Vật trang trí trong vườn không chặn đường đi (chỉ trang trí).
 - Mất token mà chưa lưu mã khôi phục là mất danh tính khách; chưa có tài khoản/liên kết đăng nhập.
 - Thời tiết tự động tính theo đồng hồ máy khách; máy lệch giờ nhiều có thể thấy khác người khác.
+
+## Visual Polish 3.0 — C0/C1 (2026-11-03)
+
+- Branch: `feature/visual-polish-3`; baseline HEAD `acf75c4dabc5551e57b90cfa81c10a6be62f5fad`.
+- C0: source audit và regression baseline đã ghi ở `docs/visual-polish/`; `npm.cmd run check` đạt 161 JavaScript files, `npm.cmd test` đạt 96/96.
+- C1: thêm `public/css/tokens.css`, nạp trước stylesheet chính và chuyển các surface chung của HUD/panels sang token; bổ sung style guide và schematic style board.
+- Browser screenshot/FPS/mobile visual QA là `NOT RUN`: browser automation kernel không khởi tạo được và không có browser executable/Playwright khả dụng. C1 screenshot acceptance còn pending.
+- Không có thay đổi gameplay, map, server, DB hay protocol. Chi tiết file và rollback: `docs/visual-polish/HANDOFF.md`.
+
+## Visual Polish 3.0 — C2–C4 (2026-11-03)
+
+- C2 shared art: refined stone-path surface and layered tree crowns, without touching map coordinates/colliders.
+- C3 character: small idle hand sway in existing sprite frames; no action/business logic changes.
+- C4 mobile UI: safe areas, horizontal action-strip scrolling alongside joystick, touch targets, viewport-constrained dialogs/panels.
+- `npm.cmd run check` PASS (161 files), `npm.cmd test` PASS (96 tests), `git diff --check` PASS. Browser screenshots and visual matrix remain NOT RUN; see `docs/visual-polish/QA_REPORT.md`.
+
+## Visual Polish 3.0 — C5–C7 (2026-11-03)
+
+- C5 reused existing weather-aware audio, mute/volume controls and quality/reduced-effects settings; reduced-motion now stabilizes portal markers, water ripples and fog.
+- C6 avoids resetting canvas backing dimensions on duplicate unchanged resize events. FPS improvement is not measured or claimed.
+- C7: QA/performance/handoff updated. `npm.cmd run check` passed (161 files); `npm.cmd test` passed (96/96); browser visual QA and FPS remain NOT RUN.
+- Overall status: **PARTIAL** pending browser screenshots, responsive visual review and benchmark. Detailed record: `docs/visual-polish/QA_REPORT.md`.

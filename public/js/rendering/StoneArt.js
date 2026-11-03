@@ -7,6 +7,9 @@ export function stoneTexture(c,x,y,w,h,random) {
   c.fillStyle=light; c.fillRect(x,y,w,h);
   for(let i=0;i<Math.min(30,w*h/100);i++) { c.fillStyle=i%2?'#f2edcf24':'#26382c20'; c.fillRect(x+random()*w,y+random()*h,.5+random()*2,.5+random()); }
   c.strokeStyle='#ebe4c440'; c.lineWidth=1; c.beginPath(); c.moveTo(x+2,y+h-3); c.lineTo(x+2,y+2); c.lineTo(x+w-2,y+2); c.stroke();
+  // A soft lower bevel and one mineral grain give repeated path stones more depth without changing their footprint.
+  const bevel=c.createLinearGradient(0,y,0,y+h);bevel.addColorStop(0,'#ffffff00');bevel.addColorStop(.72,'#17291f00');bevel.addColorStop(1,'#17291f38');c.fillStyle=bevel;c.fillRect(x,y,w,h);
+  if(w>18&&h>12&&random()<.38){const gx=x+w*(.2+random()*.55),gy=y+h*(.3+random()*.35);c.strokeStyle='#f3edcf35';c.lineWidth=.7;c.beginPath();c.moveTo(gx,gy);c.quadraticCurveTo(gx+2,gy+1,gx+4,gy+3);c.stroke();}
   if(random()<.23) { c.strokeStyle='#44514040'; c.lineWidth=.7; c.beginPath(); c.moveTo(x+w*.6,y); c.lineTo(x+w*.56,y+h*.22); c.lineTo(x+w*.68,y+h*.4); c.stroke(); }
   c.restore();
 }

@@ -78,7 +78,7 @@ export class Scene {
     for (const w of this.water) {
       const count = quality === 'low' ? 2 : 6;
       for (let i = 0; i < count; i++) {
-        const t = env.time * .3 + i * .37, a = t % 1, angle = i * 2.1 + Math.floor(t) * 1.3;
+        const t = (env.reduced ? 0 : env.time) * .3 + i * .37, a = t % 1, angle = i * 2.1 + Math.floor(t) * 1.3;
         const x = w.x + Math.cos(angle) * (w.rx || w.w / 2) * .55, y = w.y + Math.sin(angle) * (w.ry || w.h / 2) * .5;
         c.strokeStyle = `rgba(162,207,185,${(1 - a) * .22})`; c.lineWidth = 1; c.beginPath(); c.ellipse(x, y, 10 + a * 28, 4 + a * 10, 0, 0, Math.PI * 2); c.stroke();
       }

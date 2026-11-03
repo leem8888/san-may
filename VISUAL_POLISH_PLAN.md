@@ -4,8 +4,10 @@
 > Repository: https://github.com/leem8888/san-may  
 > Loại công việc: **Nâng cấp chất lượng hình ảnh, animation, UI/UX, âm thanh, cảm giác điều khiển và hiệu năng**.  
 > **Không thêm gameplay, nhiệm vụ, NPC, minigame, kinh tế hoặc cơ chế mới.**  
-> Trạng thái: **SPEC APPROVED — NOT IMPLEMENTED**.
+> Trạng thái: **PARTIAL — C0–C7 code/docs checkpoints progressed; browser visual and performance acceptance pending**.
 
+
+> **Tiến độ 2026-11-03:** C0 source audit và automated baseline đã ghi tại `docs/visual-polish/`; C1–C6 đã triển khai trong phạm vi môi trường. Regression tests pass. C7 đã hoàn tất báo cáo/handoff và commit local, nhưng browser screenshot/visual QA/FPS là `NOT RUN`; vì vậy toàn bộ chương trình đang `PARTIAL`, chưa đạt Definition of Done.
 ## 0. Mục tiêu và nguyên tắc bất biến
 
 ### 0.1 Mục tiêu

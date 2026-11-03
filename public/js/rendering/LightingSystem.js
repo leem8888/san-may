@@ -24,6 +24,7 @@ export class LightingSystem {
   }
   // Screen-space fog/mist and moonlight; cheap gradients, no per-pixel work.
   atmosphere(c, width, height, env, fog, time, indoor) {
+    const motionTime = env.reduced ? 0 : time;
     if (!indoor && env.night) {
       const moon = c.createRadialGradient(width * .82, -40, 10, width * .82, -40, height * .9);
       moon.addColorStop(0, `rgba(170,190,235,${.16 * env.darkness})`); moon.addColorStop(1, 'rgba(170,190,235,0)');
@@ -32,7 +33,7 @@ export class LightingSystem {
     const mist = indoor ? 0 : Math.max(fog, env.phase === 'morning' ? .25 : 0);
     if (mist > .01) {
       for (let i = 0; i < 3; i++) {
-        const y = height * (.25 + i * .28) + Math.sin(time * .1 + i) * 30, x = (time * (8 + i * 4) + i * 300) % (width + 600) - 300;
+        const y = height * (.25 + i * .28) + Math.sin(motionTime * .1 + i) * 30, x = (motionTime * (8 + i * 4) + i * 300) % (width + 600) - 300;
         const g = c.createRadialGradient(x, y, 10, x, y, width * .55);
         g.addColorStop(0, `rgba(222,232,226,${.15 * mist})`); g.addColorStop(1, 'rgba(222,232,226,0)');
         c.fillStyle = g; c.fillRect(0, 0, width, height);

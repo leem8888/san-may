@@ -1,10 +1,9 @@
-:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#f2ebd8;background:#102625;--bg:#102625;--surface:#183330;--gold:#d9b77e;--wood:#89674a;--text:#f2ebd8;--accent:#8dcba9;--muted:#c4cfbd;--glass:#102625eb;--line:#c4bb8844}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;overflow:hidden;background:var(--bg)}
 body{font-family:"Segoe UI",Arial,sans-serif;text-rendering:optimizeLegibility}
 button,input,textarea,select{font:inherit}
-button{cursor:pointer;color:inherit;background:#23423be8;border:1px solid #a9b69544;border-radius:10px;padding:10px 14px;transition:background .18s,transform .18s}
+button{cursor:pointer;color:inherit;background:#23423be8;border:1px solid #a9b69544;border-radius:var(--radius-control);padding:10px 14px;transition:background var(--motion-fast),transform var(--motion-fast)}
 button:hover:not(:disabled){background:#39594a;transform:translateY(-1px)}
 button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #f4d493;outline-offset:3px}
@@ -28,7 +27,7 @@ progress::-moz-progress-bar{background:var(--gold)}
 .check{display:flex;align-items:center;gap:8px;font-size:12px}
 .check input{width:auto}
 .intro{position:absolute;inset:0;display:grid;place-items:center;background:#061c2199;backdrop-filter:blur(5px);z-index:5}
-.intro-card{width:min(520px,calc(100vw - 24px));max-height:96dvh;overflow:auto;padding:32px;border:1px solid #bca0716e;border-radius:22px;background:linear-gradient(135deg,#213d34f5,#102625f5);box-shadow:0 30px 100px #00101488}
+.intro-card{width:min(520px,calc(100vw - 24px));max-height:96dvh;overflow:auto;padding:var(--space-6);border:1px solid #bca0716e;border-radius:22px;background:linear-gradient(135deg,#213d34f5,#102625f5);box-shadow:0 30px 100px #00101488}
 .intro h1{font:normal 34px/1.18 Arial, sans-serif;margin:16px 0}
 .intro em{color:var(--gold);font-weight:normal}
 .intro p{color:var(--muted);font-size:13px;line-height:1.8;margin:0 0 6px}

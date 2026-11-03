@@ -81,6 +81,7 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   const t = frame / frames, walk = state === 'walk', swing = walk ? Math.sin(t * TAU) : 0;
   const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', feminine = look.gender === 'female', w = (side ? .8 : 1) * (feminine ? .94 : 1.06);
   const { kneel, lean } = state === 'bow' ? bowPhases(t) : { kneel: 0, lean: 0 }, bow = lean, breathe = Math.sin(t * TAU) * (state === 'meditate' ? .9 : .35);
+  const idleSway = state === 'idle' ? Math.sin(t * TAU) * .45 : 0;
   const style = look.outfitStyle, outfit = look.outfitColor, dark = shade(outfit, .7);
   const trousers = style === 'robe' ? '#4e453b' : style === 'tunic' ? '#3a3730' : '#ece3cc';
   const sit = state === 'sit', meditate = state === 'meditate';
@@ -139,7 +140,7 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   // Arms: hand targets depend on the action.
   const sl = [-sx + .5, shoulder + 2], sr = [sx - .5, shoulder + 2];
   const joined = ['pray', 'bead', 'bow'].includes(state);
-  let hl = [-12 * w, hip + 1 - swing * 2.4], hr = [12 * w, hip + 1 + swing * 2.4];
+  let hl = [-12 * w, hip + 1 - swing * 2.4 + idleSway], hr = [12 * w, hip + 1 + swing * 2.4 - idleSway];
   if (side && walk) { hl = [side * swing * 6 - 2, hip + 1]; hr = [-side * swing * 6 + 2, hip + 1]; }
   if (joined) { hl = [-1.2, shoulder + 9]; hr = [1.2, shoulder + 9]; }
   // Bowing to the floor: joined hands open and rest on the ground in front.

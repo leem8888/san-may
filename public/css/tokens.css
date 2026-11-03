@@ -1,0 +1,50 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", Arial, sans-serif;
+
+  /* Sân Mây visual language: warm paper, temple timber, tiled roof and quiet foliage. */
+  --color-paper: #f4e8d0;
+  --color-wood: #8b5e3c;
+  --color-roof: #b65e45;
+  --color-leaf: #58765b;
+  --color-ink: #283b34;
+  --color-gold: #c7a76c;
+  --color-night: #102625;
+  --color-surface: #183330;
+  --color-panel-glass: #102625eb;
+  --color-muted: #c4cfbd;
+  --color-accent: #8dcba9;
+  --color-border: #c4bb8844;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 22px;
+  --space-6: 32px;
+
+  --radius-small: 8px;
+  --radius-control: 10px;
+  --radius-panel: 17px;
+  --radius-card: 14px;
+  --shadow-panel: 0 15px 55px #00171366;
+  --blur-panel: 18px;
+  --motion-fast: 180ms;
+  --motion-panel: 200ms;
+  --layer-world: 0;
+  --layer-hud: 2;
+  --layer-navigation: 3;
+  --layer-panel: 4;
+  --layer-toast: 9;
+
+  /* Existing selectors keep these aliases while adopting the shared tokens. */
+  --bg: var(--color-night);
+  --surface: var(--color-surface);
+  --gold: var(--color-gold);
+  --wood: var(--color-wood);
+  --text: var(--color-paper);
+  --accent: var(--color-accent);
+  --muted: var(--color-muted);
+  --glass: var(--color-panel-glass);
+  --line: var(--color-border);
+}

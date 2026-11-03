@@ -13,17 +13,21 @@ export class SceneRenderer {
     this.camera = camera; this.sprites = new SpriteRenderer(); this.lighting = new LightingSystem(); this.quality = 'high';
   }
   resize(w, h) {
-    this.width = w; this.height = h; this.dpr = Math.min(devicePixelRatio || 1, QUALITY[this.quality].dpr);
-    this.canvas.width = Math.round(w * this.dpr); this.canvas.height = Math.round(h * this.dpr); this.camera.resize(w, h);
+    this.width = w; this.height = h; this.dpr = Math.min(globalThis.devicePixelRatio || 1, QUALITY[this.quality].dpr);
+    const pixelWidth = Math.round(w * this.dpr), pixelHeight = Math.round(h * this.dpr);
+    // Assigning canvas dimensions clears its backing store; avoid reallocating it on duplicate resize events.
+    if (this.canvas.width !== pixelWidth) this.canvas.width = pixelWidth;
+    if (this.canvas.height !== pixelHeight) this.canvas.height = pixelHeight;
+    this.camera.resize(w, h);
   }
-  portal(c, p, player, time) {
-    const cx = p.x + p.w / 2, cy = p.y + p.h / 2, pulse = .5 + Math.sin(time * 2.4) * .2;
+  portal(c, p, player, time, reduced = false) {
+    const cx = p.x + p.w / 2, cy = p.y + p.h / 2, pulse = reduced ? .5 : .5 + Math.sin(time * 2.4) * .2;
     const g = c.createRadialGradient(cx, cy, 4, cx, cy, Math.max(p.w, p.h) * .8);
     g.addColorStop(0, `rgba(242,211,152,${.32 * pulse})`); g.addColorStop(1, 'rgba(242,211,152,0)');
     c.fillStyle = g; c.fillRect(cx - p.w, cy - p.h, p.w * 2, p.h * 2);
     const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[p.dir || 'up'];
-    for (let i = 0; i < 3; i++) {
-      const o = ((time * .8 + i / 3) % 1) * 22, x = cx + dx * o, y = cy + dy * o;
+    for (let i = 0; i < (reduced ? 1 : 3); i++) {
+      const o = reduced ? 5 : ((time * .8 + i / 3) % 1) * 22, x = cx + dx * o, y = cy + dy * o;
       c.globalAlpha = .55 * (1 - o / 22);
       polygon(c, [[x + dx * 7, y + dy * 7], [x - dy * 7 - dx * 2, y + dx * 7 - dy * 2], [x + dy * 7 - dx * 2, y - dx * 7 - dy * 2]], '#f2d398');
     }
@@ -64,7 +68,7 @@ export class SceneRenderer {
     this.lighting.ambient(c, this.width, this.height, env, scene.indoor);
     c.save(); cam.apply(c);
     this.lighting.lights(c, scene.dynamicLights ? [...scene.lights, ...scene.dynamicLights()] : scene.lights, cam, env, scene.indoor, env.time);
-    for (const portal of scene.map.portals || []) this.portal(c, portal, player, env.time);
+    for (const portal of scene.map.portals || []) this.portal(c, portal, player, env.time, game.reduced);
     if (game.input.target && game.input.path?.length > 1) {
       c.save(); c.strokeStyle = '#ffe4a34d'; c.lineWidth = 1.5; c.setLineDash([3, 6]);
       c.beginPath(); c.moveTo(player.x, player.y);
