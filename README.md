@@ -13,7 +13,7 @@ npm install
 npm start
 ```
 
-Mở http://localhost:43127/?room=MAY-01.
+Mở http://localhost:43127/?room=ROOM1. Mọi người chơi hiện dùng chung phòng ROOM1; lựa chọn phòng đang được ẩn tạm thời.
 
 - Dữ liệu được lưu tại `data/sanmay.db` (tự tạo). Xoá file này để làm lại từ đầu.
 - `better-sqlite3` được ghim ở `12.8.0` vì đó là bản mới nhất có gói dựng sẵn cho Node 20 trên Windows. Nếu dùng bản khác cho một nền tảng không có gói dựng sẵn, cần Python và trình biên dịch C++ để `npm install` tự build.
@@ -55,8 +55,7 @@ Quầy **Hương & mâm lễ** ở bên phải đường vào Cổng Tam Quan b�
 
 ## Chơi cùng bạn bè và triển khai
 
-- Cùng mạng LAN: chạy server, lấy IPv4 bằng `ipconfig`, chia sẻ `http://<IPv4>:43127/?room=TEN-PHONG`. Server lắng nghe `0.0.0.0`; nếu Windows hỏi, cho phép mạng riêng.
-- Phòng công cộng: mã do bạn đặt (2–24 ký tự A–Z, số, `-`), hiện trong danh sách phòng. Phòng riêng: nút "Tạo phòng riêng" trên màn hình vào game tạo mã ngẫu nhiên 10 ký tự; ai có liên kết mới vào được. Mã phòng không phải mật khẩu.
+- Hiện tại chức năng chọn phòng công cộng và tạo phòng riêng đang tắt tạm thời. Mọi người chơi đều được đưa vào `ROOM1`, kể cả khi đường dẫn có mã phòng khác. Khi chơi cùng bạn bè qua LAN, chia sẻ `http://<IPv4>:43127/`; server lắng nghe `0.0.0.0`, nếu Windows hỏi thì cho phép mạng riêng.
 - Qua Internet: chạy sau reverse proxy có HTTPS (Caddy, nginx…) chuyển tiếp cả WebSocket (`/socket.io/`), đặt `TRUST_PROXY=1`. Chỉ cần một tiến trình Node và file SQLite; nên sao lưu `data/sanmay.db` định kỳ. **Dự án chưa được triển khai lên Internet và chưa có URL công khai nào được kiểm chứng.**
 
 ## Kiến trúc

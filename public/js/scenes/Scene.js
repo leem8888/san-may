@@ -126,7 +126,10 @@ export class Scene {
   entities(c, env) {
     const list = [];
     for (const o of this.props) if (PROPS[o.type]) list.push({ y: o.sortY ?? o.y, x: o.x, vy: o.y, big: o.big, draw: () => PROPS[o.type](c, o, env) });
-    for (const o of this.objects) if (PROPS[o.type] && !o.hidden) list.push({ y: o.sortY ?? o.y, x: o.x, vy: o.y, big: o.big, draw: () => PROPS[o.type](c, o, env) });
+    for (const o of this.objects) if (PROPS[o.type] && !o.hidden) {
+      const sortY = o.sortY ?? (o.type === 'cushion' && o.action === 'meditate' ? o.y - 12 : o.y);
+      list.push({ y: sortY, x: o.x, vy: o.y, big: o.big, draw: () => PROPS[o.type](c, o, env) });
+    }
     return list;
   }
 }

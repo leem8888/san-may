@@ -39,8 +39,7 @@ import { RestaurantPanel } from './ui/RestaurantPanel.js';
 const params = new URLSearchParams(location.search);
 // ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
 const slot = /^[1-4]$/.test(params.get('slot') || '') ? params.get('slot') : '';
-let room = (params.get('room') || 'MAY-01').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 24);
-if (room.length < 2) room = 'MAY-01';
+const room = 'ROOM1';
 const url = new URL(location.href); url.searchParams.set('room', room); history.replaceState(null, '', url);
 $('#roomLabel').textContent = `PHÒNG ${room}`;
 
@@ -491,7 +490,7 @@ async function boot() {
     shop = new ShopPanel(shared);
     restaurantPanel = new RestaurantPanel({ net, game });
     gardens = new GardenPanel({ ...shared, getMe: () => me, applyScene });
-    new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render(), onCoop: person => { panels.close(); coop.pick({ person }); } });
+    new SocialPanel({ api, net, game, panels, blocked, onBlockChange: () => wishes.render(), onCoop: person => { panels.close(); coop.pick({ person }); } });
     new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
     fortunes = new FortunePanel({ ...shared, fortunes: assets.get('fortunes') });
     $('#lovePray').onclick = () => { game.player.act('pray'); toast($('#loveWish').value.trim() ? 'Lời nguyện này chỉ hiển thị trên máy của bạn.' : 'Bạn dành một chút thời gian cho điều mình mong mỏi.'); };

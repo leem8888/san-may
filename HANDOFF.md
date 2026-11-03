@@ -295,7 +295,7 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 
 1. `README.md` (chạy, kiến trúc) rồi các mục M1–M5 ở trên.
 2. `npm install`, `npm run check`, `npm test` để xác nhận baseline (79/79).
-3. `npm start`, mở `http://localhost:43127/?room=MAY-01`. Thử nhiều người: cửa sổ ẩn danh hoặc `&slot=2`. QA chụp hình: `&debug=1`.
+3. `npm start`, mở `http://localhost:43127/?room=ROOM1`. Thử nhiều người: cửa sổ ẩn danh hoặc `&slot=2`. QA chụp hình: `&debug=1`.
 4. Bản đồ JSON trong `public/data/maps/` là nguồn chính (script sinh ban đầu không nằm trong repo). Sau khi sửa bản đồ, chạy `npm test` — `tests/world.test.mjs` sẽ báo nếu cổng/vật không còn đi tới được.
 5. Thêm migration mới thì nối vào cuối `server/database/migrations.js`, không sửa migration cũ.
 
@@ -345,4 +345,12 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 - `CharacterArt` bổ sung chân bước luân phiên có khớp gối, độ nhấc chân nhỏ, tay đánh ngược chân, thân nghiêng nhẹ và vạt áo chuyển động theo bước. Nhân vật người lớn có đầu gọn hơn và thân/chân dài hơn.
 - Ngoại hình riêng của chú tiểu và trụ trì không đổi; đây là thay đổi tạo hình client, không đổi tốc độ di chuyển hay trạng thái server.
 - Nhãn tên được nâng lên theo tỉ lệ của nhân vật, dành khoảng trống phía trên đầu để không che mặt.
+- Cổ người lớn được vẽ thành khối riêng nối từ hàm xuống cổ áo, không bị thu nhỏ cùng đầu.
 - Chưa kiểm tra trực quan trên trình duyệt; chỉ rà diff và `git diff --check`.
+
+## Tạm tắt chọn phòng (2026-11-03)
+
+- Giao diện chọn phòng công cộng/phòng riêng đã được gỡ khỏi màn hình vào game; `SocialPanel` không còn tải danh sách hay tạo phòng riêng.
+- Client luôn chuẩn hóa URL về `?room=ROOM1`; Socket.IO server bỏ qua mã phòng từ client và luôn cho vào `ROOM1`, kể cả khi gửi mã khác trực tiếp.
+- REST endpoint quản trị/tạo phòng chưa bị xóa, nhưng phòng do endpoint đó tạo không thể được vào qua luồng chơi hiện tại.
+- Bồ đoàn thiền được sort phía sau sprite người ngồi để mặt thảm không che thân.

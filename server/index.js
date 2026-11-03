@@ -63,7 +63,7 @@ export function startServer(overrides = {}) {
   const game = createGameServer(overrides);
   const { port, host } = game.config;
   game.server.on('error', error => { console.error(`Không thể mở cổng ${port}: ${error.code}. Thử đặt biến PORT khác.`); process.exitCode = 1; });
-  game.server.listen(port, host, () => console.log(`Sân Mây: http://localhost:${port}/?room=MAY-01 (dữ liệu: ${game.config.dbFile})`));
+  game.server.listen(port, host, () => console.log(`Sân Mây: http://localhost:${port}/?room=ROOM1 (dữ liệu: ${game.config.dbFile})`));
   const shutdown = () => game.close().finally(() => process.exit());
   process.once('SIGINT', shutdown); process.once('SIGTERM', shutdown);
   return game;

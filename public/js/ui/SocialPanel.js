@@ -1,36 +1,11 @@
 import { $, el, timeAgo, toast } from './dom.js';
 
-// Rooms (on the intro card), people in the current area (hide/unhide), and reporting lanterns.
+// People in the current area (hide/unhide) and reporting lanterns.
 export class SocialPanel {
-  constructor({ api, net, game, panels, room, blocked, onBlockChange, onCoop }) {
-    Object.assign(this, { api, net, game, panels, room, blocked, onBlockChange, onCoop });
-    $('#introRoom').textContent = room;
-    $('#roomChooser').addEventListener('toggle', () => { if ($('#roomChooser').open) this.rooms(); });
-    $('#joinRoomForm').addEventListener('submit', event => { event.preventDefault(); this.go($('#roomInput').value); });
-    $('#createPrivate').onclick = () => this.createPrivate();
+  constructor({ api, net, game, panels, blocked, onBlockChange, onCoop }) {
+    Object.assign(this, { api, net, game, panels, blocked, onBlockChange, onCoop });
     panels.on('peoplePanel', () => this.people());
     panels.on('lanternPanel', () => this.lanterns());
-  }
-  // Switching room reloads the page with a new ?room=, which also resets every live listener cleanly.
-  go(code) {
-    const clean = String(code).toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 24);
-    if (clean.length < 2) return toast('Mã phòng gồm 2–24 ký tự A–Z, số hoặc dấu -.');
-    const url = new URL(location.href); url.searchParams.set('room', clean); location.assign(url);
-  }
-  async rooms() {
-    try {
-      const data = await this.api.get('/rooms');
-      const list = data.rooms.filter(r => r.code !== this.room);
-      $('#publicRooms').replaceChildren(...(list.length ? list.map(r => el('button', { type: 'button', onclick: () => this.go(r.code), text: `${r.code} · ${r.online}/${data.capacity} người` })) : [el('small', { text: 'Chưa có phòng công cộng nào khác đang mở. Bạn có thể nhập một mã mới để mở phòng.' })]));
-    } catch (error) { toast(error.message); }
-  }
-  async createPrivate() {
-    try {
-      const { code } = await this.api.post('/rooms', { private: true });
-      const url = new URL(location.href); url.searchParams.set('room', code);
-      try { await navigator.clipboard.writeText(url.href); toast('Đã tạo phòng riêng và sao chép liên kết. Đang chuyển phòng…'); } catch { toast(`Phòng riêng: ${code}. Đang chuyển phòng…`); }
-      setTimeout(() => location.assign(url), 1200);
-    } catch (error) { toast(error.message); }
   }
   async people() {
     const remotes = [...this.net.remotes.values()].filter(p => !this.blocked.has(p.id));

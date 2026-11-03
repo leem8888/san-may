@@ -229,7 +229,7 @@ export function attachSockets(io, ctx) {
 
     socket.on('room:join', (data, ack) => {
       ack = reply(ack);
-      const code = roomCode(data?.room);
+      const code = config.fixedRoomCode || roomCode(data?.room);
       if (!code) return ack({ error: 'Mã phòng không hợp lệ.' });
       const stored = repos.rooms.get(code), live = rooms.get(code);
       if (live && live.players.size >= config.maxPlayersPerRoom && !live.players.has(playerId)) return ack({ error: `Phòng đã đủ ${config.maxPlayersPerRoom} người.` });

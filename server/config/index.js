@@ -16,6 +16,7 @@ export function loadConfig(env = process.env, overrides = {}) {
     // Owner-only journey statistics (/api/owner/journey). Unset = the endpoint does not exist.
     ownerToken: env.OWNER_TOKEN || null,
     maxPlayersPerRoom: 20,
+    fixedRoomCode: 'ROOM1',
     tickMs: 100,
     disconnectGraceMs: 15000,
     ...overrides,

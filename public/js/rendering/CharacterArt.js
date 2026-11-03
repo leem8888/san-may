@@ -139,6 +139,10 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
     if (!sit && !meditate) { shape(c, [[-5.5 * w, hip - 1], [5.5 * w, hip - 1], [5 * w, -7], [-5 * w, -7]], cloth(c, outfit, -6, 6)); stroke(c, [[0, shoulder + 3], [0, -7]], 'rgba(0,0,0,.15)', .8); }
     else shape(c, [[-6, hip], [6, hip], [7, hip + 8], [-7, hip + 8]], fill);
   }
+  // A visible neck bridges the collar and jaw; the head is drawn over its upper edge below.
+  const neck = c.createLinearGradient(-4, 0, 4, 0);
+  neck.addColorStop(0, '#c99570'); neck.addColorStop(.42, SKIN); neck.addColorStop(1, SKIN_SHADE);
+  shape(c, [[-3.2, headY + 3], [3.2, headY + 3], [4.5, shoulder + 1], [-4.5, shoulder + 1]], neck);
   // Collar / neckline.
   if (!back) {
     if (style === 'robe') { stroke(c, [[-4, shoulder - .5], [2.5, shoulder + 9]], '#f1e2bf', 1.6); stroke(c, [[4, shoulder - .5], [-1, shoulder + 6]], '#f1e2bf', 1.6); stroke(c, [[-6, hip - 8], [6, hip - 8]], shade(outfit, .62), 1.8); ellipse(c, feminine ? -3 : 3, hip - 8, 1.5, 1.5, '#f1d8a4'); }
@@ -185,7 +189,6 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   if (child) { c.translate(0, headY); c.scale(1.3, 1.16); c.translate(0, -headY); }
   // Adults use a slightly smaller head and longer neck, torso and legs for a more natural silhouette.
   c.translate(0, headY); c.scale(.88, .78); c.translate(0, -headY);
-  ellipse(c, 0, shoulder - 2.5, 2.6, 3, SKIN_SHADE);
   const skinLight=c.createLinearGradient(-7,headY,7,headY);skinLight.addColorStop(0,'#cfa47d');skinLight.addColorStop(.35,'#f0d1ad');skinLight.addColorStop(1,'#d8af87');
   ellipse(c, side * .8, headY, (feminine ? 8.5 : 9.2) * (side ? .94 : 1), feminine ? 10 : 10.4, skinLight);
   ellipse(c, side * .8 + 2.5, headY + 2, 4, 5.5, 'rgba(160,100,70,.08)');

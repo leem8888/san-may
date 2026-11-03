@@ -89,4 +89,12 @@ Sau khi deploy xong: cập nhật mục "Chưa kiểm chứng / giới hạn" (b
 - Sprite người lớn có chu kỳ đi bộ 12 khung hình, bước chân luân phiên có khớp gối, tay đánh ngược chân, độ nảy thân nhỏ và vạt áo chuyển động theo nhịp.
 - Chỉnh tỉ lệ đầu, thân và chân để dáng người bớt lùn đầu, chuyển động bám đất hơn. Tạo hình riêng của chú tiểu và trụ trì giữ nguyên.
 - Nhãn tên được đặt cao hơn theo kích thước nhân vật để tránh che mặt.
+- Cổ người lớn được dựng riêng để nối rõ phần đầu với cổ áo.
 - Thay đổi chỉ ở hiển thị client; tốc độ, va chạm và giao thức multiplayer không đổi. Chưa QA trực quan trên trình duyệt.
+
+## Phòng chơi — 2026-11-03
+
+- Tạm ẩn lựa chọn phòng công cộng và phòng riêng; client luôn đặt URL về `ROOM1`.
+- Server cưỡng chế mọi yêu cầu Socket.IO vào `ROOM1`, không phụ thuộc mã phòng trong URL hoặc payload join.
+- REST API quản lý phòng vẫn còn nhưng không được gọi từ giao diện hiện tại.
+- Bồ đoàn thiền được vẽ trước người ngồi để tránh tấm thảm che sprite.

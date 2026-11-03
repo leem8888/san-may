@@ -5,7 +5,7 @@ import { createGameServer } from '../server/index.js';
 export { delay };
 
 export async function startServer(overrides = {}) {
-  const game = createGameServer({ dbFile: ':memory:', disconnectGraceMs: 300, ...overrides });
+  const game = createGameServer({ dbFile: ':memory:', disconnectGraceMs: 300, fixedRoomCode: null, ...overrides });
   await new Promise(resolve => game.server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${game.server.address().port}`;
   const http = async (method, path, body, token) => {
