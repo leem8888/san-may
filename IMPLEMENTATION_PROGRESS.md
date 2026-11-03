@@ -1,6 +1,6 @@
 # SÂN MÂY — TỔNG QUAN DỰ ÁN
 
-Cập nhật: 2026-11-02. Đây là bản tổng quan: dự án gồm gì, đang ở đâu, còn thiếu gì. Chi tiết kỹ thuật từng bước và cách làm tiếp nằm trong `HANDOFF.md`; hướng dẫn chạy nằm trong `README.md`.
+Cập nhật: 2026-11-03. Đây là bản tổng quan: dự án gồm gì, đang ở đâu, còn thiếu gì. Chi tiết kỹ thuật từng bước và cách làm tiếp nằm trong `HANDOFF.md`; hướng dẫn chạy nằm trong `README.md`; hướng dẫn deploy nằm trong `DEPLOY.md`; kế hoạch làm game riêng nằm trong `KE_HOACH_LAM_GAME.md`.
 
 ## Đề bài
 
@@ -53,3 +53,25 @@ Một tiến trình Node.js phục vụ trang web, REST và Socket.IO trên cùn
 - Chưa thử trên điện thoại iOS/Android thật. Chưa test tải 20 trình duyệt thật. Âm thanh tổng hợp chưa được nghe đánh giá bằng tai. Chưa triển khai lên Internet.
 - Lọc từ ngữ ở mức cơ bản; chưa có trang quản trị xem báo cáo vi phạm.
 - Hương, chuông, hoa đăng gần đây chỉ lưu trong bộ nhớ hoặc có thời hạn ngắn theo thiết kế.
+
+## Deploy — việc tiếp theo
+
+Cập nhật: 2026-11-03. Đã chọn **Oracle Cloud gói Always Free** (máy ảo Ubuntu ARM + Caddy https + SQLite trên ổ đĩa máy ảo). Hướng dẫn từng bước nằm trong `DEPLOY.md`. Chưa bắt đầu triển khai.
+
+Checklist (đánh dấu khi xong):
+
+- [ ] Tạo tài khoản Oracle, chọn Home Region (thử Singapore, hết máy thì Tokyo/Osaka) — `DEPLOY.md` mục 1
+- [ ] Tạo máy ảo `VM.Standard.A1.Flex` 1 OCPU / 6 GB, Ubuntu 24.04, cất file khóa SSH — mục 1
+- [ ] Mở cổng 80/443 ở Security List **và** iptables trong máy — mục 2
+- [ ] SSH vào được từ máy nhà — mục 3
+- [ ] Cài Node 22, git, sqlite3, Caddy — mục 4
+- [ ] Clone repo, `npm ci`, `npm test` pass trên máy ảo — mục 5
+- [ ] Tạo tên miền DuckDNS trỏ về Public IP — mục 6
+- [ ] Tạo `~/sanmay.env` (DB ngoài thư mục code, `TRUST_PROXY=1`, `OWNER_TOKEN`) — mục 7
+- [ ] Chạy dịch vụ `sanmay` bằng systemd, `/healthz` trả `{"ok":true}` — mục 8
+- [ ] Cấu hình Caddy, mở được `https://<tên>.duckdns.org` — mục 9
+- [ ] Bật sao lưu hằng ngày, thử tải bản sao lưu về máy nhà — mục 11
+- [ ] Thử cập nhật bằng `git pull && npm ci && npm test && sudo systemctl restart sanmay` — mục 12
+- [ ] Mời vài người chơi thử qua link thật; theo dõi `/api/owner/journey`
+
+Sau khi deploy xong: cập nhật mục "Chưa kiểm chứng / giới hạn" (bỏ "Chưa triển khai lên Internet"), ghi lại tên miền, vùng và cấu hình máy đã dùng.

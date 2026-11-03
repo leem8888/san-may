@@ -86,3 +86,9 @@ Sau 3 tháng, quyết định dồn sức vào hướng A, hướng B, hay cả 
 - [ ] **Làm dự án riêng trên máy cá nhân, ngoài giờ làm.** Chuyển hẳn sang `D:\Game\san-may`, không dùng máy công ty.
 - [ ] Mỗi repo cá nhân mới: đặt email cá nhân riêng cho repo đó bằng `git config user.email "buituanbinat@gmail.com"` (không có `--global`).
 - [ ] Tìm hiểu cách nhận tiền từ cổng game nước ngoài (tài khoản ngân hàng hoặc PayPal, mẫu thuế W-8BEN) và cách kê khai thuế thu nhập cá nhân ở Việt Nam.
+
+## 6. Deploy Sân Mây (việc đang làm)
+
+- Đã chọn: **Oracle Cloud gói Always Free**. Lý do: miễn phí, chạy 24/7, có ổ đĩa giữ file SQLite.
+- Hướng dẫn: `DEPLOY.md`. Checklist tiến độ: mục "Deploy — việc tiếp theo" trong `IMPLEMENTATION_PROGRESS.md`.
+- Cách làm này cũng dùng lại được cho game sau làm bằng `my-game-kit`: cùng một máy ảo có thể chạy nhiều game, mỗi game một dịch vụ systemd, một cổng và một tên miền con trong Caddy.
