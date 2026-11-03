@@ -78,8 +78,8 @@ export function bowPhases(t) {
 export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   if (look.characterStyle === 'child') return drawNovice(c, state, Math.floor(frame * 8 / frames), dir);
   if (look.characterStyle === 'abbot') return drawAbbot(c, state, Math.floor(frame * 8 / frames), dir);
-  const t = frame / frames, walk = state === 'walk', swing = walk ? Math.sin(t * TAU) : 0;
-  const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', feminine = look.gender === 'female', w = (side ? .8 : 1) * (feminine ? .94 : 1.06);
+  const t = frame / frames, walk = state === 'walk', phase = t * TAU, swing = walk ? Math.sin(phase) : 0;
+  const side = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, back = dir === 'up', feminine = look.gender === 'female', w = (side ? .8 : 1) * (feminine ? .94 : 1);
   const { kneel, lean } = state === 'bow' ? bowPhases(t) : { kneel: 0, lean: 0 }, bow = lean, breathe = Math.sin(t * TAU) * (state === 'meditate' ? .9 : .35);
   const idleSway = state === 'idle' ? Math.sin(t * TAU) * .45 : 0;
   const style = look.outfitStyle, outfit = look.outfitColor, dark = shade(outfit, .7);
@@ -88,11 +88,13 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
 
   c.translate(32, 80);
   ellipse(c, 0, 0, sit ? 18 : meditate ? 19 : 14, 4.2, 'rgba(8,29,33,.38)');
-  c.translate(0, walk ? -Math.abs(swing) * 1.3 : 0);
+  // Keep the feet close to the ground: a small double-step bounce replaces the old hopping motion.
+  c.translate(0, walk ? -Math.abs(Math.sin(phase * 2)) * .65 : 0);
+  c.rotate(walk ? Math.sin(phase) * .018 : 0);
 
-  const hip = sit ? -25 : meditate ? -8 : -34 + kneel * 20;
-  const shoulder = (sit ? -46 : meditate ? -29 : -55) - breathe * .6 + kneel * 20 + bow * (back ? -2 : 17);
-  const headY = shoulder - 11 + bow * (back ? -3 : 9);
+  const hip = sit ? -25 : meditate ? -8 : -38 + kneel * 20;
+  const shoulder = (sit ? -46 : meditate ? -29 : -59) - breathe * .6 + kneel * 20 + bow * (back ? -2 : 17);
+  const headY = shoulder - 13 + bow * (back ? -3 : 9);
 
   backHair(c, look, headY, shoulder, back);
 
@@ -108,15 +110,22 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
     for (const s of [-1, 1]) { ellipse(c, s * 5, hip + 4, 4.6, 5, style === 'robe' ? dark : trousers); limb(c, [s * 5.5, hip + 7], [s * 6, -3], trousers, 4.8, 0); }
     shoes(c, [[-6, 0], [6, 0]], 0, look.footwear === 'stored');
   } else {
-    const feet = side ? [[side * swing * 7 - 1.5, swing > 0 ? -1.5 : 0], [-side * swing * 7 + 1.5, swing < 0 ? -1.5 : 0]] : [[-4.3, -Math.max(0, swing) * 2.5], [4.3, -Math.max(0, -swing) * 2.5]];
-    feet.forEach(([x, y], i) => limb(c, [(i ? 4 : -4) * w, hip], [x, y - 3], trousers, 5.2, (i ? 1.2 : -1.2) * (side ? 0 : 1)));
+    const feet = side
+      ? [[side * swing * 9 - 2, -Math.max(0, swing) * 2.5], [-side * swing * 9 + 2, -Math.max(0, -swing) * 2.5]]
+      : [[-5 * w + swing * 1.7, swing * 3 - Math.max(0, swing) * 1.2], [5 * w - swing * 1.7, -swing * 3 - Math.max(0, -swing) * 1.2]];
+    feet.forEach(([x, y], i) => {
+      const hx = (i ? 5 : -5) * w, kneeX = (hx + x) * .5 + (side ? (i ? -1 : 1) * swing * 2 : (i ? -1 : 1) * 1.4);
+      const kneeY = hip * .52 + y * .48 - (side ? Math.max(0, i ? -swing : swing) * 1.4 : 0);
+      limb(c, [hx, hip], [kneeX, kneeY], trousers, 5.5, side ? (i ? -1.5 : 1.5) : 0);
+      limb(c, [kneeX, kneeY], [x, y - 2], trousers, 4.8, side ? (i ? 1 : -1) : 0);
+    });
     shoes(c, feet, side, look.footwear === 'stored');
   }
 
   // Garment.
-  const sx = 10.5 * w, wx = (feminine ? 7 : 8.5) * w, hx = 9.5 * w, fill = cloth(c, outfit, -14, 14);
+  const sx = 11 * w, wx = (feminine ? 7 : 8) * w, hx = 9 * w, fill = cloth(c, outfit, -14, 14);
   if (style === 'robe') {
-    const hem = sit ? hip + 9 : meditate ? -6 : -5, flare = sit ? 11 : meditate ? 15 : (feminine ? 16 : 13) * w;
+    const hem = sit ? hip + 9 : meditate ? -6 : -5 + (walk ? Math.sin(phase + .6) * 1.2 : 0), flare = sit ? 11 : meditate ? 15 : (feminine ? 16 : 13) * w;
     c.fillStyle = fill; c.beginPath(); c.moveTo(-sx, shoulder+2);
     c.quadraticCurveTo(0,shoulder-3,sx,shoulder+2);c.quadraticCurveTo(wx,hip-6,flare,hem);
     c.quadraticCurveTo(0,hem+3,-flare,hem);c.quadraticCurveTo(-wx,hip-6,-sx,shoulder+2);c.fill();
@@ -140,8 +149,8 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   // Arms: hand targets depend on the action.
   const sl = [-sx + .5, shoulder + 2], sr = [sx - .5, shoulder + 2];
   const joined = ['pray', 'bead', 'bow'].includes(state);
-  let hl = [-12 * w, hip + 1 - swing * 2.4 + idleSway], hr = [12 * w, hip + 1 + swing * 2.4 - idleSway];
-  if (side && walk) { hl = [side * swing * 6 - 2, hip + 1]; hr = [-side * swing * 6 + 2, hip + 1]; }
+  let hl = [-12 * w, hip + 1 - swing * 4.3 + idleSway], hr = [12 * w, hip + 1 + swing * 4.3 - idleSway];
+  if (side && walk) { hl = [-2 - swing * 2, hip + 1 + swing * 4.6]; hr = [2 + swing * 2, hip + 1 - swing * 4.6]; }
   if (joined) { hl = [-1.2, shoulder + 9]; hr = [1.2, shoulder + 9]; }
   // Bowing to the floor: joined hands open and rest on the ground in front.
   if (lean > 0 && !back) { hl = [hl[0] + (-7 - hl[0]) * lean, hl[1] + (-2 - hl[1]) * lean]; hr = [hr[0] + (7 - hr[0]) * lean, hr[1] + (-2 - hr[1]) * lean]; }
@@ -174,6 +183,8 @@ export function drawCharacter(c, state, frame, dir, look, frames = 8) {
   const child = look.characterStyle === 'child';
   c.save();
   if (child) { c.translate(0, headY); c.scale(1.3, 1.16); c.translate(0, -headY); }
+  // Adults use a slightly smaller head and longer neck, torso and legs for a more natural silhouette.
+  c.translate(0, headY); c.scale(.88, .78); c.translate(0, -headY);
   ellipse(c, 0, shoulder - 2.5, 2.6, 3, SKIN_SHADE);
   const skinLight=c.createLinearGradient(-7,headY,7,headY);skinLight.addColorStop(0,'#cfa47d');skinLight.addColorStop(.35,'#f0d1ad');skinLight.addColorStop(1,'#d8af87');
   ellipse(c, side * .8, headY, (feminine ? 8.5 : 9.2) * (side ? .94 : 1), feminine ? 10 : 10.4, skinLight);

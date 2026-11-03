@@ -83,3 +83,10 @@ Sau khi deploy xong: cập nhật mục "Chưa kiểm chứng / giới hạn" (b
 - Khách trang trí phía client tăng từ 8 lên 16, không tham gia multiplayer registry hay lưu dữ liệu.
 - Móc treo chuông gió được vẽ rõ ngay dưới mái cổng và chuông hiện ra theo world state khi hoàn thành truyện.
 - Chi tiết còn lại và lưu ý kiểm tra được ghi tại `HANDOFF.md`.
+
+## Tạo hình nhân vật — 2026-11-03
+
+- Sprite người lớn có chu kỳ đi bộ 12 khung hình, bước chân luân phiên có khớp gối, tay đánh ngược chân, độ nảy thân nhỏ và vạt áo chuyển động theo nhịp.
+- Chỉnh tỉ lệ đầu, thân và chân để dáng người bớt lùn đầu, chuyển động bám đất hơn. Tạo hình riêng của chú tiểu và trụ trì giữ nguyên.
+- Nhãn tên được đặt cao hơn theo kích thước nhân vật để tránh che mặt.
+- Thay đổi chỉ ở hiển thị client; tốc độ, va chạm và giao thức multiplayer không đổi. Chưa QA trực quan trên trình duyệt.

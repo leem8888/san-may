@@ -3,8 +3,8 @@ import { drawCharacter } from './CharacterArt.js';
 export function ellipse(c, x, y, rx, ry, color) { c.fillStyle = color; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); c.fill(); }
 export function polygon(c, points, color, stroke) { c.beginPath(); points.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fillStyle = color; c.fill(); if (stroke) { c.strokeStyle = stroke; c.stroke(); } }
 export const SPRITE_FRAME = { width: 96, height: 128, paddingX: 16, paddingY: 24, footY: 104 };
-// Most states use 8 frames; the full prostration (stand, join hands, kneel, bow, rise) needs more to stay smooth.
-const FRAMES = 8, FRAMES_BY_STATE = { bow: 24 }, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
+// Walking gets extra frames for a grounded stride; prostration needs enough frames for its full sequence.
+const FRAMES = 8, FRAMES_BY_STATE = { walk: 12, bow: 24 }, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
 
 const STATES = Object.keys(DURATIONS), DIRS = ['down', 'left', 'right', 'up'];
 export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.gender, look.footwear, look.characterStyle || 'adult'].join('|');
@@ -30,7 +30,7 @@ export class SpriteRenderer {
   }
   frame(p) {
     const state = STATES.includes(p.state) ? p.state : 'idle', duration = DURATIONS[state];
-    return { state, index: Math.floor((Number.isFinite(duration) ? Math.min(.999, p.elapsed / duration) : p.elapsed / (state === 'meditate' ? 4 : 1.2) % 1) * (FRAMES_BY_STATE[state] || FRAMES)) };
+    return { state, index: Math.floor((Number.isFinite(duration) ? Math.min(.999, p.elapsed / duration) : p.elapsed / (state === 'meditate' ? 4 : state === 'walk' ? 1.05 : 1.2) % 1) * (FRAMES_BY_STATE[state] || FRAMES)) };
   }
   draw(c, p) {
     const { state, index } = this.frame(p), look = p.appearance || DEFAULT_APPEARANCE;
@@ -41,7 +41,8 @@ export class SpriteRenderer {
   label(c, p, self = false) {
     if (!p.name) return;
     const title = p.appearance?.shaved ? p.appearance.gender === 'male' ? 'Chú tiểu' : p.appearance.gender === 'female' ? 'Tiểu ni' : '' : '';
-    const top = p.y - (p.appearance?.characterStyle === 'abbot' ? 111 : p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1) - (title ? 20 : 0);
+    const labelOffset = p.appearance?.characterStyle === 'abbot' ? 124 : p.appearance?.accessory === 'hat' ? 120 : 111;
+    const top = p.y - labelOffset * (p.renderScale || 1) - (title ? 20 : 0);
     c.textAlign = 'center'; c.font = '500 13px Arial';
     const width = Math.max(c.measureText(p.name).width, title ? c.measureText(title).width : 0) + 18;
     c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, title ? 38 : 20, 8); c.fill();

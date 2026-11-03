@@ -338,3 +338,11 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 - Móc treo chuông gió dưới mái cổng được vẽ rõ và đặt ở lớp trước cổng; chuông xuất hiện sau khi hoàn thành đoạn truyện của An.
 - Đã sửa một số hiệu ứng hình ảnh/âm thanh và tương tác ở cổng, sân chùa, Chánh Điện theo thay đổi trong commit đi kèm.
 - Kiểm tra trong phiên này: `git diff --check` đạt. Chưa chạy test hoặc QA trình duyệt.
+
+## Chỉnh dáng người và bước đi (2026-11-03)
+
+- `SpriteRenderer` dùng 12 khung hình cho chu kỳ đi bộ (trước đây 8), nhịp bước khoảng 1,05 giây.
+- `CharacterArt` bổ sung chân bước luân phiên có khớp gối, độ nhấc chân nhỏ, tay đánh ngược chân, thân nghiêng nhẹ và vạt áo chuyển động theo bước. Nhân vật người lớn có đầu gọn hơn và thân/chân dài hơn.
+- Ngoại hình riêng của chú tiểu và trụ trì không đổi; đây là thay đổi tạo hình client, không đổi tốc độ di chuyển hay trạng thái server.
+- Nhãn tên được nâng lên theo tỉ lệ của nhân vật, dành khoảng trống phía trên đầu để không che mặt.
+- Chưa kiểm tra trực quan trên trình duyệt; chỉ rà diff và `git diff --check`.
