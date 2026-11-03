@@ -1,26 +1,33 @@
 function box(c,x,y,w,h,color,r=1){c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
 function oval(c,x,y,rx,ry,color){c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill();}
 function gradient(c,x,w,colors){const g=c.createLinearGradient(x,0,x+w,0);colors.forEach((v,i)=>g.addColorStop(i/(colors.length-1),v));return g;}
+function beam(c,x1,y1,x2,y2,width,color){c.save();c.translate((x1+x2)/2,(y1+y2)/2);c.rotate(Math.atan2(y2-y1,x2-x1));box(c,-Math.hypot(x2-x1,y2-y1)/2,-width/2,Math.hypot(x2-x1,y2-y1),width,color,2);c.restore();}
 
 export function drawBellBody(c,large=false){
   c.save(); if(large)c.scale(1.85,1.8);
-  const metal=gradient(c,-33,66,['#434e36','#8c925c','#c1b879','#8d925c','#424d35']);
-  // Suspension crown, rounded shoulders and a thick flared lip.
-  c.strokeStyle='#9f9b62';c.lineWidth=4;c.beginPath();c.ellipse(0,10,7,6,0,0,Math.PI*2);c.stroke();
-  c.fillStyle=metal;c.beginPath();c.moveTo(-17,16);c.bezierCurveTo(-25,20,-21,48,-27,64);c.quadraticCurveTo(-29,69,-33,72);c.lineTo(33,72);c.quadraticCurveTo(29,69,27,64);c.bezierCurveTo(21,48,25,20,17,16);c.quadraticCurveTo(0,9,-17,16);c.fill();
-  for(const y of [25,29,57,61]){c.strokeStyle=y%2?'#d2c78899':'#4b573966';c.lineWidth=1;c.beginPath();c.ellipse(0,y,y>50?25:21,2.5,0,0,Math.PI);c.stroke();}
-  for(const x of [-14,0,14]){
-    box(c,x-4.5,34,9,17,'#46523955',2);
-    c.strokeStyle='#c5ba7b99';c.lineWidth=.7;c.strokeRect(x-4,34,8,16);
-    for(let i=0;i<3;i++)oval(c,x,37+i*4,1.2,1.2,'#b3ad70');
+  const metal=gradient(c,-33,66,['#3c493c','#778566','#c6b77d','#948b5d','#475447']);
+  // Cast suspension eye and rounded shoulder, with a flared, thick bronze mouth.
+  c.strokeStyle='#554e35';c.lineWidth=7;c.beginPath();c.ellipse(0,10,7,6,0,0,Math.PI*2);c.stroke();
+  c.strokeStyle='#c6b77d';c.lineWidth=3;c.beginPath();c.ellipse(0,10,7,6,0,0,Math.PI*2);c.stroke();
+  c.fillStyle=metal;c.beginPath();c.moveTo(-17,16);c.bezierCurveTo(-25,20,-21,48,-27,64);c.quadraticCurveTo(-29,69,-33,72);c.lineTo(33,72);c.quadraticCurveTo(29,69,27,64);c.bezierCurveTo(21,48,25,20,17,16);c.quadraticCurveTo(0,9,-17,16);c.closePath();c.fill();
+  c.strokeStyle='#313c31';c.lineWidth=1.2;c.stroke();
+  // Raised casting bands and a pair of lotus medallions make the metalwork read as cast bronze.
+  for(const y of [24,28,57,61]){c.strokeStyle=y%2?'#ded09a':'#4b573e';c.lineWidth=y%2?1.5:1.2;c.beginPath();c.ellipse(0,y,y>50?25:21,2.5,0,0,Math.PI);c.stroke();}
+  for(const x of [-14,14]){
+    oval(c,x,42,5.2,7,'#657354');oval(c,x-.8,40,3.6,5.3,'#c4b77c');
+    for(let k=-1;k<=1;k++){c.strokeStyle='#59684d';c.lineWidth=.8;c.beginPath();c.ellipse(x+k*1.7,42,1.4,4.2,k*.18,0,Math.PI*2);c.stroke();}
+    oval(c,x,42,1,1.2,'#e2d29a');
   }
-  oval(c,0,72,33,6,'#343e2d');oval(c,0,71,33,4,'#b5ac6b');oval(c,0,73,28,3,'#303c2c');
-  c.strokeStyle='#eee0a14d';c.lineWidth=1;c.beginPath();c.moveTo(-13,20);c.bezierCurveTo(-19,30,-16,45,-21,62);c.stroke();
+  // Inner clapper and rounded lip remain visible at small and large scales.
+  c.strokeStyle='#4b4937';c.lineWidth=1.4;c.beginPath();c.moveTo(0,17);c.quadraticCurveTo(2,36,0,65);c.stroke();oval(c,0,66,3,4,'#6d6041');
+  oval(c,0,72,33,6,'#343e2d');oval(c,0,70.5,33,4,'#c6b77d');oval(c,0,73,28,3,'#303c2c');
+  c.strokeStyle='#f0dfaa99';c.lineWidth=1.2;c.beginPath();c.moveTo(-13,20);c.bezierCurveTo(-19,30,-16,45,-21,62);c.stroke();
+  c.strokeStyle='#28362d66';c.lineWidth=.8;c.beginPath();c.moveTo(13,21);c.bezierCurveTo(19,32,16,47,21,61);c.stroke();
   c.restore();
 }
 
 export function drawNoticeBoard(c,o){
-  c.save();c.translate(o.x,o.y);
+  c.save();c.translate(o.x-16,o.y);
   oval(c,3,1,49,7,'#10261f55');
   const wood=gradient(c,-45,90,['#493223','#a57b4b','#67472f']);
   for(const x of [-32,25]){box(c,x,-52,8,54,wood);box(c,x-2,-5,12,7,'#777a64');}

@@ -10,6 +10,28 @@
       "Nhấn M để xem bản đồ. Mỗi ngày có vài việc nhỏ như thiền năm phút hay gửi một lời chúc — xem trong Nhiệm vụ. Làm hay không cũng được, chùa vẫn ở đây chờ bạn."
     ]
   },
+  "bunSeller": {
+    "name": "CÔ HẠNH · BÁNH BAO CHAY",
+    "title": "Bánh đang nóng trên xửng.",
+    "randomPages": [
+      "Ôi, bánh bao chay vừa hết mất rồi bạn ơi. Mẻ mới đang hấp, lát nữa ghé lại nhé!",
+      "Bạn chờ mình hâm nóng xửng bánh một chút nha. Bánh nóng ăn mới ngon.",
+      "Mẻ bánh vừa bán hết rồi. Mình đang hấp thêm, thơm lắm, đợi một lát nghen!",
+      "Xửng bánh đang nóng lại, bạn chờ thêm chút nhé. Cảm ơn bạn đã ghé!",
+      "Hôm nay bánh hết sớm quá. Mình đang chuẩn bị mẻ mới đây, bạn quay lại sau nha."
+    ]
+  },
+  "loveFortuneCompanion": {
+    "name": "CÔ LAN · NGƯỜI GIỮ DUYÊN",
+    "title": "Cô ngồi bên bàn thẻ cầu duyên.",
+    "randomPages": [
+      "Rút thẻ cho vui thôi nhé. Duyên lành cũng cần mình chăm chút từng ngày.",
+      "Có khi điều quý nhất không phải gặp ai, mà là học cách thương mình trước.",
+      "Nếu thẻ chưa như ý thì cũng đừng lo. Chuyện tốt thường cần thời gian.",
+      "Mỗi ngày mình thử nói một lời dịu dàng với ai đó, biết đâu duyên lành bắt đầu từ đấy.",
+      "Cô thích ngồi đây ngắm sân chùa. Lòng mình yên thì nhìn đâu cũng thấy điều dễ thương."
+    ]
+  },
   "guide": {
     "name": "BẢNG HƯỚNG DẪN",
     "title": "Sân Mây — tám khu vực",

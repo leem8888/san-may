@@ -15,7 +15,7 @@ export class MainHallScene extends Scene {
   liveSticks() { this.sticks = this.sticks.filter(s => this.time - s.born < INCENSE_SECONDS); return this.sticks.slice(-9); }
   stickTips() {
     const list = this.liveSticks(), n = list.length;
-    return list.map((s, i) => { const burnt = (this.time - s.born) / INCENSE_SECONDS; return { x: this.censer.x + (i - (n - 1) / 2) * 4.2, y: this.censer.y - 30 - 26 * (1 - burnt * .75), lean: (i - (n - 1) / 2) * .9 }; });
+    return list.map((s, i) => { const burnt = (this.time - s.born) / INCENSE_SECONDS; return { x: this.censer.x + (i - (n - 1) / 2) * 4.2, y: this.censer.y - 53 - 26 * (1 - burnt * .75), lean: (i - (n - 1) / 2) * .9 }; });
   }
   entities(c, env) {
     const list = super.entities(c, env);
@@ -31,7 +31,7 @@ export class MainHallScene extends Scene {
     }
     if (this.censer) list.push({ y: this.censer.y + .5, x: this.censer.x, vy: this.censer.y, draw: () => {
       for (const tip of this.stickTips()) {
-        c.strokeStyle = '#a3543c'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(this.censer.x + tip.lean * .3, this.censer.y - 28); c.lineTo(tip.x + tip.lean, tip.y); c.stroke();
+        c.strokeStyle = '#a3543c'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(this.censer.x + tip.lean * .3, this.censer.y - 50); c.lineTo(tip.x + tip.lean, tip.y); c.stroke();
         ellipse(c, tip.x + tip.lean, tip.y, 1.6, 1.6, `rgba(255,${120 + Math.sin(env.time * 6 + tip.x) * 40},60,.95)`);
       }
     } });

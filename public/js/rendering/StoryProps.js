@@ -230,15 +230,18 @@ export const STORY_PROPS = {
   },
   // Iron hook under the gate eave. Once the story's bell is re-hung (room state) a small bronze bell sways there.
   bellHook(c, o, env) {
-    const { x, y } = o, top = y - 92;
-    line(c, x, top - 8, x, top + 8, '#3a3532', 2);
-    c.strokeStyle = '#3a3532'; c.lineWidth = 2; c.beginPath(); c.arc(x + 4, top + 10, 4, Math.PI, Math.PI * 2.6); c.stroke();
+    const { x, y } = o, top = y - 18;
+    // Hang it just below the eave and use a warm highlight so the small hook reads against the gate.
+    line(c, x - 5, top - 3, x + 7, top - 3, '#563a28', 4);
+    line(c, x + 1, top - 2, x + 1, top + 7, '#4a4135', 3);
+    c.strokeStyle = '#453b30'; c.lineWidth = 3; c.beginPath(); c.arc(x + 5, top + 9, 5, Math.PI, Math.PI * 2.35); c.stroke();
+    c.strokeStyle = '#d8b66f'; c.lineWidth = 1; c.beginPath(); c.arc(x + 5, top + 8, 4, Math.PI, Math.PI * 2.25); c.stroke();
     if (!o.world?.hung) return;
     const a = sway(env, x, .18);
-    c.save(); c.translate(x, top + 12); c.rotate(a);
-    line(c, 0, 0, 0, 10, '#6b5a3a', 1);
-    c.fillStyle = '#b88a3e'; c.beginPath(); c.moveTo(-7, 24); c.quadraticCurveTo(-7, 9, 0, 9); c.quadraticCurveTo(7, 9, 7, 24); c.closePath(); c.fill();
-    box(c, -8, 23, 16, 3, '#8f6a2c', 1); line(c, 0, 26, 0, 34, '#6b5a3a', 1); box(c, -3, 34, 6, 9, '#e7d7ae', 1);
+    c.save(); c.translate(x + 5, top + 12); c.rotate(a);
+    line(c, 0, 0, 0, 8, '#6b5a3a', 1.5);
+    c.fillStyle = '#c7984b'; c.beginPath(); c.moveTo(-8, 23); c.quadraticCurveTo(-8, 8, 0, 8); c.quadraticCurveTo(8, 8, 8, 23); c.closePath(); c.fill();
+    box(c, -9, 22, 18, 3, '#8f6a2c', 1); line(c, 0, 25, 0, 31, '#6b5a3a', 1); box(c, -4, 31, 8, 8, '#e7d7ae', 1);
     c.restore();
   },
   // Story reward for a private garden: a wooden post with the twin of An's bell.

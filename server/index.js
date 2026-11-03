@@ -14,6 +14,7 @@ import { NpcDirector } from '../public/js/shared/npcSchedule.js';
 import { createWorldActions } from './services/worldActions.js';
 import { createHallActions } from './services/hallActions.js';
 import { createJourney } from './services/journey.js';
+import { createRestaurant } from './services/restaurant.js';
 import path from 'node:path';
 import { createApiRouter } from './routes/api.js';
 import { attachSockets } from './sockets/index.js';
@@ -30,6 +31,7 @@ export function createGameServer(overrides = {}) {
   ctx.hall = createHallActions(ctx);
   ctx.narrative = createNarrative({ repos, config, worldState: ctx.worldState, progression: ctx.progression, content: loadNarrativeContent(path.join(ROOT, 'server', 'content')) });
   ctx.journey = createJourney({ db, repos, content: ctx.narrative.content });
+  ctx.restaurant = createRestaurant(ctx);
 
   const app = express();
   app.disable('x-powered-by');

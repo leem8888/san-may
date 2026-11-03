@@ -16,7 +16,7 @@ const LINES = {
 
 // Local decorative visitors: never enter Socket.IO, player lists, saves or story NPCs.
 export class AmbientVisitors {
-  constructor(scenes, count = 8) {
+  constructor(scenes, count = 16) {
     this.scenes = scenes;
     this.people = Array.from({ length: count }, (_,i) => this.place(Object.assign(new Player(),{name:VISITOR_NAMES[i%VISITOR_NAMES.length]})));
   }

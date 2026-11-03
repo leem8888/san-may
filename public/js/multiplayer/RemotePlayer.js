@@ -5,6 +5,7 @@ export class RemotePlayer {
   constructor(data, serverTime) {
     this.id = data.id; this.name = data.name; this.appearance = data.appearance || { ...DEFAULT_APPEARANCE };
     this.x = data.x; this.y = data.y; this.direction = data.direction || 'down'; this.state = data.state || 'idle'; this.elapsed = data.elapsed || 0;
+    this.restaurantSeat = data.restaurantSeat || null;
     this.buffer = [{ t: serverTime, x: data.x, y: data.y }]; this.emote = null;
   }
   push(data, serverTime) {
@@ -15,6 +16,7 @@ export class RemotePlayer {
     this.buffer.push({ t: serverTime, x: data.x, y: data.y });
     while (this.buffer.length > 2 && this.buffer[1].t < serverTime - 1500) this.buffer.shift();
     this.direction = data.direction || this.direction;
+    this.restaurantSeat = data.restaurantSeat || null;
     if (data.name) this.name = data.name;
     if (data.state && data.state !== this.state) { this.state = data.state; this.elapsed = data.elapsed || 0; }
   }

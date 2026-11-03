@@ -27,7 +27,7 @@ export function attachShop(socket, ctx, getSelf) {
     return { ok: true, shop: repos.shop.purchase(p.id, data.sku, data.requestId, day()) };
   });
   handle('shop:claim', (p, data) => {
-    if (!near(p, 'shop', data.objectId)) throw Error('Hãy ghé quầy hương để nhận điểm.');
+    if (!near(p, 'shop', data.objectId)) throw Error('Hãy ghé quầy hương để nhận xu.');
     return { ok: true, shop: repos.shop.claim(p.id, day()) };
   });
   handle('shop:offer', (p, data) => {

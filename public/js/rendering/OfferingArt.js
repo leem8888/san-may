@@ -1,5 +1,6 @@
 function oval(c,x,y,rx,ry,color){c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill();}
 function box(c,x,y,w,h,color,r=1){c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
+function line(c,x,y,xx,yy,color,width=1){c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.moveTo(x,y);c.lineTo(xx,yy);c.stroke();}
 export function drawOffering(c,x,y,sku,time=0,reduced=false){
   c.save();c.translate(x,y);
   oval(c,1,2,18,5,'#26302555');oval(c,0,0,19,5,'#a78142');oval(c,0,-2,17,4,'#ddbd75');
@@ -39,17 +40,34 @@ export function drawOfferingStall(c,o){
   for(const dx of [-4,4])oval(c,x+dx,y-71,1,1.3,'#493e2c');
   table(c,x,y,164);box(c,x-78,y-27,156,13,'#9b6548');
   drawOffering(c,x-50,y-34,'incense',0,true);drawOffering(c,x,y-34,'fruit');drawOffering(c,x+50,y-34,'flowers');
-  c.fillStyle='#3e5c48';c.beginPath();c.moveTo(x-98,y-117);c.lineTo(x-68,y-144);c.lineTo(x+68,y-144);c.lineTo(x+98,y-117);c.closePath();c.fill();
-  box(c,x-98,y-118,196,7,'#aa8650',2);
-  for(let i=-5;i<=5;i++){c.strokeStyle='#91a07b66';c.lineWidth=1;c.beginPath();c.moveTo(x+i*12,y-140);c.lineTo(x+i*17,y-119);c.stroke();}
+  // Deep, tiled roof with visible rafters and a warm carved fascia.
+  c.fillStyle='#4b3829';c.beginPath();c.moveTo(x-108,y-116);c.lineTo(x-72,y-151);c.lineTo(x+72,y-151);c.lineTo(x+108,y-116);c.closePath();c.fill();
+  c.fillStyle='#3e5c48';c.beginPath();c.moveTo(x-101,y-120);c.lineTo(x-68,y-146);c.lineTo(x+68,y-146);c.lineTo(x+101,y-120);c.closePath();c.fill();
+  line(c,x-108,y-116,x+108,y-116,'#d1ad70',3);line(c,x-72,y-151,x+72,y-151,'#d8bb83',2);
+  for(let row=0;row<3;row++)for(let col=-4;col<=4;col++){
+    const tx=x+col*(14+row*2),ty=y-126-row*8;
+    line(c,tx-7,ty,tx+7,ty-1,'#9bad8266',1);
+    if((col+row)%2===0)line(c,tx-6,ty-5,tx-1,ty-12,'#b8a27455',1);
+  }
+  for(let i=-5;i<=5;i++)line(c,x+i*17,y-119,x+i*13,y-143,'#d4b77d44',1);
   box(c,x-63,y-110,126,23,'#5f3928',3);c.strokeStyle='#cfaa69';c.lineWidth=1;c.strokeRect(x-60,y-108,120,19);
   c.textAlign='center';c.font='12px Arial';c.fillStyle='#f1d79c';c.fillText('HƯƠNG & MÂM LỄ',x,y-94);
-  // A linen counter valance and small red lanterns make the stall easy to spot.
-  box(c,x-69,y-18,138,19,'#d2bf91',2);box(c,x-69,y-18,138,2,'#f0dbab');
+  // Carved product cubbies and a linen counter valance make the offerings feel stocked.
+  for(const dx of [-68,68]){
+    box(c,x+dx-11,y-48,22,20,'#65442f',3);box(c,x+dx-9,y-46,18,14,'#d2bd8d',2);
+    for(let k=0;k<3;k++)oval(c,x+dx-5+k*5,y-41,2,3,k===1?'#d0a056':'#9b7050');
+    box(c,x+dx-12,y-51,24,3,'#b78f58',1);
+  }
+  box(c,x-78,y-18,156,21,'#b9a477',2);box(c,x-78,y-18,156,3,'#ead5a4');
+  for(let dx=-70;dx<=70;dx+=14){c.fillStyle=dx%28?'#9e4937':'#c5a967';c.beginPath();c.moveTo(x+dx-7,y+3);c.quadraticCurveTo(x+dx,y+10,x+dx+7,y+3);c.closePath();c.fill();}
   c.font='9px system-ui';c.fillStyle='#5c4632';c.fillText('HƯƠNG · HOA · LỄ',x,y-5);
   for(const side of [-1,1]){
     c.strokeStyle='#bb975c';c.lineWidth=1;c.beginPath();c.moveTo(x+side*76,y-110);c.lineTo(x+side*76,y-91);c.stroke();
     oval(c,x+side*76,y-82,7,10,'#b84e39');oval(c,x+side*76-2,y-83,2,6,'#e3a66a');
     box(c,x+side*76-5,y-93,10,2,'#d5b372');box(c,x+side*76-4,y-73,8,2,'#cda460');
   }
+  // A small hanging bundle of incense and a woven basket beside the counter.
+  box(c,x-95,y-66,10,28,'#71472f',2);box(c,x-97,y-69,14,4,'#c39a5b',1);
+  for(let i=0;i<4;i++)line(c,x-93+i*2,y-65,x-96+i*2,y-49,'#b76a47',1);
+  oval(c,x+97,y-27,10,4,'#815a38');oval(c,x+97,y-31,8,4,'#d6bb82');
 }

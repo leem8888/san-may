@@ -4,6 +4,7 @@ import { createFishFeeding } from './fishFeeding.js';
 import { attachWorldSync } from './world.js';
 import { attachNarrative } from './narrative.js';
 import { attachCoop } from './coop.js';
+import { attachRestaurant } from './restaurant.js';
 import { createCoop } from '../services/coop.js';
 import { ACTIVITIES } from '../services/coopActivities.js';
 import { stateKey } from '../services/worldState.js';
@@ -122,6 +123,7 @@ export function attachSockets(io, ctx) {
   }
   const snapshot = p => ({
     sceneId: p.sceneId,
+    restaurant: p.sceneId === 'gate' ? ctx.restaurant.snapshot(p.room) : null,
     offerings: p.sceneId === 'mainHall' ? repos.shop.offerings(p.room) : [],
     fishFeed: fishFeeding.snapshot(p),
     sand: p.sceneId === 'zenGarden' ? repos.content.roomSand(p.room) : null,
@@ -181,6 +183,7 @@ export function attachSockets(io, ctx) {
     fishFeeding.attach(socket, () => self);
     const story = attachNarrative(socket, ctx, () => self);
     attachCoop(socket, ctx, () => self, limiter);
+    attachRestaurant(socket, ctx, () => self);
 
     socket.on('error', () => {});
     socket.use(([event, ...args], next) => {
@@ -199,9 +202,11 @@ export function attachSockets(io, ctx) {
     function leave(reason) {
       const p = self;
       if (!p) return;
+      ctx.restaurant.leave(p);
       self = null;
       socket.leave(roomChannel(p.room)); socket.leave(scene(p));
       if (!rooms.remove(p)) return;
+      ctx.restaurant.roomEmpty(p.room);
       const now = Date.now();
       socket.to(scene(p)).emit('player:leave', { id: p.id, reason });
       io.to(roomChannel(p.room)).emit('room:online', { online: rooms.get(p.room)?.players.size || 0 });
@@ -212,6 +217,7 @@ export function attachSockets(io, ctx) {
     }
 
     function changeScene(p, sceneId, position) {
+      ctx.restaurant.leave(p);
       socket.to(scene(p)).emit('player:leave', { id: p.id, reason: 'scene' });
       socket.leave(scene(p));
       Object.assign(p, { sceneId, x: position.x, y: position.y, state: 'idle', actionAt: Date.now(), moved: true, dirty: true, locationDirty: true });
@@ -298,7 +304,13 @@ export function attachSockets(io, ctx) {
       }
       p.lastMoveAt = now;
       p.direction = oneOf(data.direction, DIRECTIONS, p.direction);
+      if (p.restaurantSeat) {
+        // Leaving a restaurant seat is an explicit action; ignore stale or stray movement packets.
+        if (distance > 1) socket.emit('player:correct', { sceneId: p.sceneId, x: p.x, y: p.y, direction: p.direction });
+        return;
+      }
       if (distance > 1) {
+        ctx.restaurant.leave(p);
         Object.assign(p, { x, y, moved: true, locationDirty: true });
         if (now - (p.journeyTouch || 0) > 5000) { p.journeyTouch = now; ctx.journey.touch(p.id, now); }
         if (p.meditation) { const result = finishMeditation(p, now); if (result) socket.emit('meditation:ended', result); }
@@ -690,5 +702,5 @@ export function attachSockets(io, ctx) {
   }, config.tickMs);
   timer.unref();
 
-  return { close() { closed = true; worldSync.close(); clearInterval(timer); for (const t of graceTimers.values()) clearTimeout(t); graceTimers.clear(); } };
+  return { close() { closed = true; worldSync.close(); ctx.restaurant.close(); clearInterval(timer); for (const t of graceTimers.values()) clearTimeout(t); graceTimers.clear(); } };
 }

@@ -325,6 +325,20 @@
       "size": 0.9
     },
     {
+      "type": "courtyardPlanter",
+      "x": 430,
+      "y": 1160,
+      "scale": 0.9,
+      "solid": false
+    },
+    {
+      "type": "courtyardPlanter",
+      "x": 1480,
+      "y": 270,
+      "scale": 0.85,
+      "solid": false
+    },
+    {
       "type": "lamp",
       "x": 570,
       "y": 490
@@ -360,6 +374,13 @@
       "y": 900
     },
     {
+      "type": "cushion",
+      "x": 420,
+      "y": 520,
+      "sortY": 510,
+      "color": "#a5523e"
+    },
+    {
       "type": "lamp",
       "x": 1510,
       "y": 590
@@ -369,11 +390,11 @@
     {
       "id": "shoeRack",
       "type": "shoeRack",
-      "x": 850,
+      "x": 770,
       "y": 475,
       "label": "Cất hoặc lấy dép",
       "action": "footwear",
-      "radius": 95,
+      "radius": 70,
       "solid": false
     },
     {
@@ -403,6 +424,29 @@
       "action": "loveFortune",
       "radius": 100,
       "solid": false
+    },
+    {
+      "id": "loveFortuneCompanion",
+      "type": "npc",
+      "x": 420,
+      "y": 515,
+      "name": "Cô Lan · Người giữ duyên",
+      "label": "Trò chuyện cùng cô Lan",
+      "action": "dialogue",
+      "dialogue": "loveFortuneCompanion",
+      "radius": 90,
+      "solid": false,
+      "pose": "sit",
+      "direction": "left",
+      "gestures": [],
+      "appearance": {
+        "gender": "female",
+        "hairStyle": "bun",
+        "hairColor": "#302721",
+        "outfitStyle": "robe",
+        "outfitColor": "#a65e50",
+        "accessory": "none"
+      }
     },
     {
       "id": "bench1",

@@ -3,7 +3,7 @@ import { SHOP_ITEMS } from '../shared/shop.js';
 import { drawShopIcon, drawShopScene } from '../rendering/ShopArt.js';
 
 const MODE = {
-  shop: { kicker: 'CỔNG TAM QUAN', title: 'Hương & mâm lễ', intro: 'Chọn một món lễ nhỏ để mang vào Chánh Điện.', note: 'Dùng điểm trong game. Mỗi ngày bạn có thể nhận thêm điểm tại quầy.' },
+  shop: { kicker: 'CỔNG TAM QUAN', title: 'Hương & mâm lễ', intro: 'Chọn một món lễ nhỏ để mang vào Chánh Điện.', note: 'Mỗi ngày bạn có thể nhận thêm 300 xu tại quầy.' },
   fishShop: { kicker: 'BÊN NGOÀI CỔNG CHÙA', title: 'Cá & cám cá', intro: 'Chậu cá nhỏ đang bơi bên cạnh người bán.', note: 'Mang cá đến bến thả cá ở Hồ Sen; mang cám đến chỗ cho đàn cá ăn.' },
   fishFeed: { kicker: 'HỒ SEN', title: 'Cho đàn cá ăn', intro: 'Rải một túi cám, rồi nhìn đàn cá bơi tới.', note: 'Mua cám cá ở người bán cá bên trái đường vào cổng.' },
   fishRelease: { kicker: 'BẾN THẢ CÁ · HỒ SEN', title: 'Thả cá phóng sinh', intro: 'Nhẹ nhàng thả cá tại bến riêng bên bờ hồ.', note: 'Mua cá ở người bán cá bên ngoài cổng chùa.' },
@@ -38,25 +38,27 @@ export class ShopPanel {
   }
   render() {
     if (!this.state) return;
-    $('#shopBalance').textContent = `${this.state.points} điểm trong game`;
+    $('#shopBalance').replaceChildren(String(this.state.points), el('span', { class: 'coin-icon', 'aria-hidden': 'true' }));
     $('#shopClaim').hidden = this.mode !== 'shop';
     $('#shopClaim').disabled = this.busy || !this.state.canClaim;
-    $('#shopClaim').textContent = this.state.canClaim ? 'Nhận 30 điểm hôm nay' : 'Hôm nay đã nhận điểm';
+    if (this.state.canClaim) $('#shopClaim').replaceChildren('Nhận 300 ', el('span', { class: 'coin-icon', 'aria-hidden': 'true' }), ' hôm nay');
+    else $('#shopClaim').textContent = 'Hôm nay đã nhận';
     const buying = this.mode === 'shop' || this.mode === 'fishShop';
     const cards = Object.entries(SHOP_ITEMS).filter(([, item]) => visible(this.mode, item)).map(([sku, item]) => {
       const quantity = this.state.inventory[sku] || 0;
       const action = buying ? 'shop:buy' : item.feed ? 'fish:feed' : item.kind === 'fish' ? 'fish:release' : 'shop:offer';
-      const label = buying ? `Mua · ${item.price} điểm` : item.feed ? 'Cho cá ăn · 1 túi' : item.kind === 'fish' ? 'Thả cá · 1 con' : 'Dâng lễ · 1 món';
+      const label = item.feed ? 'Cho cá ăn · 1 túi' : item.kind === 'fish' ? 'Thả cá · 1 con' : 'Dâng lễ · 1 món';
       const icon = el('canvas', { class: 'shop-item-art', width: 72, height: 72, 'aria-hidden': 'true' });
       drawShopIcon(icon, sku);
+      const button = buying
+        ? el('button', { type: 'button', class: 'shop-buy', disabled: this.busy || this.state.points < item.price || quantity >= 20, onclick: () => this.perform(action, sku) }, 'Mua · ', String(item.price), ' ', el('span', { class: 'coin-icon', 'aria-hidden': 'true' }))
+        : el('button', { type: 'button', class: 'shop-use', text: label, disabled: this.busy || quantity < 1, onclick: () => this.perform(action, sku) });
       return el('article', { class: 'shop-item' },
         icon,
         el('div', { class: 'shop-item-copy' },
           el('div', { class: 'shop-item-head' }, el('strong', { text: item.name }), el('span', { class: 'shop-quantity', text: `Trong túi: ${quantity}` })),
           el('p', { text: item.description }),
-          el('button', { type: 'button', class: buying ? 'shop-buy' : 'shop-use', text: label,
-            disabled: this.busy || (buying ? this.state.points < item.price || quantity >= 20 : quantity < 1),
-            onclick: () => this.perform(action, sku) })));
+          button));
     });
     $('#shopList').replaceChildren(...cards);
   }
@@ -78,7 +80,7 @@ export class ShopPanel {
         this.game.player.act('interact'); this.panels.close(); toast('Bạn nhẹ nhàng thả cá xuống hồ.');
       } else if (event === 'shop:offer') {
         this.game.player.act('pray'); toast('Bạn đã nhẹ nhàng dâng món lễ.');
-      } else if (event === 'shop:claim') toast('Đã nhận 30 điểm trong game.');
+      } else if (event === 'shop:claim') toast('Đã nhận thêm 300 xu trong game.');
       else toast(`Đã mua ${SHOP_ITEMS[sku].name.toLowerCase()}.`);
     } catch (error) { toast(error.message); $('#shopMessage').textContent = error.message; }
     finally { this.busy = false; this.render(); }

@@ -72,7 +72,7 @@ export class AudioManager {
     else if (t > this.nextTempleBell) { this.templeBell(); this.onTempleBell?.(); this.nextTempleBell = t + 120 + Math.random() * 180; }
   }
   // A soft sung vowel: sawtooth through vowel formant filters with gentle vibrato. Used for the hall chant.
-  voice(frequency, when, duration, gain = .14) {
+  voice(frequency, when, duration, gain = .18) {
     if (!this.running) return;
     const c = this.context, start = Math.max(c.currentTime, when), end = start + duration;
     const o = c.createOscillator(), lfo = c.createOscillator(), depth = c.createGain(), env = c.createGain(), out = c.createGain();
@@ -86,7 +86,7 @@ export class AudioManager {
     o.start(start); lfo.start(start); o.stop(end + .05); lfo.stop(end + .05);
     o.onended = () => { o.disconnect(); lfo.disconnect(); depth.disconnect(); env.disconnect(); out.disconnect(); };
   }
-  templeBell(when = 0) { [98, 196, 294, 392].forEach((f, i) => this.tone(f, 8 - i * 1.4, .07 / (i + 1), 'ambient', 'sine', 1, when)); }
+  templeBell(when = 0) { [98, 196, 294, 392].forEach((f, i) => this.tone(f, 10 - i * 1.5, [.12, .065, .042, .03][i], 'ambient', 'sine', 1, when)); }
   tone(frequency = 440, duration = .4, gain = .08, bus = 'sfx', type = 'sine', glide = 1, when = 0) {
     if (!this.running) return;
     const c = this.context, start = Math.max(c.currentTime, when), o = c.createOscillator(), g = c.createGain();
@@ -98,15 +98,15 @@ export class AudioManager {
   // Footsteps: soft stone outdoors, a lower, hollower knock on the wooden floors indoors.
   step(surface = 'stone') { if (!this.running) return; const c = this.context, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = this.noise; f.type = 'lowpass'; f.frequency.value = surface === 'wood' ? 260 : 420; if (surface === 'wood') this.tone(118 + Math.random() * 12, .07, .02, 'sfx', 'triangle', .8); g.gain.setValueAtTime(.05, c.currentTime); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .09); s.connect(f).connect(g).connect(this.bus.sfx); s.start(c.currentTime, Math.random()); s.stop(c.currentTime + .1); }
   chirp(level) { const base = 2200 + Math.random() * 1400; for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) this.tone(base, .09, .018 * level, 'ambient', 'sine', 1.3 + Math.random() * .3, this.context.currentTime + i * .13); }
-  bell() { [174, 348, 522, 705].forEach((f, i) => this.tone(f, 4 - i * .45, .1 / (i + 1))); }
-  bigBell() { [73, 110, 146, 220, 293].forEach((f, i) => this.tone(f, 9 - i * 1.2, .14 / (i + 1))); }
-  bowl(when) { [528, 1056, 1584].forEach((f, i) => this.tone(f, 5 - i, .11 / (i + 1), 'music', 'sine', 1, when)); }
+  bell() { [174, 348, 522, 705].forEach((f, i) => this.tone(f, [6, 5, 4, 3.2][i], [.15, .085, .055, .038][i])); }
+  bigBell() { [73, 110, 146, 220, 293].forEach((f, i) => this.tone(f, [12, 10, 8.5, 7, 5.5][i], [.24, .14, .09, .06, .04][i])); }
+  bowl(when) { [528, 1056, 1584].forEach((f, i) => this.tone(f, [6, 4.8, 3.8][i], [.15, .085, .05][i], 'music', 'sine', 1, when)); }
   woodfish(when) {
     const c = this.context, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
     s.buffer = this.noise; f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 6;
-    g.gain.setValueAtTime(.0001, when); g.gain.exponentialRampToValueAtTime(.75, when + .004); g.gain.exponentialRampToValueAtTime(.0001, when + .12);
+    g.gain.setValueAtTime(.0001, when); g.gain.exponentialRampToValueAtTime(.9, when + .004); g.gain.exponentialRampToValueAtTime(.0001, when + .12);
     s.connect(f).connect(g).connect(this.bus.music); s.start(when, Math.random()); s.stop(when + .15);
-    this.tone(196, .14, .13, 'music', 'sine', .8, when);
+    this.tone(196, .18, .17, 'music', 'sine', .8, when);
   }
   // Slow pentatonic drone for meditation and the hall: original, generated on the fly.
   pad(when, level = 1) {

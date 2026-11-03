@@ -75,3 +75,11 @@ Checklist (đánh dấu khi xong):
 - [ ] Mời vài người chơi thử qua link thật; theo dõi `/api/owner/journey`
 
 Sau khi deploy xong: cập nhật mục "Chưa kiểm chứng / giới hạn" (bỏ "Chưa triển khai lên Internet"), ghi lại tên miền, vùng và cấu hình máy đã dùng.
+
+## Cập nhật gameplay ngày 2026-11-03
+
+- Quán chay tại cổng Tam Quan dùng ghế cố định theo bàn, chọn ghế trực tiếp trên bản đồ hoặc chọn ghế trống từ bàn; gọi món, phục vụ và dọn bàn được đồng bộ qua server.
+- Ví được gọi là xu trong thông báo; giao diện dùng icon xu tự vẽ sau số tiền. Mức nhận hằng ngày là 300, giá vật phẩm và món ăn không đổi.
+- Khách trang trí phía client tăng từ 8 lên 16, không tham gia multiplayer registry hay lưu dữ liệu.
+- Móc treo chuông gió được vẽ rõ ngay dưới mái cổng và chuông hiện ra theo world state khi hoàn thành truyện.
+- Chi tiết còn lại và lưu ý kiểm tra được ghi tại `HANDOFF.md`.

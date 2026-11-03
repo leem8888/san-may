@@ -6,5 +6,5 @@ export const SHOP_ITEMS = {
   flowers: { name: 'Mâm hoa sen', price: 15, description: 'Hoa sen và chén nước thanh khiết.' },
 };
 export const SHOP_START_POINTS = 100;
-export const SHOP_DAILY_POINTS = 30;
+export const SHOP_DAILY_POINTS = 300;
 export const OFFERING_SECONDS = 600;

@@ -9,7 +9,7 @@ export function effectiveState(p, now = Date.now()) {
 }
 
 export function publicPlayer(p, now = Date.now()) {
-  return { id: p.id, name: p.name, appearance: p.appearance, sceneId: p.sceneId, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, direction: p.direction, state: effectiveState(p, now), elapsed: Math.max(0, (now - p.actionAt) / 1000) };
+  return { id: p.id, name: p.name, appearance: p.appearance, sceneId: p.sceneId, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, direction: p.direction, state: effectiveState(p, now), elapsed: Math.max(0, (now - p.actionAt) / 1000), restaurantSeat: p.restaurantSeat || null };
 }
 
 // Live, in-memory room presence. Durable data lives in SQLite; this only tracks who is connected where.

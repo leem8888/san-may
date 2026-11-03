@@ -13,11 +13,20 @@
     "right": 70
   },
   "ground": {
-    "base": "#24170f",
+    "base": "#302116",
     "void": "#140d09",
     "layers": [
       {
         "type": "planks",
+        "x": 60,
+        "y": 240,
+        "w": 1280,
+        "h": 710,
+        "gap": "#60442f",
+        "colors": ["#a87952", "#b28159", "#9a704d", "#ad805b"]
+      },
+      {
+        "type": "floorInlay",
         "x": 60,
         "y": 240,
         "w": 1280,
@@ -125,25 +134,25 @@
       "y": 425
     },
     {
-      "type": "pillar",
+      "type": "hallPillar",
       "x": 260,
       "y": 480,
       "height": 210
     },
     {
-      "type": "pillar",
+      "type": "hallPillar",
       "x": 1140,
       "y": 480,
       "height": 210
     },
     {
-      "type": "pillar",
+      "type": "hallPillar",
       "x": 260,
       "y": 790,
       "height": 210
     },
     {
-      "type": "pillar",
+      "type": "hallPillar",
       "x": 1140,
       "y": 790,
       "height": 210

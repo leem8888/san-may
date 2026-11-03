@@ -7,6 +7,7 @@ export class JsonDialogueProvider {
   async get(id) {
     const entry = this.data[id];
     if (!entry) throw Error('Chưa có lời thoại.');
+    if (entry.randomPages?.length) return { ...entry, pages: [entry.randomPages[Math.floor(Math.random() * entry.randomPages.length)]] };
     if (!entry.randomStory || !this.stories.length) return entry;
     // Storytellers pick a different sourced story each time (never the same one twice in a row).
     const choices = this.stories.filter(s => s.id !== this.lastStory), story = choices[Math.floor(Math.random() * choices.length)];

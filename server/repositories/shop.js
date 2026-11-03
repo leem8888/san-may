@@ -31,7 +31,7 @@ export function createShopRepo(db) {
     if (!item) throw Error('Không có món lễ này.');
     const quantity = q.stock.all(id).find(row => row.sku === sku)?.quantity || 0;
     if (quantity >= 20) throw Error('Bạn đã mang đủ 20 món loại này. Hãy dâng lễ trước nhé.');
-    if (!q.debit.run(item.price, id, item.price).changes) throw Error('Bạn chưa đủ điểm. Có thể nhận thêm 30 điểm mỗi ngày tại quầy.');
+    if (!q.debit.run(item.price, id, item.price).changes) throw Error('Bạn chưa đủ xu. Có thể nhận thêm 300 xu mỗi ngày tại quầy.');
     q.grant.run(id, sku); q.insertOrder.run(id, requestId, sku);
     return state(id, day);
   });
@@ -43,6 +43,11 @@ export function createShopRepo(db) {
   });
   return {
     state, purchase, offer,
+    charge(id, amount, day) {
+      init(id, day);
+      if (!Number.isInteger(amount) || amount < 1 || !q.debit.run(amount, id, amount).changes) throw Error('Bạn chưa đủ xu. Ghé quầy hương để nhận thêm 300 xu mỗi ngày nhé.');
+      return state(id, day);
+    },
     releaseFish: db.transaction((id, requestId, day, now) => {
       const old = q.released.get(id, requestId);
       if (old) return { repeated: true, at: old.at, shop: state(id, day) };
@@ -54,7 +59,7 @@ export function createShopRepo(db) {
       if (!q.consume.run(id, 'fishFood').changes) throw Error('Bạn chưa có thức ăn cá. Ghé quầy ngoài cổng chùa để mua nhé.');
       return state(id, day);
     }),
-    claim(id, day) { init(id, day); if (!q.claim.run(SHOP_DAILY_POINTS, day, id, day).changes) throw Error('Hôm nay bạn đã nhận điểm rồi.'); return state(id, day); },
+    claim(id, day) { init(id, day); if (!q.claim.run(SHOP_DAILY_POINTS, day, id, day).changes) throw Error('Hôm nay bạn đã nhận xu rồi.'); return state(id, day); },
     offerings: (room, now = Date.now()) => q.offers.all(room, now - OFFERING_SECONDS * 1000),
   };
 }

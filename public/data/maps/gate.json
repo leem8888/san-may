@@ -248,6 +248,18 @@
       "y": 236,
       "w": 26,
       "h": 176
+    },
+    {
+      "x": 1040,
+      "y": 955,
+      "w": 120,
+      "h": 55
+    },
+    {
+      "x": 1340,
+      "y": 955,
+      "w": 120,
+      "h": 55
     }
   ],
   "props": [
@@ -322,12 +334,6 @@
     {
       "type": "tree",
       "x": 300,
-      "y": 1040,
-      "size": 1
-    },
-    {
-      "type": "tree",
-      "x": 1300,
       "y": 1040,
       "size": 1
     },
@@ -418,6 +424,32 @@
       "x": 575,
       "y": 910,
       "solid": false
+    },
+    {
+      "type": "bunCart",
+      "x": 1260,
+      "y": 1170,
+      "solid": false
+    },
+    {
+      "type": "vegFoodCart",
+      "x": 1535,
+      "y": 1170,
+      "solid": false
+    },
+    {
+      "id": "vegTable1",
+      "type": "restaurantTable",
+      "x": 1100,
+      "y": 1005,
+      "w": 140
+    },
+    {
+      "id": "vegTable2",
+      "type": "restaurantTable",
+      "x": 1400,
+      "y": 1005,
+      "w": 140
     }
   ],
   "objects": [
@@ -425,7 +457,7 @@
       "id": "offeringStall",
       "type": "offeringStall",
       "x": 1120,
-      "y": 860,
+      "y": 760,
       "label": "Mua hương và lễ",
       "action": "shop",
       "radius": 140,
@@ -449,6 +481,69 @@
         "outfitColor": "#8ba59b",
         "accessory": "none"
       }
+    },
+    {
+      "id": "bunSeller",
+      "type": "npc",
+      "x": 1360,
+      "y": 1155,
+      "name": "Cô Hạnh · Bánh bao chay",
+      "label": "Hỏi cô Hạnh về bánh bao chay",
+      "action": "dialogue",
+      "dialogue": "bunSeller",
+      "radius": 100,
+      "solid": false,
+      "appearance": {
+        "hairStyle": "bun",
+        "hairColor": "#33251f",
+        "outfitStyle": "tunic",
+        "outfitColor": "#a96647",
+        "accessory": "none"
+      }
+    },
+    {
+      "id": "vegSeat1A",
+      "type": "restaurantSeat",
+      "x": 1054,
+      "y": 1060,
+      "tableId": "vegTable1",
+      "action": "restaurantSeat",
+      "label": "Ngồi vào bàn ăn chay",
+      "radius": 74,
+      "solid": false
+    },
+    {
+      "id": "vegSeat1B",
+      "type": "restaurantSeat",
+      "x": 1146,
+      "y": 1060,
+      "tableId": "vegTable1",
+      "action": "restaurantSeat",
+      "label": "Ngồi vào bàn ăn chay",
+      "radius": 74,
+      "solid": false
+    },
+    {
+      "id": "vegSeat2A",
+      "type": "restaurantSeat",
+      "x": 1354,
+      "y": 1060,
+      "tableId": "vegTable2",
+      "action": "restaurantSeat",
+      "label": "Ngồi vào bàn ăn chay",
+      "radius": 74,
+      "solid": false
+    },
+    {
+      "id": "vegSeat2B",
+      "type": "restaurantSeat",
+      "x": 1446,
+      "y": 1060,
+      "tableId": "vegTable2",
+      "action": "restaurantSeat",
+      "label": "Ngồi vào bàn ăn chay",
+      "radius": 74,
+      "solid": false
     },
     {
       "id": "guide",
@@ -493,7 +588,8 @@
       "action": "story",
       "narrative": true,
       "radius": 90,
-      "solid": false
+      "solid": false,
+      "sortY": 405
     }
   ]
 }

@@ -329,3 +329,12 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 - C6 avoids resetting canvas backing dimensions on duplicate unchanged resize events. FPS improvement is not measured or claimed.
 - C7: QA/performance/handoff updated. `npm.cmd run check` passed (161 files); `npm.cmd test` passed (96/96); browser visual QA and FPS remain NOT RUN.
 - Local commit: `71c4659` on `feature/visual-polish-3` (not pushed). Overall status: **PARTIAL** pending browser screenshots, responsive visual review and benchmark. Detailed record: `docs/visual-polish/QA_REPORT.md`.
+
+## Cập nhật gần nhất — quán chay, xu và móc chuông (2026-11-03)
+
+- Cổng Tam Quan có quán chay với số ghế cố định theo bàn. Người chơi chọn ghế hoặc chạm bàn để lấy ghế trống; gọi một món, Cô Hạnh chuẩn bị rồi mang ra. Có thể đóng popup mà vẫn ngồi; nút HUD riêng dùng để đứng dậy. Bàn chỉ được lau sau khi khách đã dùng món và rời đi.
+- Tiền trong game hiển thị bằng số và icon xu tự vẽ. Mỗi ngày nhận 300 xu; giá mua và giá món ăn giữ nguyên. Icon đặt sau số, không dùng emoji hay chữ “đồng” trên giá.
+- Khách trang trí ngẫu nhiên tăng từ 8 lên 16; chỉ tồn tại phía client, không tính vào danh sách người chơi hoặc lưu trữ.
+- Móc treo chuông gió dưới mái cổng được vẽ rõ và đặt ở lớp trước cổng; chuông xuất hiện sau khi hoàn thành đoạn truyện của An.
+- Đã sửa một số hiệu ứng hình ảnh/âm thanh và tương tác ở cổng, sân chùa, Chánh Điện theo thay đổi trong commit đi kèm.
+- Kiểm tra trong phiên này: `git diff --check` đạt. Chưa chạy test hoặc QA trình duyệt.

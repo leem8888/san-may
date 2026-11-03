@@ -52,7 +52,13 @@ export class Game {
   // Tapping an interactive object walks to it; the interaction fires on arrival.
   tap(point) {
     if (this.player.state === 'meditate') return true;
+    if (this.player.restaurantSeat) { this.input.clear(); this.approach = null; return true; }
     if (this.pointHandler?.(point)) { this.input.cancelPath(); this.approach = null; return true; }
+    // Portal hit areas can overlap nearby props (the shoe rack sits just below the main hall entrance).
+    // A tap on an entrance is a movement target; otherwise the prop can steal every attempt to enter.
+    if (this.scene.portalAt(point.x, point.y)) {
+      this.onMove?.(); this.navigationRetries = 0; this.navigate(point); return true;
+    }
     const o = this.interactions.at(point.x, point.y);
     this.onMove?.();
     this.navigationRetries = 0; this.navigate(point, o);
@@ -75,14 +81,14 @@ export class Game {
     const q = { low: .3, medium: .6, high: 1 }[this.renderer.quality], { levels, wind } = this.weather;
     for (let n = levels.rain * 150 * q * dt; n > 0; n--) if (Math.random() < n) { const vy = 560 + Math.random() * 220; this.particles.spawn({ kind: 'rain', screen: true, x: Math.random() * (this.camera.width + 120) - 60, y: -12, vx: -wind * 70, vy, size: 10 + Math.random() * 7, life: (this.camera.height + 30) / vy, alpha: .5 }); }
     for (let n = levels.rain * 22 * q * dt; n > 0; n--) if (Math.random() < n) this.particles.spawn({ kind: 'splash', x: view.left + Math.random() * view.width, y: view.top + Math.random() * view.height, life: .45, alpha: .55 });
-    for (let n = (levels.leaves + levels.wind * .5) * 5 * q * dt; n > 0; n--) if (Math.random() < n) this.particles.spawn({ kind: 'leaf', x: view.left - 40 + Math.random() * (view.width + 80), y: view.top - 16, vy: 24 + Math.random() * 16, vr: 1.2 + Math.random(), life: 14, size: 2 + Math.random() * 2, seed: Math.random() * 6, color: ['#c6b278', '#b98d55', '#d7c48e', '#9fae6a'][Math.floor(Math.random() * 4)] });
+    for (let n = (levels.leaves + levels.wind * .5) * 2.8 * q * dt; n > 0; n--) if (Math.random() < n) this.particles.spawn({ kind: 'leaf', x: view.left - 40 + Math.random() * (view.width + 80), y: view.top - 28 + Math.random() * 110, life: 11 + Math.random() * 7, size: 2.4 + Math.random() * 2.2, seed: Math.random() * 12, color: ['#c6b278', '#b98d55', '#d7c48e', '#9fae6a'][Math.floor(Math.random() * 4)] });
   }
   update(dt, onTick) {
     this.time += dt; this.scenes.update(dt);
     const p = this.player, scene = this.scene, oldX = p.x, oldY = p.y;
     if (p.state === 'meditate') { this.input.clear(); this.approach = null; this.tapMarker = null; }
     p.direction = bowDirection(scene.id, p.state, p.direction);
-    const vector = this.scenes.busy || this.locked ? { x: 0, y: 0 } : this.input.vector(p);
+    const vector = this.scenes.busy || this.locked || p.restaurantSeat ? { x: 0, y: 0 } : this.input.vector(p);
     p.update(dt, vector, scene.collision);
     this.blockedFor = this.input.target && Math.hypot(p.x - oldX, p.y - oldY) < .01 ? (this.blockedFor || 0) + dt : 0;
     if (this.blockedFor > .25) {

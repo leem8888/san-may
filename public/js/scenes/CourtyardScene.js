@@ -6,8 +6,12 @@ import { lanternString } from '../rendering/StoryProps.js';
 export class CourtyardScene extends Scene {
   get yard() { return this.objects.find(o => o.id === 'lanternSwitch')?.world?.restoration || {}; }
   ambient(game, particles, env, view) {
-    const clean = (this.yard.stage || 0) >= 2, chance = clean ? .997 : .985;
-    if ((!clean && game.weather.levels.leaves > .2) || Math.random() > chance - env.dt) particles.spawn({ kind: 'leaf', x: view.left + Math.random() * view.width, y: view.top - 20, vy: 22 + Math.random() * 14, vr: 1.4, life: 14, size: 2 + Math.random() * 2, seed: Math.random() * 6, color: ['#c6b278', '#b98d55', '#d7c48e'][Math.floor(Math.random() * 3)] });
+    const clean = (this.yard.stage || 0) >= 2;
+    this.leafTimer = (this.leafTimer ?? 2.5) - env.dt;
+    if (this.leafTimer <= 0) {
+      if (!clean || game.weather.levels.leaves > .25) particles.spawn({ kind: 'leaf', x: view.left + Math.random() * view.width, y: view.top - 24 + Math.random() * 90, life: 11 + Math.random() * 7, size: 2.4 + Math.random() * 2.2, seed: Math.random() * 12, color: ['#c6b278', '#b98d55', '#d7c48e', '#9fae6a'][Math.floor(Math.random() * 4)] });
+      this.leafTimer = 3.5 + Math.random() * 5;
+    }
   }
   dynamicLights() {
     const post = this.objects.find(o => o.id === 'lanternSwitch');

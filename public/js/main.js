@@ -34,6 +34,7 @@ import { WorldStateStore } from './multiplayer/WorldStateStore.js';
 import { ROUTINE_NAMES } from './shared/npcSchedule.js';
 import { ShopPanel } from './ui/ShopPanel.js';
 import { closeScenePopups } from './ui/ScenePopups.js';
+import { RestaurantPanel } from './ui/RestaurantPanel.js';
 
 const params = new URLSearchParams(location.search);
 // ?slot=2 keeps a separate guest identity, so two tabs of one browser can test multiplayer.
@@ -48,7 +49,7 @@ const savedVolumes = (() => { try { return JSON.parse(store.get('sanmay-volumes'
 const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolumes);
 const panels = new Panels(), creator = new CharacterCreator();
 const blocked = new Set();
-let coop, hall, bowSession, beadRing, reading, prayerBook, game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
+let coop, hall, bowSession, beadRing, reading, prayerBook, game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, restaurantPanel, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
 let loveObject = null, loveCard = null, incenseObject = null;
 // Server-side story state: current objectives, which NPCs have something new to tell, which NPCs talk via the server.
 let storyState = { objectives: [], highlights: [], talkers: [] };
@@ -130,6 +131,10 @@ function syncBells(bells, serverNow) {
 }
 function applyScene(self, snapshot, announce = true) {
   game.player.appearance = self.appearance;
+  if (game.player.restaurantSeat !== (self.restaurantSeat || null)) {
+    game.player.restaurantSeat = self.restaurantSeat || null;
+    if (!game.player.restaurantSeat && game.player.state === 'sit') game.player.setState(self.state || 'idle');
+  }
   const changed = game.scene.id !== self.sceneId;
   if (changed || Math.hypot(game.player.x - self.x, game.player.y - self.y) > 2) game.setScene(self.sceneId, self.x, self.y, self.direction);
   net.loadScene(snapshot);
@@ -141,6 +146,7 @@ function applyScene(self, snapshot, announce = true) {
   worldStore.load(snapshot.world, self.sceneId);
   game.scene.setGarden?.(snapshot.garden, net.selfId);
   game.scene.setSand?.(snapshot.sand);
+  game.scene.setRestaurantState?.(snapshot.restaurant, now);
   game.scene.setOfferings?.(snapshot.offerings, now);
   game.scene.setFishFeed?.(snapshot.fishFeed, now);
   gardens?.refresh();
@@ -168,6 +174,13 @@ const net = new SocketClient(io, {
     bowSession?.show(res.practice);
   },
   'meditation:ended'(result) { meditation.result(result); },
+  'restaurant:update'(state) {
+    if (state.sceneId !== game.scene.id) return;
+    game.scene.setRestaurantState?.(state, net.clock.now()); restaurantPanel?.update(state);
+    const occupied = state.tables?.some(table => table.seats.some(seat => seat.id === game.player.restaurantSeat && seat.playerId === net.selfId));
+    if (game.player.restaurantSeat && !occupied) { game.player.restaurantSeat = null; if (game.player.state === 'sit') game.player.setState('idle'); }
+    restaurantPanel?.syncHud();
+  },
   error(error) { toast(error.message); },
   unauthorized() { api.setToken(''); toast('Phiên khách không còn hợp lệ. Đang tải lại…'); setTimeout(() => location.reload(), 1500); },
   'player:correct'(data) { if (data.sceneId === game.scene.id) game.player.place(data.x, data.y, data.direction); },
@@ -236,6 +249,7 @@ function interact(o = game.interactions.nearest) {
       if (npc && net.connected && storyState.talkers.includes(o.id)) return dialogue.openServer(npc);
       return dialogue.open(o.dialogue).catch(error => toast(error.message));
     }
+    case 'restaurantSeat': case 'restaurantTable': return restaurantPanel.open(o);
     case 'wishes': return panels.open('wishPanel');
     case 'bell': return ringBell(o);
     case 'sit': game.player.setState(game.player.state === 'sit' ? 'idle' : 'sit'); return toast(game.player.state === 'sit' ? 'Ngồi nghỉ. Di chuyển để đứng dậy.' : 'Đã đứng dậy.');
@@ -439,6 +453,7 @@ async function boot() {
     game = new Game($('#scene'), assets, $('#joystick'), keyAction, tick, { scene: start, room, time: store.get('sanmay-time', 'auto'), weather: store.get('sanmay-weather', 'auto') });
     game.onSceneChange = () => {
       closeScenePopups({ panels, dialogue, minigames, game });
+      restaurantPanel?.closeForScene();
       selectedCat = null;
       // A flower is offered in the hall it was picked in; a partner list belongs to the area it was opened in.
       game.player.holding = null; coop?.closePicker();
@@ -446,6 +461,7 @@ async function boot() {
     };
     game.onMove = () => {
       panels.close();
+      restaurantPanel?.onMove();
       if ($('#mainNav').classList.contains('open')) panels.menu(false);
       $('#emotes').hidden = true;
     };
@@ -458,7 +474,7 @@ async function boot() {
     game.player.onStateChange = (state, previous) => { if (!['walk', 'idle', 'bell', 'meditate'].includes(state) || (state === 'idle' && previous === 'sit')) net.action(state); meditation?.playerState(state, previous); };
     game.player.onComplete = state => {
       if (state !== 'bow' && state !== 'bead') return;
-      audio.tone(state === 'bow' ? 350 : 580, .45);
+      audio.tone(state === 'bow' ? 350 : 580, .6, .12);
       net.request('practice:complete', { type: state }).then(res => {
         setProgress(res.progress);
         if (state === 'bow') bowSession.counted(res.session); else beadRing.update(res.progress);
@@ -473,6 +489,7 @@ async function boot() {
     mapPanel = new MapPanel(assets.get('maps'));
     const shared = { net, game, api, audio, panels, celebrate };
     shop = new ShopPanel(shared);
+    restaurantPanel = new RestaurantPanel({ net, game });
     gardens = new GardenPanel({ ...shared, getMe: () => me, applyScene });
     new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render(), onCoop: person => { panels.close(); coop.pick({ person }); } });
     new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
