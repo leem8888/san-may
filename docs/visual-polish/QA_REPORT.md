@@ -64,4 +64,4 @@ Shared design tokens and style guide are in place; HUD action buttons and generi
 - C4 code: mobile safe-area spacing, horizontally scrollable action bar beside joystick, touch target minimums, and viewport-bounded scrolling dialogs/panels.
 - Browser captures, actual responsive layout, occlusion/z-fighting inspection, two-client visual animation and performance remain `NOT RUN` for the C0 environment limitation.
 
-C2–C4 are implemented in code but remain partially evidenced pending browser review. Automated regression is not a substitute for the required visual acceptance. 
+C2–C4 are implemented in code but remain partially evidenced pending browser review. Automated regression is not a substitute for the required visual acceptance.

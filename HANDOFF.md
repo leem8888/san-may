@@ -328,4 +328,4 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 - C5 reused existing weather-aware audio, mute/volume controls and quality/reduced-effects settings; reduced-motion now stabilizes portal markers, water ripples and fog.
 - C6 avoids resetting canvas backing dimensions on duplicate unchanged resize events. FPS improvement is not measured or claimed.
 - C7: QA/performance/handoff updated. `npm.cmd run check` passed (161 files); `npm.cmd test` passed (96/96); browser visual QA and FPS remain NOT RUN.
-- Overall status: **PARTIAL** pending browser screenshots, responsive visual review and benchmark. Detailed record: `docs/visual-polish/QA_REPORT.md`.
+- Local commit: `71c4659` on `feature/visual-polish-3` (not pushed). Overall status: **PARTIAL** pending browser screenshots, responsive visual review and benchmark. Detailed record: `docs/visual-polish/QA_REPORT.md`.

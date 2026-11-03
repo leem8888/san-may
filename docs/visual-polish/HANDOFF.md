@@ -36,4 +36,4 @@ Capture matched before/after screenshots and complete viewport review before acc
 - C6 added a guard so duplicate resize events do not reset an unchanged canvas backing store. No benchmark result is claimed.
 - C7 documented QA, limits and next steps. Regression: syntax/JSON check 161 files; test suite 96/96; diff check clean.
 - Overall status: **PARTIAL**. Browser screenshots, mobile visual review, audio listening and FPS/frame-time measurement remain NOT RUN; those are acceptance blockers for the full visual polish DoD.
-- Local feature-branch commit will be recorded below after commit.
+- Implementation commit: `71c4659` (`Implement visual polish checkpoints C0-C7`) on `feature/visual-polish-3`; local only, not pushed.
