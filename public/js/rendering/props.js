@@ -266,7 +266,7 @@ export const PROPS = {
     for (const side of [-1, 1]) {
       const px=x+side*118;box(c,px-12,y-230,24,222,'#4b342b',3);box(c,px-9,y-228,18,216,timber,2);line(c,px-5,y-218,px-5,y-34,'#dfaa7255',1);
       box(c,px-16,y-24,32,17,'#6f5943',3);box(c,px-19,y-20,38,7,'#c2a16b',2);
-      box(c,px-14,y-235,28,11,'#bd9661',2);oval(c,px,y-229,2,2,'#ead39a');
+      box(c,px-14,y-235,28,11,'#bd9661',2);ellipse(c,px,y-229,2,2,'#ead39a');
     }
     beam(c,x-118,y-199,x-57,y-235,15,'#684234');beam(c,x+118,y-199,x+57,y-235,15,'#684234');
     line(c,x-112,y-202,x-62,y-232,'#c28c5f66',1.4);line(c,x+112,y-202,x+62,y-232,'#c28c5f66',1.4);

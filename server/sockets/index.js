@@ -188,7 +188,7 @@ export function attachSockets(io, ctx) {
     socket.on('error', () => {});
     socket.use(([event, ...args], next) => {
       if (limiter.take('all')) {
-        if (self?.meditation && !['room:join', 'room:leave', 'player:move', 'player:action', 'player:emote', 'chat:send', 'meditation:start', 'meditation:finish', 'coop:state', 'coop:leave', 'coop:respond', 'coop:memories'].includes(event)) {
+        if (self?.meditation && !['room:join', 'room:leave', 'player:move', 'player:action', 'player:emote', 'chat:send', 'meditation:start', 'meditation:finish', 'player:recover', 'coop:state', 'coop:leave', 'coop:respond', 'coop:memories'].includes(event)) {
           const ack = args.at(-1);
           if (typeof ack === 'function') ack({ error: 'Bạn đang thiền. Hãy bấm Kết thúc thiền trước khi làm việc khác.' });
           return;
@@ -509,15 +509,32 @@ export function attachSockets(io, ctx) {
       if (!portal) return ack({ error: 'Lối đi không tồn tại.' });
       if (p.sweeping) return ack({ error: 'Hãy kết thúc quét sân trước khi đi.' });
       if (!insideRect(portal, p.x, p.y, 48)) return ack({ error: 'Hãy đi tới lối chuyển khu vực.', x: p.x, y: p.y });
-      if (portal.to === 'mainHall' && p.footwear !== 'stored') return ack({ error: 'Hãy cất dép ở kệ trước Chánh Điện.' });
-      if (p.footwear === 'stored' && !['mainHall', 'courtyard'].includes(portal.to)) {
-        repos.players.setFootwear(p.id, 'wearing'); p.footwear = 'wearing'; p.appearance.footwear = 'wearing';
+      let footwear = p.footwear;
+      if (portal.to === 'mainHall') footwear = 'stored';
+      else if (p.sceneId === 'mainHall' || !['mainHall', 'courtyard'].includes(portal.to)) footwear = 'wearing';
+      const footwearChanged = footwear !== p.footwear;
+      if (footwearChanged) {
+        repos.players.setFootwear(p.id, footwear); p.footwear = footwear; p.appearance.footwear = footwear;
       }
       if (p.meditation) { const result = finishMeditation(p); if (result) socket.emit('meditation:ended', result); }
       changeScene(p, portal.to, world.spawn(portal.to, portal.spawn));
       const result = visit(p);
       story.handle({ type: 'visit', scene: p.sceneId });
       notify(socket, result);
+      ack({ ok: true, self: publicPlayer(p), scene: snapshot(p), footwearChanged: footwearChanged ? footwear : null });
+    });
+
+    // Recovery works from any scene or animation, including a broken render loop.
+    socket.on('player:recover', (data, ack) => {
+      ack = reply(ack);
+      const p = self;
+      if (!p) return ack({ error: 'Hãy vào trò chơi trước.' });
+      if (p.meditation) { const result = finishMeditation(p); if (result) socket.emit('meditation:ended', result); }
+      p.sweeping = false;
+      if (p.footwear !== 'wearing') {
+        repos.players.setFootwear(p.id, 'wearing'); p.footwear = 'wearing'; p.appearance.footwear = 'wearing';
+      }
+      changeScene(p, 'gate', world.spawn('gate'));
       ack({ ok: true, self: publicPlayer(p), scene: snapshot(p) });
     });
 

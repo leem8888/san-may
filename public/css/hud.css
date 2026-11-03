@@ -5,6 +5,7 @@
 .mark{display:grid;place-items:center;border:1px solid #d9b77e9c;width:44px;height:44px;border-radius:50%;font-size:28px;color:var(--gold)}
 nav{pointer-events:auto;gap:7px}
 nav button{font-size:12px;backdrop-filter:blur(15px)}
+nav .return-gate{color:#f2d9a4;border-color:#d9b77e88}
 nav button[aria-expanded=true]{background:#3c5e4d;border-color:#d9b77e88}
 .menu-toggle{display:none;pointer-events:auto}
 .room{position:absolute;left:30px;top:88px;display:flex;gap:9px;align-items:center;font-size:10px;color:#cbd9bf;flex-wrap:wrap;max-width:560px;background:#102625bc;padding:8px 12px;border-radius:20px;z-index:2}

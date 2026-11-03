@@ -31,7 +31,7 @@ test('fish seller is separate; purchase and release are atomic and idempotent', 
   assert.ok((await ask(socket, 'fish:release', { objectId: 'fishRelease', requestId: 'fish-drop-2' })).error);
 });
 
-test('gender is fixed; shaving title and footwear survive reload and hall gate is enforced', async t => {
+test('gender is fixed; shaving title and automatic hall footwear changes persist', async t => {
   const s = await startServer(); t.after(s.close);
   const a = guest(s.game), repo = s.game.ctx.repos.players;
   const set = await s.http('PUT', '/api/profile', { name: 'An', appearance: {}, gender: 'female' }, a.token);
@@ -43,12 +43,38 @@ test('gender is fixed; shaving title and footwear survive reload and hall gate i
   assert.equal((await ask(socket, 'character:shave', { objectId: 'shavingMonk' })).appearance.shaved, true);
   assert.equal((await ask(socket, 'character:shave', { objectId: 'shavingMonk' })).appearance.hairStyle, 'shaved');
   const p = s.game.ctx.rooms.findPlayer(a.id); p.x = 900; p.y = 430;
-  assert.ok((await ask(socket, 'player:portal', { portalId: 'toHall' })).error);
+  const entered = await ask(socket, 'player:portal', { portalId: 'toHall' });
+  assert.equal(entered.self.appearance.footwear, 'stored');
+  assert.equal(entered.footwearChanged, 'stored');
+  assert.equal(repo.profile(a.id).footwear, 'stored');
+  p.x = 700; p.y = 930;
+  const left = await ask(socket, 'player:portal', { portalId: 'toCourtyard' });
+  assert.equal(left.self.appearance.footwear, 'wearing');
+  assert.equal(left.footwearChanged, 'wearing');
+  assert.equal(repo.profile(a.id).footwear, 'wearing');
   p.x = 760; p.y = 475;
   assert.equal((await ask(socket, 'footwear:toggle', { objectId: 'shoeRack' })).footwear, 'stored');
   p.x = 900; p.y = 430;
-  assert.equal((await ask(socket, 'player:portal', { portalId: 'toHall' })).self.appearance.footwear, 'stored');
-  assert.equal(repo.profile(a.id).footwear, 'stored');
+  assert.equal((await ask(socket, 'player:portal', { portalId: 'toHall' })).footwearChanged, null);
+});
+
+test('emergency return reaches the gate without a portal and clears stuck actions', async t => {
+  const s = await startServer(); t.after(s.close);
+  const a = guest(s.game), repo = s.game.ctx.repos.players;
+  repo.saveLocation(a.id, 'mainHall', 700, 800);
+  repo.setFootwear(a.id, 'stored');
+  const socket = await connect(s.base, a.token); t.after(() => socket.close());
+  await ask(socket, 'room:join', { room: 'TEMPLE' });
+  const p = s.game.ctx.rooms.findPlayer(a.id);
+  p.state = 'sweep'; p.sweeping = true;
+  const res = await ask(socket, 'player:recover');
+  assert.equal(res.self.sceneId, 'gate');
+  assert.deepEqual([res.self.x, res.self.y], [800, 1000]);
+  assert.equal(res.self.state, 'idle');
+  assert.equal(res.self.appearance.footwear, 'wearing');
+  assert.equal(repo.profile(a.id).footwear, 'wearing');
+  assert.equal(repo.progress(a.id).lastScene, 'gate');
+  assert.equal(p.sweeping, false);
 });
 
 test('love cards are private and sweep state ends cleanly', async t => {

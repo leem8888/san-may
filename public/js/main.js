@@ -364,7 +364,16 @@ async function usePortal(portal) {
   if (!net.connected) { blockedPortal = portal.id; return toast('Đang mất kết nối nên chưa thể sang khu khác.'); }
   await game.scenes.transition(async () => {
     net.sendMove(game.player, performance.now(), true);
-    try { const res = await net.request('player:portal', { portalId: portal.id }); applyScene(res.self, res.scene); audio.tone(440, .5, .04); }
+    try {
+      const res = await net.request('player:portal', { portalId: portal.id });
+      applyScene(res.self, res.scene); audio.tone(440, .5, .04);
+      if (res.footwearChanged && !game.reduced) for (let i = 0; i < 8; i++) {
+        const angle = i * Math.PI / 4;
+        game.particles.spawn({ kind: 'mote', x: game.player.x + Math.cos(angle) * 11, y: game.player.y - 8 + Math.sin(angle) * 4, vx: Math.cos(angle) * 9, vy: -14, life: 1.2, size: 2, color: '#f1d79c' });
+      }
+      if (res.footwearChanged === 'stored') toast('Bạn đã cất dép trước khi vào Chánh Điện.');
+      else if (res.footwearChanged === 'wearing') toast('Bạn đã mang lại dép.');
+    }
     catch (error) { blockedPortal = portal.id; toast(error.message); }
   });
 }
@@ -598,6 +607,24 @@ window.visualViewport?.addEventListener('resize', restoreChatViewport);
 $('#name').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#enter').disabled) $('#enter').click(); });
 $('#bow').onclick = () => act('bow'); $('#bead').onclick = () => act('bead'); $('#pray').onclick = () => act('pray'); $('#wave').onclick = () => act('wave'); $('#interact').onclick = () => interact();
 $('#restart').onclick = async () => { try { for (const type of ['bow', 'bead']) if (progress?.[`${type}sRound`] >= ROUND) setProgress((await api.post('/progress/restart', { type })).progress); toast('Đã bắt đầu vòng mới.'); } catch (error) { toast(error.message); } };
+$('#returnGate').onclick = async () => {
+  if (!entered || !game) return toast('Hãy vào trò chơi trước.');
+  const button = $('#returnGate'); button.disabled = true;
+  try {
+    const res = await net.request('player:recover');
+    if (meditation?.session) meditation.close();
+    closeScenePopups({ panels, dialogue, minigames, game });
+    restaurantPanel?.closeForScene();
+    game.loop.stop(); game.suspended = false;
+    game.scenes.busy = false; game.scenes.fade = game.scenes.fadeTarget = 0;
+    game.setScene(res.self.sceneId, res.self.x, res.self.y, res.self.direction);
+    game.player.setState('idle'); applyScene(res.self, res.scene);
+    game.pauseInput(false); blockedPortal = null;
+    if (!document.hidden) game.loop.start();
+    toast('Đã trở lại cổng chùa. Bạn có thể tiếp tục chơi.');
+  } catch (error) { toast(error.message); }
+  finally { button.disabled = false; }
+};
 $('#copy').onclick = async () => { const invite = new URL(location.href); invite.searchParams.delete('slot'); try { await navigator.clipboard.writeText(invite.href); toast('Đã sao chép liên kết mời vào phòng này.'); } catch { toast('Không truy cập được clipboard. Hãy sao chép địa chỉ trên thanh trình duyệt.'); } };
 window.addEventListener('keydown', e => { if (e.key === 'Escape' && !dialogue?.isOpen && !entered) panels.close(); });
 window.addEventListener('pagehide', () => { net.stop(); game?.destroy(); });
