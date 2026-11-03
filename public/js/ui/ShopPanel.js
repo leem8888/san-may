@@ -75,7 +75,7 @@ export class ShopPanel {
         this.game.scene.setFishFeed?.(res.feed, this.net.clock.now()); this.game.player.act('interact'); this.panels.close();
         toast('Đàn cá đã bơi đến chỗ bạn rải cám!');
       } else if (event === 'fish:release') {
-        this.game.player.act('interact'); this.panels.close(); toast('Bạn đã thả cá về Hồ Sen.');
+        this.game.player.act('interact'); this.panels.close(); toast('Bạn nhẹ nhàng thả cá xuống hồ.');
       } else if (event === 'shop:offer') {
         this.game.player.act('pray'); toast('Bạn đã nhẹ nhàng dâng món lễ.');
       } else if (event === 'shop:claim') toast('Đã nhận 30 điểm trong game.');

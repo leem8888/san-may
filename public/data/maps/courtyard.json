@@ -308,9 +308,9 @@
     },
     {
       "type": "tree",
-      "x": 405,
-      "y": 650,
-      "size": 1.25
+      "x": 260,
+      "y": 300,
+      "size": 0.9
     },
     {
       "type": "tree",
@@ -369,7 +369,7 @@
     {
       "id": "shoeRack",
       "type": "shoeRack",
-      "x": 760,
+      "x": 850,
       "y": 475,
       "label": "Cất hoặc lấy dép",
       "action": "footwear",
@@ -537,8 +537,8 @@
     {
       "id": "leafCart",
       "type": "leafCart",
-      "x": 420,
-      "y": 1160,
+      "x": 1570,
+      "y": 1170,
       "label": "Gom lá vào xe",
       "action": "restore",
       "restore": "courtyard",

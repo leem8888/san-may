@@ -134,10 +134,18 @@ export const STORY_PROPS = {
   },
   leafCart(c, o, env) {
     const { x, y } = o, full = yardOf(o).collected;
-    shadow(c, x, y, 38, 8, env);
-    c.strokeStyle = '#3b2c20'; c.lineWidth = 3; c.beginPath(); c.arc(x + 20, y - 8, 8, 0, Math.PI * 2); c.stroke();
-    box(c, x - 30, y - 34, 50, 22, '#6e5a44', 4); line(c, x - 30, y - 22, x - 52, y - 14, '#5a4632', 3); line(c, x - 22, y - 14, x - 26, y, '#5a4632', 3);
-    if (full) for (let i = 0; i < 14; i++) ellipse(c, x - 26 + (i * 7) % 44, y - 36 - (i % 3) * 3, 5, 2.4, LEAF_COLORS[i % LEAF_COLORS.length]);
+    shadow(c, x, y, 44, 9, env);
+    // A small two-handled garden wheelbarrow, with a deep metal tray and a spoked wheel.
+    c.strokeStyle='#493c30';c.lineWidth=4;c.beginPath();c.arc(x+28,y-6,10,0,Math.PI*2);c.stroke();
+    c.fillStyle='#8b887d';c.beginPath();c.arc(x+28,y-6,6,0,Math.PI*2);c.fill();
+    c.strokeStyle='#54483c';c.lineWidth=1;c.beginPath();c.moveTo(x+28,y-12);c.lineTo(x+28,y);c.moveTo(x+22,y-6);c.lineTo(x+34,y-6);c.moveTo(x+24,y-10);c.lineTo(x+32,y-2);c.moveTo(x+32,y-10);c.lineTo(x+24,y-2);c.stroke();
+    line(c,x-19,y-8,x+28,y-13,'#68513a',4);line(c,x-20,y-5,x+28,y-1,'#8b6b48',3);
+    line(c,x-18,y-8,x-57,y-15,'#704f33',3);line(c,x-16,y-3,x-57,y-8,'#704f33',3);
+    const tub=c.createLinearGradient(x,y-47,x,y-13);tub.addColorStop(0,'#8c8878');tub.addColorStop(.5,'#6e756b');tub.addColorStop(1,'#4b554d');
+    c.fillStyle=tub;c.beginPath();c.moveTo(x-35,y-43);c.lineTo(x+7,y-43);c.lineTo(x+22,y-13);c.lineTo(x-24,y-13);c.closePath();c.fill();
+    c.strokeStyle='#b0a78e';c.lineWidth=2;c.beginPath();c.moveTo(x-36,y-43);c.lineTo(x+8,y-43);c.stroke();
+    for(const dx of [-25,-10,5,17])line(c,x+dx,y-39,x+dx+8,y-17,'#b8b09699',1);
+    if(full)for(let i=0;i<18;i++){const lx=x-27+(i*11)%43,ly=y-46-(i%4)*3; c.save();c.translate(lx,ly);c.rotate((i%2?1:-1)*.3);ellipse(c,0,0,6,2.8,LEAF_COLORS[i%LEAF_COLORS.length]);line(c,-4,0,4,0,'#71804d',.6);c.restore();}
   },
   stoneBasin(c, o, env) {
     const { x, y } = o, clean = yardOf(o).wiped;

@@ -1,6 +1,7 @@
 import { FISH_FEED_SECONDS } from '../shared/fishFeeding.js';
 const smooth = t => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
 export function fishPose(fish, time, feed) {
+  if (fish.releasePose) return fish.releasePose;
   const a = time * fish.speed + fish.phase;
   const rx = fish.w.rx || fish.w.w / 2, ry = fish.w.ry || fish.w.h / 2;
   const cx = fish.w.shape === 'rect' ? fish.w.x + rx : fish.w.x;
@@ -21,7 +22,7 @@ export function drawKoi(c, fish, time, reduced, feed) {
   const { x, y, angle } = fishPose(fish, time, feed);
   const flick = reduced ? 0 : Math.sin(time * 5 + fish.phase) * 3;
   const oval = (px, py, sx, sy, fill) => { c.fillStyle = fill; c.beginPath(); c.ellipse(px, py, sx, sy, 0, 0, Math.PI * 2); c.fill(); };
-  c.save(); c.translate(x, y); c.rotate(angle);
+  c.save(); c.translate(x, y); c.rotate(angle); c.scale(fish.size || 1, fish.size || 1);
   oval(3, 6, 16, 5, '#082f3035');
   c.globalAlpha = .85;
   // Pectoral fins fan gently away from the body.

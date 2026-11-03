@@ -1,7 +1,9 @@
 import { Scene } from './Scene.js';
 import { ellipse, polygon } from '../rendering/SpriteRenderer.js';
 import { drawFishFeeding } from '../rendering/FishFeedingArt.js';
+import { drawKoi } from '../rendering/FishArt.js';
 import { FISH_FEED_SECONDS } from '../shared/fishFeeding.js';
+import { drawLakeLife } from '../rendering/LakeLife.js';
 
 export const LANTERN_LIFETIME = 600;
 function hash(text) { let h = 2166136261; for (const ch of text) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
@@ -19,6 +21,7 @@ export class LotusLakeScene extends Scene {
   constructor(map) {
     super(map);
     this.lanterns = new Map(); this.blocked = new Set();
+    this.releases = [];
     const water = map.ground.layers.find(l => l.type === 'water');
     this.lake = { x: water.x, y: water.y, rx: water.rx, ry: water.ry };
     this.dock = this.objects.find(o => o.action === 'lantern');
@@ -27,6 +30,10 @@ export class LotusLakeScene extends Scene {
   setFishFeed(feed,serverNow){
     if(feed&&this.feed?.id===feed.id)return;
     this.feed=feed?{...feed,born:this.time-(serverNow-feed.at)/1000}:null;
+  }
+  addFishRelease(data,serverNow=Date.now()){
+    this.releases.push({...data,born:this.time-Math.max(0,serverNow-data.at)/1000,phase:(data.at%997)/997*Math.PI*2});
+    if(this.releases.length>12)this.releases.shift();
   }
   fishFeeding(){
     if(!this.feed)return null;
@@ -48,8 +55,20 @@ export class LotusLakeScene extends Scene {
   dynamicLights() { return this.visibleLanterns().map(l => ({ x: l.x, y: l.y - 8, r: 60, color: '255,190,120', flicker: true, power: Math.min(1, (LANTERN_LIFETIME - l.age) / 30) })); }
   drawWater(c, env, quality) {
     super.drawWater(c, env, quality);
+    drawLakeLife(c,this.lake,env.time,env.reduced,quality);
     const feeding=this.fishFeeding();
     if(feeding)drawFishFeeding(c,feeding,feeding.age,this.lake,env.reduced,quality);
+    this.releases=this.releases.filter(f=>this.time-f.born<4.2);
+    for(const release of this.releases){
+      const age=Math.max(0,this.time-release.born),t=Math.max(0,Math.min(1,age/2.6)),ease=t*t*(3-2*t);
+      const x=release.x+(this.lake.x+this.lake.rx*.58-release.x)*ease;
+      const y=release.y+(this.lake.y+this.lake.ry*.35-release.y)*ease;
+      const fish={size:.9,phase:release.phase,speed:.08,r:.5,color:'#e4b46f',releasePose:{x,y,angle:-.5+Math.sin(env.time*4+release.phase)*.12}};
+      c.save();c.globalAlpha=Math.min(1,age/.18,Math.max(0,(4.2-age)/.7));
+      if(age<2.8)drawKoi(c,fish,env.time,env.reduced,null);
+      if(age<1.6){c.strokeStyle=`rgba(225,239,218,${.52*(1-age/1.6)})`;c.lineWidth=1.5;c.beginPath();c.ellipse(release.x+16,release.y+5,10+age*19,3+age*6,0,0,Math.PI*2);c.stroke();}
+      c.restore();
+    }
     for (const l of this.visibleLanterns()) {
       const fade = Math.min(1, (LANTERN_LIFETIME - l.age) / 30, l.age / 1.5), bob = Math.sin(env.time * 2 + l.x) * 1.5;
       c.globalAlpha = fade; ellipse(c, l.x, l.y + 6, 18, 5, 'rgba(255,214,150,.25)');

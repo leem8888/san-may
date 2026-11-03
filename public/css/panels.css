@@ -175,6 +175,13 @@ body.meditating .topbar,body.meditating .room,body.meditating .hud-bottom,body.m
 .whereabouts{font-size:12px;color:#d0d9c9;border-top:1px solid #b7c3a822;padding-top:8px}
 .whereabouts strong{color:var(--gold);font-size:12px}
 .whereabouts ul{margin:6px 0 0;padding-left:16px;line-height:1.8}
+.shave-dialog{width:min(430px,calc(100vw - 32px));box-sizing:border-box;padding:24px;border:1px solid #d9b77e88;border-radius:20px;background:linear-gradient(145deg,#203c33,#102521);color:var(--text);box-shadow:0 22px 70px #0009}
+.shave-dialog::backdrop{background:#061814bb;backdrop-filter:blur(4px)}
+.shave-dialog h2{color:#f1d9a8}
+.shave-dialog p{font-size:14px;line-height:1.75;color:#d4ddce}
+.shave-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-top:18px}
+.shave-actions .primary{margin:0}
+@media(max-width:420px){.shave-actions{grid-template-columns:1fr}.shave-actions button{min-height:46px}}
 
 /* Main Hall practice (P2-8) */
 #beadCanvas{display:block;margin:6px auto;max-width:100%;cursor:pointer;touch-action:manipulation}

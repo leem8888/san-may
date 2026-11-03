@@ -201,7 +201,7 @@ const net = new SocketClient(io, {
   'fish:fed'(data) { if (data.sceneId === game.scene.id) game.scene.setFishFeed?.(data, net.clock.now()); },
   'fish:released'(data) {
     if (data.sceneId !== game.scene.id) return;
-    game.particles.spawn({ kind: 'releasedFish', x: data.x, y: data.y - 30, vx: 30, vy: 12, size: 5, color: '#d19b6b', life: 1.8 });
+    game.scene.addFishRelease?.(data, net.clock.now());
     game.particles.spawn({ kind: 'splash', x: data.x, y: data.y, life: 1.2 });
   },
   'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
@@ -250,11 +250,20 @@ function interact(o = game.interactions.nearest) {
       toast(res.footwear === 'stored' ? 'Đã cất dép. Bạn có thể vào Chánh Điện.' : 'Đã lấy lại dép.');
     }).catch(error => toast(error.message));
     case 'shave': {
-      if (!window.confirm('Bạn muốn cạo đầu và nhận danh hiệu tu học? Lựa chọn này không thể hoàn tác.')) return;
-      return net.request('character:shave', { objectId: o.id }).then(res => {
-        game.player.appearance = res.appearance; me.appearance = res.appearance; me.shaved = true;
-        toast(res.appearance.gender === 'male' ? 'Bạn đã nhận danh hiệu Chú tiểu.' : 'Bạn đã nhận danh hiệu Tiểu ni.');
-      }).catch(error => toast(error.message));
+      if (me?.shaved || game.player.appearance.shaved) return;
+      const dialog=$('#shaveDialog'),confirm=$('#shaveConfirm');
+      $('#shaveCancel').onclick=()=>dialog.close();
+      confirm.disabled=false;
+      confirm.onclick=async()=>{
+        confirm.disabled=true;
+        try{
+          const res=await net.request('character:shave',{objectId:o.id});
+          game.player.appearance=res.appearance;me.appearance=res.appearance;me.shaved=true;
+          dialog.close();toast(res.appearance.gender==='male'?'Bạn đã nhận danh hiệu Chú tiểu.':'Bạn đã nhận danh hiệu Tiểu ni.');
+        }catch(error){toast(error.message);confirm.disabled=false;}
+      };
+      if(!dialog.open)dialog.showModal();
+      return;
     }
     case 'loveFortune': loveObject = o; loveCard = null; $('#loveCard').hidden = true; return panels.open('lovePanel');
     case 'tea': return minigames.start(TeaGame, o);

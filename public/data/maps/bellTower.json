@@ -171,21 +171,24 @@
       "y": 870
     },
     {
-      "type": "pine",
-      "x": 200,
-      "y": 320,
-      "size": 1.2
+      "type": "tree",
+      "x": 140,
+      "y": 360,
+      "size": 0.72,
+      "blossom": false
     },
     {
-      "type": "pine",
-      "x": 1200,
-      "y": 320,
-      "size": 1.2
+      "type": "tree",
+      "x": 1330,
+      "y": 390,
+      "size": 0.88,
+      "blossom": true
     },
     {
-      "type": "pine",
+      "type": "rock",
       "x": 180,
-      "y": 820
+      "y": 830,
+      "size": 1.1
     },
     {
       "type": "pine",
@@ -212,6 +215,32 @@
       "type": "lamp",
       "x": 980,
       "y": 360
+    },
+    {
+      "type": "fern",
+      "x": 280,
+      "y": 560,
+      "solid": false
+    },
+    {
+      "type": "bamboo",
+      "x": 1440,
+      "y": 620,
+      "height": 150,
+      "solid": false
+    },
+    {
+      "type": "bush",
+      "x": 1450,
+      "y": 900,
+      "flowers": "#d9b2cf",
+      "solid": false
+    },
+    {
+      "type": "lotusPot",
+      "x": 1160,
+      "y": 760,
+      "solid": false
     }
   ],
   "objects": [

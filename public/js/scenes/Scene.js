@@ -24,7 +24,7 @@ export class Scene {
     this.water = (map.ground?.layers || []).filter(l => l.type === 'water' && l.fish);
     this.bells = {}; this.ground = null; this.time = 0;
     const random = seeded(map.seed || 7);
-    this.fish = this.water.flatMap(w => Array.from({ length: w.fish }, (_, i) => ({ w, phase: random() * 6.28, speed: .08 + random() * .1, color: ['#ddaa71', '#e7e2d3', '#c77f5a', '#b9bc99'][i % 4], r: .35 + random() * .5 })));
+    this.fish = this.water.flatMap(w => Array.from({ length: w.fish }, (_, i) => ({ w, phase: random() * 6.28, speed: .08 + random() * .1, color: ['#ddaa71', '#e7e2d3', '#c77f5a', '#b9bc99'][i % 4], r: .35 + random() * .5, size: .62 + random() * .68 })));
   }
   get npcs() { return this.visitors.length ? [...this.residents, ...this.visitors] : this.residents; }
   enter() { this.ground ||= buildGround(this.map); }

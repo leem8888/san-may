@@ -53,8 +53,9 @@ export const PROPS = {
     box(c, x - 29, y - 63, 58, 30, '#cfbd91', 5);
     c.textAlign = 'center'; c.fillStyle = '#3a5548'; c.font = 'bold 10px system-ui';
     c.fillText('THẢ CÁ', x, y - 44);
-    ellipse(c, x - 3, y - 28, 8, 3, '#d59b63');
-    polygon(c, [[x - 10, y - 28], [x - 16, y - 32], [x - 16, y - 24]], '#c37e4e');
+    const bob=env.reduced?0:Math.sin(env.time*2.4)*1.5;
+    ellipse(c, x - 3, y - 28+bob, 8, 3, '#d59b63');
+    polygon(c, [[x - 10, y - 28+bob], [x - 16, y - 32+bob], [x - 16, y - 24+bob]], '#c37e4e');
   },
   ...STORY_PROPS,
   offeringStall: drawOfferingStall,
