@@ -24,6 +24,20 @@ Không cần dịch vụ database riêng: SQLite chỉ là một file trên máy
    - **SSH keys:** chọn *Generate a key pair for me* và **tải cả hai file khóa về**, cất cẩn thận. Mất file khóa riêng là mất quyền vào máy.
 4. Bấm **Create**. Khi máy chạy, ghi lại **Public IP address**.
 
+### Khi đăng ký bị lỗi "an error occurred while creating your account"
+
+Đã gặp lỗi này ngày 2026-11-03, khi đăng ký trên máy và mạng công ty. Oracle kiểm tra chống gian lận khá gắt, thông báo lỗi lại chung chung. Thử lần lượt:
+
+- [ ] **Đăng ký ở nhà, bằng mạng nhà hoặc 4G, không VPN và không proxy.** Mạng công ty dễ bị coi là "che giấu vị trí".
+- [ ] **Họ tên khớp tên in trên thẻ:** không dấu, có dấu cách, **Last Name = họ**, First Name = tên đệm + tên.
+- [ ] **Địa chỉ khớp địa chỉ đã đăng ký với ngân hàng**, số điện thoại thật. Kiểm tra lại các ô form tự điền.
+- [ ] **Thẻ:** Visa/Mastercard tín dụng hoặc ghi nợ quốc tế, không phải thẻ ATM nội địa (Napas), thẻ ảo hay thẻ trả trước. Bật **thanh toán trực tuyến và giao dịch quốc tế** trong app ngân hàng trước.
+- [ ] Dùng trình duyệt ẩn danh, tắt tiện ích chặn quảng cáo.
+- [ ] Sau một lần lỗi, **đợi khoảng 24 giờ** rồi mới thử lại. Thử liên tục bị coi là tạo nhiều tài khoản.
+- [ ] Vẫn lỗi: bấm *reach out for assistance* hoặc chat với bộ phận hỗ trợ trên oracle.com. Không tạo tài khoản mới bằng email khác.
+
+Nếu Oracle vẫn không cho đăng ký, có hai phương án dự phòng: chạy trên máy nhà rồi mở ra ngoài qua Cloudflare Tunnel (miễn phí, không cần thẻ), hoặc thuê VPS giá rẻ. Từ mục 4 trở đi của hướng dẫn này áp dụng gần như nguyên cho VPS Ubuntu.
+
 ## 2. Mở cổng 80 và 443
 
 Phải mở ở **hai nơi**: tường lửa của Oracle và tường lửa bên trong máy ảo.
