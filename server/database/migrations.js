@@ -369,4 +369,26 @@ export const MIGRATIONS = [
       CREATE INDEX wishes_room_kind ON wishes (room, kind, created_at);
     `,
   },
+  {
+    version: 8,
+    name: 'fish release requests',
+    up: `
+      CREATE TABLE fish_releases (
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        request_id TEXT NOT NULL,
+        scene_id TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        PRIMARY KEY (player_id, request_id)
+      );
+    `,
+  },
+  {
+    version: 9,
+    name: 'temple life profile state',
+    up: `
+      ALTER TABLE player_profiles ADD COLUMN gender TEXT CHECK (gender IN ('male', 'female'));
+      ALTER TABLE player_profiles ADD COLUMN is_shaved INTEGER NOT NULL DEFAULT 0;
+      ALTER TABLE player_profiles ADD COLUMN footwear TEXT NOT NULL DEFAULT 'wearing' CHECK (footwear IN ('wearing', 'stored'));
+    `,
+  },
 ];

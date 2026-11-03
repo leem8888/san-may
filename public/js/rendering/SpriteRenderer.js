@@ -7,7 +7,7 @@ export const SPRITE_FRAME = { width: 96, height: 128, paddingX: 16, paddingY: 24
 const FRAMES = 8, FRAMES_BY_STATE = { bow: 24 }, CELL_W = SPRITE_FRAME.width, CELL_H = SPRITE_FRAME.height, FOOT_Y = SPRITE_FRAME.footY;
 
 const STATES = Object.keys(DURATIONS), DIRS = ['down', 'left', 'right', 'up'];
-export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.characterStyle || 'adult'].join('|');
+export const appearanceKey = look => [look.hairStyle, look.hairColor, look.outfitStyle, look.outfitColor, look.accessory, look.gender, look.footwear, look.characterStyle || 'adult'].join('|');
 
 // Rasterises one (appearance, state, direction) strip of 8 frames on demand and keeps a bounded LRU cache,
 // so twenty differently dressed players cost a few MB instead of one full atlas each.
@@ -40,11 +40,14 @@ export class SpriteRenderer {
   // Labels are drawn after the lighting pass so names stay readable at night.
   label(c, p, self = false) {
     if (!p.name) return;
-    const top = p.y - (p.appearance?.characterStyle === 'abbot' ? 111 : p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1);
+    const title = p.appearance?.shaved ? p.appearance.gender === 'male' ? 'Chú tiểu' : p.appearance.gender === 'female' ? 'Tiểu ni' : '' : '';
+    const top = p.y - (p.appearance?.characterStyle === 'abbot' ? 111 : p.appearance?.accessory === 'hat' ? 99 : 91) * (p.renderScale || 1) - (title ? 20 : 0);
     c.textAlign = 'center'; c.font = '500 13px Arial';
-    const width = c.measureText(p.name).width + 18;
-    c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, 20, 8); c.fill();
-    c.fillStyle = self ? '#ffe2a4' : p.npc ? '#f1d9a8' : '#d1e5ce'; c.fillText(p.name, p.x, top + 14);
+    const width = Math.max(c.measureText(p.name).width, title ? c.measureText(title).width : 0) + 18;
+    c.fillStyle = self ? '#102625dd' : '#102625b8'; c.beginPath(); c.roundRect(p.x - width / 2, top, width, title ? 38 : 20, 8); c.fill();
+    c.fillStyle = self ? '#ffe2a4' : p.npc ? '#f1d9a8' : '#d1e5ce';
+    if (title) { c.fillText(title, p.x, top + 14); c.fillText(p.name, p.x, top + 31); }
+    else c.fillText(p.name, p.x, top + 14);
     // A gold mark beside the name: this NPC has a new part of a story for the player.
     if (p.highlight) { const bx = p.x + width / 2 + 9, by = top + 10, pulse = 1 + Math.sin(performance.now() / 300) * .08; c.fillStyle = '#e9c47a'; c.beginPath(); c.arc(bx, by, 8 * pulse, 0, Math.PI * 2); c.fill(); c.fillStyle = '#21352b'; c.font = 'bold 12px system-ui'; c.fillText('!', bx, by + 4); }
     const above = p.chat ? chatBubble(c, p.x, top - 6, p.chat.text, p.chat.age) : 0;

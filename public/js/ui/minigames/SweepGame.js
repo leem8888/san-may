@@ -1,12 +1,13 @@
 import { seeded } from '../../rendering/ground.js';
+import { SpriteRenderer } from '../../rendering/SpriteRenderer.js';
 
 const BASKET = { x: 880, y: 470, r: 72 }, BROOM = 58;
 
 // Push fallen leaves into the basket with a broom that follows the pointer.
 export class SweepGame {
   static title = 'Quét lá trong sân'; static eyebrow = 'SÂN CHÙA'; static hint = 'Giữ và kéo để quét. Lá phản ứng theo hướng chổi; gom hết vào giỏ tre.';
-  constructor({ canvas, tools, status, el, done, audio }) {
-    Object.assign(this, { status, done, audio }); this.c = canvas.getContext('2d'); this.time = 0; this.broom = { x: 500, y: 300, vx: 0, vy: 0, down: false }; this.finished = false;
+  constructor({ canvas, tools, status, el, done, audio, appearance }) {
+    Object.assign(this, { status, done, audio, appearance }); this.sprite = new SpriteRenderer(8); this.c = canvas.getContext('2d'); this.time = 0; this.broom = { x: 500, y: 300, vx: 0, vy: 0, down: false }; this.finished = false;
     const random = seeded(Date.now() % 100000);
     this.leaves = Array.from({ length: 42 }, () => ({ x: 60 + random() * 680, y: 60 + random() * 480, vx: 0, vy: 0, rot: random() * 6, size: 7 + random() * 5, color: ['#c6b278', '#b98d55', '#d7c48e', '#a7743f'][Math.floor(random() * 4)], in: 0 }));
     this.base = document.createElement('canvas'); this.base.width = 1000; this.base.height = 600;
@@ -48,9 +49,6 @@ export class SweepGame {
       c.save(); c.translate(x, y); c.rotate(l.rot); c.fillStyle = l.color; c.beginPath(); c.ellipse(0, 0, l.size * scale, l.size * .45 * scale, 0, 0, Math.PI * 2); c.fill();
       c.strokeStyle = 'rgba(80,60,30,.5)'; c.lineWidth = 1; c.beginPath(); c.moveTo(-l.size * scale, 0); c.lineTo(l.size * scale, 0); c.stroke(); c.restore();
     }
-    c.save(); c.translate(b.x, b.y); c.rotate(Math.max(-.6, Math.min(.6, b.vx / 1500)));
-    c.strokeStyle = '#8a6a46'; c.lineWidth = 6; c.beginPath(); c.moveTo(0, -10); c.lineTo(30, -120); c.stroke();
-    c.fillStyle = b.down ? '#d6bd85' : '#c9b07a'; c.beginPath(); c.moveTo(-34, 18); c.lineTo(34, 18); c.lineTo(14, -14); c.lineTo(-10, -14); c.closePath(); c.fill();
-    c.restore();
+    this.sprite.draw(c, { x: b.x - 25, y: b.y, state: 'sweep', direction: 'down', elapsed: this.time, appearance: this.appearance, renderScale: 1.6 });
   }
 }

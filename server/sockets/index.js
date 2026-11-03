@@ -14,6 +14,7 @@ import { cleanText, isObject, number, oneOf, roomCode } from '../validators/inde
 import { isOffensive, RateLimiter } from '../services/moderation.js';
 import { publicPlayer, roomChannel, sceneChannel } from '../services/rooms.js';
 import { insideRect } from '../services/world.js';
+import { LOVE_FORTUNES } from '../content/loveFortunes.js';
 
 export const LANTERN_LIFETIME = 10 * 60 * 1000;
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -241,6 +242,7 @@ export function attachSockets(io, ctx) {
       repos.players.saveLocation(playerId, sceneId, position.x, position.y, now);
       self = {
         id: playerId, socketId: socket.id, room: code, name: profile.name, appearance: profile.appearance, sceneId, ...position,
+        footwear: profile.footwear,
         direction: 'down', state: 'idle', actionAt: now, moved: false, lastMoveAt: now, dirty: true, locationDirty: false,
         historyId: repos.rooms.recordJoin(code, playerId, now), meditation: null, lastWishAt: 0, lastLanternAt: 0, lastEmoteAt: 0, lastChatAt: 0, lastIncenseAt: 0, recent: new Map(), activities: new Map(),
       };
@@ -273,7 +275,7 @@ export function attachSockets(io, ctx) {
     socket.on('player:move', data => {
       const p = self;
       if (!p || !isObject(data) || data.sceneId !== p.sceneId) return;
-      if (p.meditation) {
+      if (p.meditation || p.sweeping) {
         p.lastMoveAt = Date.now();
         if (data.x !== p.x || data.y !== p.y || data.direction !== p.direction) socket.emit('player:correct', { sceneId: p.sceneId, x: p.x, y: p.y, direction: p.direction });
         return;
@@ -308,8 +310,8 @@ export function attachSockets(io, ctx) {
 
     socket.on('player:action', data => {
       const p = self, action = oneOf(data?.action, ACTIONS);
-      if (!p || !action || ['walk', 'meditate', 'bell'].includes(action)) return;
-      if (p.meditation) return;
+      if (!p || !action || ['walk', 'meditate', 'bell', 'sweep'].includes(action)) return;
+      if (p.meditation || p.sweeping) return;
       const now = Date.now();
       Object.assign(p, { state: action, actionAt: now, moved: false, dirty: true });
       p.direction = bowDirection(p.sceneId, action, p.direction);
@@ -493,13 +495,74 @@ export function attachSockets(io, ctx) {
       ack = reply(ack);
       const p = self, portal = p && world.portal(p.sceneId, data?.portalId);
       if (!portal) return ack({ error: 'Lối đi không tồn tại.' });
+      if (p.sweeping) return ack({ error: 'Hãy kết thúc quét sân trước khi đi.' });
       if (!insideRect(portal, p.x, p.y, 48)) return ack({ error: 'Hãy đi tới lối chuyển khu vực.', x: p.x, y: p.y });
+      if (portal.to === 'mainHall' && p.footwear !== 'stored') return ack({ error: 'Hãy cất dép ở kệ trước Chánh Điện.' });
+      if (p.footwear === 'stored' && !['mainHall', 'courtyard'].includes(portal.to)) {
+        repos.players.setFootwear(p.id, 'wearing'); p.footwear = 'wearing'; p.appearance.footwear = 'wearing';
+      }
       if (p.meditation) { const result = finishMeditation(p); if (result) socket.emit('meditation:ended', result); }
       changeScene(p, portal.to, world.spawn(portal.to, portal.spawn));
       const result = visit(p);
       story.handle({ type: 'visit', scene: p.sceneId });
       notify(socket, result);
       ack({ ok: true, self: publicPlayer(p), scene: snapshot(p) });
+    });
+
+    socket.on('footwear:toggle', (data, ack) => {
+      ack = reply(ack);
+      const p = self, rack = p && world.object(p.sceneId, data?.objectId);
+      if (!rack || rack.action !== 'footwear' || Math.hypot(p.x - rack.x, p.y - rack.y) > rack.radius) return ack({ error: 'Hãy đến kệ dép trước Chánh Điện.' });
+      const next = p.footwear === 'stored' ? 'wearing' : 'stored';
+      repos.players.setFootwear(p.id, next); p.footwear = next; p.appearance.footwear = next;
+      io.to(scene(p)).emit('player:update', { id: p.id, appearance: p.appearance });
+      ack({ ok: true, footwear: next });
+    });
+
+    socket.on('character:shave', (data, ack) => {
+      ack = reply(ack);
+      const p = self, npc = p && world.object(p.sceneId, data?.objectId);
+      if (!npc || npc.action !== 'shave' || Math.hypot(p.x - npc.x, p.y - npc.y) > npc.radius) return ack({ error: 'Hãy gặp thầy hướng dẫn trong sân chùa.' });
+      const profile = repos.players.profile(p.id);
+      if (!profile.gender) return ack({ error: 'Hãy chọn Nam hoặc Nữ trước.' });
+      if (repos.players.shave(p.id)) progression.journal(p.id, 'Quyết định cạo đầu và bắt đầu một chặng tu học.', Date.now());
+      p.appearance = repos.players.profile(p.id).appearance;
+      io.to(scene(p)).emit('player:update', { id: p.id, appearance: p.appearance });
+      ack({ ok: true, appearance: p.appearance });
+    });
+
+    socket.on('love:draw', (data, ack) => {
+      ack = reply(ack);
+      const p = self, table = p && world.object(p.sceneId, data?.objectId);
+      if (!table || table.action !== 'loveFortune' || Math.hypot(p.x - table.x, p.y - table.y) > table.radius) return ack({ error: 'Hãy đến bàn cầu duyên trong sân chùa.' });
+      const now = Date.now();
+      if (now - (p.lastLoveDrawAt || 0) < 30000) return ack({ error: 'Hãy chờ một chút trước khi rút thẻ tiếp.' });
+      const card = LOVE_FORTUNES[crypto.randomInt(LOVE_FORTUNES.length)];
+      p.lastLoveDrawAt = now; p.lastLoveCard = card;
+      socket.to(scene(p)).emit('player:action', { id: p.id, action: 'pray', at: now });
+      ack({ ok: true, card });
+    });
+
+    socket.on('love:save', (data, ack) => {
+      ack = reply(ack);
+      const p = self, card = p?.lastLoveCard;
+      if (!card || data?.id !== card.id) return ack({ error: 'Hãy rút thẻ trước khi lưu.' });
+      if (!p.lastLoveCard) return ack({ error: 'Thẻ đã được lưu.' });
+      progression.journal(p.id, `Thẻ cầu duyên ${card.id} · ${card.title}: ${card.text}`);
+      p.lastLoveCard = null;
+      ack({ ok: true });
+    });
+
+    socket.on('sweep:state', (data, ack) => {
+      ack = reply(ack);
+      const p = self, broom = p && world.object(p.sceneId, data?.objectId);
+      if (!broom || broom.action !== 'sweep' || Math.hypot(p.x - broom.x, p.y - broom.y) > broom.radius) return ack({ error: 'Hãy đến chỗ quét sân.' });
+      if (typeof data.active !== 'boolean') return ack({ error: 'Trạng thái không hợp lệ.' });
+      p.sweeping = data.active;
+      const now = Date.now();
+      Object.assign(p, { state: p.sweeping ? 'sweep' : 'idle', actionAt: now, moved: false, dirty: true });
+      io.to(scene(p)).emit('player:action', { id: p.id, action: p.state, at: now });
+      ack({ ok: true });
     });
 
     // ── Personal gardens: one scene per garden (`garden:<code>`); only the owner may change it. ──

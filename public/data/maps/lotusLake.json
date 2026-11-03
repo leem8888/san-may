@@ -468,6 +468,16 @@
         1100,
         865
       ]
+    },
+    {
+      "id": "fishRelease",
+      "type": "fishReleasePier",
+      "x": 1400,
+      "y": 900,
+      "label": "Thả cá phóng sinh",
+      "action": "fishRelease",
+      "radius": 105,
+      "solid": false
     }
   ]
 }

@@ -3,6 +3,23 @@ import assert from 'node:assert/strict';
 import { Game } from '../public/js/core/Game.js';
 import { closeScenePopups } from '../public/js/ui/ScenePopups.js';
 import { DialoguePanel } from '../public/js/ui/DialoguePanel.js';
+import { InputManager } from '../public/js/core/InputManager.js';
+
+test('walking to another spot closes the open panel for both tap and manual movement', () => {
+  const panels = { current: 'fishShopPanel', close() { this.current = null; } };
+  const game = {
+    player: { state: 'idle' }, pointHandler: () => false,
+    interactions: { at: () => null }, input: { cancelPath() {} },
+    navigate() {}, onMove: () => panels.close(),
+  };
+  Game.prototype.tap.call(game, { x: 100, y: 200 });
+  assert.equal(panels.current, null);
+
+  panels.current = 'fishShopPanel';
+  const input = { active: true, keys: new Set(['d']), stick: { x: 0, y: 0 }, cancelPath() {}, onManual: () => game.onMove() };
+  InputManager.prototype.vector.call(input, { state: 'idle' });
+  assert.equal(panels.current, null);
+});
 
 test('changing maps closes popups, while a same-map position correction does not', () => {
   let closed=0;

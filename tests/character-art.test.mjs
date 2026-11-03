@@ -30,7 +30,7 @@ function measuringContext() {
 }
 
 test('every character keeps both hands and all art within its frame in every direction and animation', () => {
-  const looks = [DEFAULT_APPEARANCE, { ...DEFAULT_APPEARANCE, accessory:'hat' }, { ...DEFAULT_APPEARANCE, characterStyle:'child' }, { ...DEFAULT_APPEARANCE, characterStyle:'abbot' }];
+  const looks = [DEFAULT_APPEARANCE, { ...DEFAULT_APPEARANCE, gender:'male' }, { ...DEFAULT_APPEARANCE, gender:'female', hairStyle:'long', outfitColor:'#a7766b' }, { ...DEFAULT_APPEARANCE, accessory:'hat' }, { ...DEFAULT_APPEARANCE, characterStyle:'child' }, { ...DEFAULT_APPEARANCE, characterStyle:'abbot' }];
   for(const look of looks)for(const state of Object.keys(DURATIONS))for(const dir of ['up','down','left','right'])for(let frame=0;frame<8;frame++){
     const c=measuringContext();c.translate(SPRITE_FRAME.paddingX,SPRITE_FRAME.paddingY);drawCharacter(c,state,frame,dir,look);
     const label=`${look.characterStyle||look.accessory||'adult'}/${state}/${dir}/${frame}`;

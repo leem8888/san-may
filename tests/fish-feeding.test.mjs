@@ -32,13 +32,14 @@ test('fish gather inside the lake and return smoothly; late joiners do not resta
 test('buy and feed consumes one bag, validates location, synchronizes the room and handles retry safely', async t => {
   const s=await startServer();t.after(s.close);
   const a=guest(s.game),b=guest(s.game),c=guest(s.game),repo=s.game.ctx.repos.players;
-  const stall=s.game.ctx.world.object('gate','offeringStall');
-  repo.saveLocation(a.id,'gate',stall.x,stall.y+50);repo.saveLocation(b.id,'lotusLake',1120,1000);repo.saveLocation(c.id,'lotusLake',1120,1000);
+  const stall=s.game.ctx.world.object('gate','fishSeller');
+  repo.saveLocation(a.id,'gate',stall.x,stall.y);repo.saveLocation(b.id,'lotusLake',1120,1000);repo.saveLocation(c.id,'lotusLake',1120,1000);
   let sa=await connect(s.base,a.token);const sb=await connect(s.base,b.token),sc=await connect(s.base,c.token);
   t.after(()=>{sa.close();sb.close();sc.close();});
   await ask(sa,'room:join',{room:'FISH-1'});await ask(sb,'room:join',{room:'FISH-1'});await ask(sc,'room:join',{room:'FISH-2'});
   assert.ok((await ask(sb,'fish:feed',{objectId:'fishFeeder',requestId:'no-food-001'})).error);
-  const purchase=await ask(sa,'shop:buy',{objectId:'offeringStall',sku:'fishFood',requestId:'fish-buy-001'});
+  assert.ok((await ask(sa,'shop:buy',{objectId:'offeringStall',sku:'fishFood',requestId:'wrong-stall-001'})).error);
+  const purchase=await ask(sa,'shop:buy',{objectId:'fishSeller',sku:'fishFood',requestId:'fish-buy-001'});
   assert.equal(purchase.shop.points,95);assert.equal(purchase.shop.inventory.fishFood,1);
   assert.ok((await ask(sa,'fish:feed',{objectId:'fishFeeder',requestId:'wrong-place-001'})).error);
   sa.close();await delay(30);repo.saveLocation(a.id,'lotusLake',1120,1000);sa=await connect(s.base,a.token);

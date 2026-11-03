@@ -21,3 +21,4 @@ import './coop.test.mjs';
 import './world-react.test.mjs';
 import './journey.test.mjs';
 import './hall.test.mjs';
+import './temple-life.test.mjs';

@@ -6,7 +6,7 @@ import { TIME_MODES } from './systems/DayNightSystem.js';
 import { WEATHER_MODES } from './systems/WeatherSystem.js';
 import { Api } from './multiplayer/Api.js';
 import { SocketClient } from './multiplayer/SocketClient.js';
-import { ROUND, EMOTES, COOLDOWNS, CHAT_SECONDS, bowDirection } from './shared/rules.js';
+import { ROUND, EMOTES, COOLDOWNS, CHAT_SECONDS, bowDirection, characterName, nameWithoutPrefix } from './shared/rules.js';
 import { emoteBubble } from './rendering/SpriteRenderer.js';
 import { $, el, store, toast } from './ui/dom.js';
 import { Panels } from './ui/Panels.js';
@@ -49,6 +49,7 @@ const audio = new AudioManager(store.get('sanmay-muted') === 'true', savedVolume
 const panels = new Panels(), creator = new CharacterCreator();
 const blocked = new Set();
 let coop, hall, bowSession, beadRing, reading, prayerBook, game, assets, me = null, progress = null, entered = false, dialogue, wishes, mapPanel, meditation, lanterns, stories, minigames, gardens, fortunes, editing = false, blockedPortal = null, lastEmote = 0, stepTimer = 0, lastChantLine = null;
+let loveObject = null, loveCard = null, incenseObject = null;
 // Server-side story state: current objectives, which NPCs have something new to tell, which NPCs talk via the server.
 let storyState = { objectives: [], highlights: [], talkers: [] };
 // The objective line. A journey shows its stage; it can be paused (objective hidden, no active time counted),
@@ -128,6 +129,7 @@ function syncBells(bells, serverNow) {
   for (const [id, at] of Object.entries(bells || {})) scene.bells[id] = game.time - (serverNow - at) / 1000;
 }
 function applyScene(self, snapshot, announce = true) {
+  game.player.appearance = self.appearance;
   const changed = game.scene.id !== self.sceneId;
   if (changed || Math.hypot(game.player.x - self.x, game.player.y - self.y) > 2) game.setScene(self.sceneId, self.x, self.y, self.direction);
   net.loadScene(snapshot);
@@ -197,6 +199,11 @@ const net = new SocketClient(io, {
   'sand:update'(data) { if (data.sceneId === game.scene.id) game.scene.setSand?.(data.strokes); },
   'offering:update'(data) { if (data.sceneId === game.scene.id) game.scene.setOfferings?.(data.offerings, net.clock.now()); },
   'fish:fed'(data) { if (data.sceneId === game.scene.id) game.scene.setFishFeed?.(data, net.clock.now()); },
+  'fish:released'(data) {
+    if (data.sceneId !== game.scene.id) return;
+    game.particles.spawn({ kind: 'releasedFish', x: data.x, y: data.y - 30, vx: 30, vy: 12, size: 5, color: '#d19b6b', life: 1.8 });
+    game.particles.spawn({ kind: 'splash', x: data.x, y: data.y, life: 1.2 });
+  },
   'garden:update'(data) { if (data.sceneId === game.scene.id) { game.scene.setObjects(data.objects); gardens.refresh(); } },
   'progress:events'(events) { if (events.progress) setProgress(events.progress); celebrate(events); },
   'session:replaced'() { entered = false; net.stop(); game.pauseInput(true); toast('Bạn vừa mở Sân Mây ở tab khác. Tab này đã tạm dừng; tải lại để tiếp tục tại đây.', 8000); $('#connection').textContent = 'Đang mở ở tab khác'; },
@@ -222,7 +229,7 @@ function interact(o = game.interactions.nearest) {
   if (!o) return toast('Hãy đến gần một người, một vật hoặc chạm vào nó để tương tác.');
   game.input.clear();
   switch (o.action) {
-    case 'shop': case 'offering': case 'fishFeed': return shop.open(o);
+    case 'shop': case 'fishShop': case 'offering': case 'fishFeed': case 'fishRelease': return shop.open(o);
     case 'cat': selectedCat = o; return panels.open('catPanel');
     case 'dialogue': {
       const npc = game.scene.npcs.find(n => n.id === o.id);
@@ -238,11 +245,23 @@ function interact(o = game.interactions.nearest) {
     case 'stories': return stories.open(o);
     case 'sand': return minigames.start(SandGame, o);
     case 'sweep': return minigames.start(SweepGame, o);
+    case 'footwear': return net.request('footwear:toggle', { objectId: o.id }).then(res => {
+      game.player.appearance.footwear = res.footwear;
+      toast(res.footwear === 'stored' ? 'Đã cất dép. Bạn có thể vào Chánh Điện.' : 'Đã lấy lại dép.');
+    }).catch(error => toast(error.message));
+    case 'shave': {
+      if (!window.confirm('Bạn muốn cạo đầu và nhận danh hiệu tu học? Lựa chọn này không thể hoàn tác.')) return;
+      return net.request('character:shave', { objectId: o.id }).then(res => {
+        game.player.appearance = res.appearance; me.appearance = res.appearance; me.shaved = true;
+        toast(res.appearance.gender === 'male' ? 'Bạn đã nhận danh hiệu Chú tiểu.' : 'Bạn đã nhận danh hiệu Tiểu ni.');
+      }).catch(error => toast(error.message));
+    }
+    case 'loveFortune': loveObject = o; loveCard = null; $('#loveCard').hidden = true; return panels.open('lovePanel');
     case 'tea': return minigames.start(TeaGame, o);
     case 'chant': return toggleChant(o);
     case 'garden': return gardens.openGate();
     case 'fortune': return fortunes.open(o);
-    case 'incense': return lightIncense(o);
+    case 'incense': return openIncense(o);
     case 'water': return gardens.water(o);
     case 'story': return net.connected ? dialogue.openServer(o) : toast('Cần kết nối máy chủ để xem vật này.');
     case 'restore': return restoreWork(o);
@@ -282,14 +301,23 @@ function greetCat(kind) {
 }
 $('#petCat').onclick = () => greetCat('pet');
 $('#playCat').onclick = () => greetCat('play');
+function openIncense(o) {
+  incenseObject = o; $('#incenseStatus').textContent = ''; panels.open('incensePanel');
+}
+$('#incenseConfirm').onclick = async () => {
+  if (!incenseObject) return;
+  const button = $('#incenseConfirm'); button.disabled = true;
+  try { await lightIncense(incenseObject); } finally { button.disabled = false; }
+};
 async function lightIncense(o) {
   if (!['idle', 'walk'].includes(game.player.state)) return toast('Hãy hoàn tất hành động hiện tại trước.');
   try {
     net.sendMove(game.player, performance.now(), true);
     await net.request('incense:light', { objectId: o.id });
     game.player.act('pray'); audio.tone(523, 1.4, .03, 'sfx');
+    panels.close();
     toast('Bạn thắp một nén hương. Khói hương nhẹ bay lên ban thờ.');
-  } catch (error) { toast(error.message); }
+  } catch (error) { $('#incenseStatus').textContent = error.message; toast(error.message); }
 }
 function toggleChant(o) {
   const on = !audio.chanting;
@@ -396,7 +424,7 @@ async function boot() {
   try {
     [assets, me] = await Promise.all([new AssetLoader().load((done, total) => { $('#loading').textContent = `Chuẩn bị tài nguyên · ${done}/${total}`; $('#loadProgress').value = done / total; }), api.ensureGuest(store.get('sanmay-name'))]);
     me.blocks.forEach(id => blocked.add(id));
-    if (!$('#name').value) $('#name').value = me.name === 'Khách' ? '' : me.name;
+    if (!$('#name').value) $('#name').value = me.name === 'Khách' ? '' : nameWithoutPrefix(me.name);
     const start = assets.get('maps').has(me.progress.lastScene) ? me.progress.lastScene : 'gate';
     game?.destroy();
     game = new Game($('#scene'), assets, $('#joystick'), keyAction, tick, { scene: start, room, time: store.get('sanmay-time', 'auto'), weather: store.get('sanmay-weather', 'auto') });
@@ -406,6 +434,11 @@ async function boot() {
       // A flower is offered in the hall it was picked in; a partner list belongs to the area it was opened in.
       game.player.holding = null; coop?.closePicker();
       if (editing) { editing = false; creator.stop(); $('#intro').hidden = true; game.pauseInput(false); }
+    };
+    game.onMove = () => {
+      panels.close();
+      if ($('#mainNav').classList.contains('open')) panels.menu(false);
+      $('#emotes').hidden = true;
     };
     game.blocked = blocked; game.onApproach = interact;
     game.clockNow = () => net.clock.now();
@@ -435,6 +468,23 @@ async function boot() {
     new SocialPanel({ api, net, game, panels, room, blocked, onBlockChange: () => wishes.render(), onCoop: person => { panels.close(); coop.pick({ person }); } });
     new ProgressPanels({ api, panels, getMe: () => me, setMe: player => { me = player; }, onItems: items => { me.items = items; gardens.refresh(); }, editLook });
     fortunes = new FortunePanel({ ...shared, fortunes: assets.get('fortunes') });
+    $('#lovePray').onclick = () => { game.player.act('pray'); toast($('#loveWish').value.trim() ? 'Lời nguyện này chỉ hiển thị trên máy của bạn.' : 'Bạn dành một chút thời gian cho điều mình mong mỏi.'); };
+    $('#loveDraw').onclick = async () => {
+      if (!loveObject) return;
+      const button = $('#loveDraw'); button.disabled = true;
+      try {
+        const res = await net.request('love:draw', { objectId: loveObject.id });
+        loveCard = res.card; game.player.act('pray');
+        $('#loveNumber').textContent = `Thẻ số ${loveCard.id}`; $('#loveTitle').textContent = loveCard.title; $('#loveText').textContent = loveCard.text;
+        $('#loveCard').hidden = false; $('#loveSave').disabled = false;
+      } catch (error) { toast(error.message); }
+      finally { button.disabled = false; }
+    };
+    $('#loveSave').onclick = async () => {
+      if (!loveCard) return;
+      try { await net.request('love:save', { id: loveCard.id }); $('#loveSave').disabled = true; toast('Đã lưu thẻ vào nhật ký riêng.'); }
+      catch (error) { toast(error.message); }
+    };
     meditation = new MeditationPanel(shared); lanterns = new LanternPanel(shared); stories = new StoriesPanel(shared); minigames = new MinigameHost(shared);
     coop = new CoopPanel({ ...shared, blocked, meditation });
     hall = new HallPanel({ ...shared, onStory: setStory });
@@ -460,19 +510,20 @@ $('#retry').onclick = boot;
 // Re-opens the character card to change name and outfit; the server re-validates owned items.
 function editLook() {
   editing = true; game.pauseInput(true); creator.setup(me.appearance, me.items);
-  $('#name').value = me.name; $('#enter').textContent = 'Lưu thay đổi →'; $('#enter').disabled = false; $('#cancelEdit').hidden = false; $('#intro').hidden = false;
+  $('#name').value = nameWithoutPrefix(me.name); $('#enter').textContent = 'Lưu thay đổi →'; $('#enter').disabled = false; $('#cancelEdit').hidden = false; $('#intro').hidden = false;
 }
 function closeEdit() { editing = false; creator.stop(); $('#intro').hidden = true; $('#cancelEdit').hidden = true; game.pauseInput(false); }
 $('#cancelEdit').onclick = closeEdit;
 $('#enter').onclick = async () => {
   if (editing) {
-    try { me = (await api.put('/profile', { name: $('#name').value.trim() || 'Khách', appearance: creator.look })).player; store.set('sanmay-name', me.name); game.player.name = me.name; game.player.appearance = me.appearance; closeEdit(); toast('Đã lưu. Mọi người trong phòng sẽ thấy dáng mới của bạn.'); }
+    try { me = (await api.put('/profile', { name: characterName($('#name').value), appearance: creator.look, gender: creator.gender })).player; store.set('sanmay-name', me.name); game.player.name = me.name; game.player.appearance = me.appearance; closeEdit(); toast('Đã lưu. Mọi người trong phòng sẽ thấy dáng mới của bạn.'); }
     catch (error) { toast(error.message); }
     return;
   }
   if (entered || !game) return;
+  if (!creator.gender) return toast('Hãy chọn Nam hoặc Nữ trước khi vào chùa.');
   $('#enter').disabled = true;
-  try { me = (await api.put('/profile', { name: $('#name').value.trim() || 'Khách', appearance: creator.look })).player; }
+  try { me = (await api.put('/profile', { name: characterName($('#name').value), appearance: creator.look, gender: creator.gender })).player; }
   catch (error) { $('#enter').disabled = false; return toast(error.message); }
   store.set('sanmay-name', me.name); entered = true; creator.stop();
   game.player.appearance = me.appearance; game.enter(me.name); $('#intro').hidden = true;

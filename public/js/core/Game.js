@@ -23,7 +23,7 @@ export class Game {
     this.camera = new Camera(first.map); this.renderer = new SceneRenderer(canvas, this.camera);
     this.input = new InputManager(canvas, this.camera, joystick, onAction);
     this.input.onPoint = point => this.tap(point);
-    this.input.onManual = () => { this.approach = null; this.tapMarker = null; };
+    this.input.onManual = () => { this.approach = null; this.tapMarker = null; this.onMove?.(); };
     this.dayNight = new DayNightSystem(options.time); this.weather = new WeatherSystem(options.room, options.weather);
     this.particles = new ParticleSystem(); this.reduced = false; this.entered = false; this.locked = false;
     this.time = 0; this.remotes = []; this.blocked = new Set(); this.approach = null; this.onApproach = () => {};
@@ -54,6 +54,7 @@ export class Game {
     if (this.player.state === 'meditate') return true;
     if (this.pointHandler?.(point)) { this.input.cancelPath(); this.approach = null; return true; }
     const o = this.interactions.at(point.x, point.y);
+    this.onMove?.();
     this.navigationRetries = 0; this.navigate(point, o);
     return true;
   }

@@ -412,6 +412,12 @@
       "type": "stoneLantern",
       "x": 1265,
       "y": 970
+    },
+    {
+      "type": "fishTub",
+      "x": 575,
+      "y": 910,
+      "solid": false
     }
   ],
   "objects": [
@@ -420,11 +426,29 @@
       "type": "offeringStall",
       "x": 1120,
       "y": 860,
-      "label": "Mua hương, lễ & thức ăn cá",
+      "label": "Mua hương và lễ",
       "action": "shop",
       "radius": 140,
       "hitW": 98,
       "hitH": 145
+    },
+    {
+      "id": "fishSeller",
+      "type": "npc",
+      "x": 510,
+      "y": 900,
+      "name": "Người bán cá",
+      "label": "Mua cá và cám cá",
+      "action": "fishShop",
+      "radius": 110,
+      "solid": false,
+      "appearance": {
+        "hairStyle": "bun",
+        "hairColor": "#2b2823",
+        "outfitStyle": "tunic",
+        "outfitColor": "#8ba59b",
+        "accessory": "none"
+      }
     },
     {
       "id": "guide",

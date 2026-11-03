@@ -1,8 +1,10 @@
 // Rules shared by browser and server so validation never drifts from gameplay.
 export const SPEED = 180;
 export const PLAYER_RADIUS = 14;
+export const nameWithoutPrefix = value => String(value ?? '').replace(/^Thích(?:\s+|$)/iu, '').trim();
+export const characterName = value => `Thích ${nameWithoutPrefix(value).slice(0, 13) || 'Khách'}`;
 export const bowDirection = (sceneId, state, direction) => sceneId === 'mainHall' && state === 'bow' ? 'up' : direction;
-export const DURATIONS = { idle: Infinity, walk: Infinity, bow: 3.6, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, sit: Infinity, wave: 1.3 };
+export const DURATIONS = { idle: Infinity, walk: Infinity, sweep: Infinity, bow: 3.6, bead: .65, pray: 2, meditate: Infinity, bell: 1.2, interact: .8, sit: Infinity, wave: 1.3 };
 export const ACTIONS = Object.keys(DURATIONS);
 export const ROUND = 108;
 export const LIMITS = {
@@ -20,7 +22,7 @@ export const SCENE_IDS = ['gate', 'courtyard', 'mainHall', 'zenGarden', 'lotusLa
 
 // Cosmetic catalogue: `default` items are free, the rest are earned through quests/achievements.
 export const ITEMS = {
-  'hair:shaved': { kind: 'hairStyle', value: 'shaved', name: 'Cạo gọn', default: true },
+  'hair:shaved': { kind: 'hairStyle', value: 'shaved', name: 'Cạo gọn', default: false },
   'hair:short': { kind: 'hairStyle', value: 'short', name: 'Tóc ngắn', default: true },
   'hair:bun': { kind: 'hairStyle', value: 'bun', name: 'Búi tóc', default: true },
   'hair:long': { kind: 'hairStyle', value: 'long', name: 'Tóc dài', default: true },

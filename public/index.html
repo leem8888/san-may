@@ -49,10 +49,10 @@
       <h1>Chậm lại một chút.<br><em>Mây vẫn đang trôi.</em></h1>
       <p>Dạo bước qua tám khu của một ngôi chùa nhỏ, nghe một tiếng chuông và gửi một lời lành đến bạn bè.</p>
       <div class="creator">
-        <canvas id="preview" width="128" height="160" aria-label="Xem trước nhân vật"></canvas>
+        <canvas id="preview" width="168" height="208" aria-label="Xem trước nhân vật"></canvas>
         <div class="creator-fields">
           <label for="name">Tên của bạn</label>
-          <input id="name" maxlength="18" autocomplete="nickname" placeholder="Ví dụ: An">
+          <div class="character-name"><span id="characterNamePrefix">Thích</span><input id="name" maxlength="13" autocomplete="nickname" aria-describedby="characterNamePrefix" placeholder="Ví dụ: An"></div>
           <div id="lookOptions" class="look-options"></div>
         </div>
       </div>
@@ -144,6 +144,15 @@
       <p id="fortuneMeaning"></p>
     </article>
     <small id="fortuneNote" class="hint"></small>
+  </aside>
+
+  <aside id="lovePanel" class="panel" hidden aria-labelledby="lovePanelTitle">
+    <div class="panel-head"><div><span class="eyebrow">GÓC SÂN CHÙA</span><h2 id="lovePanelTitle">Cầu duyên và rút thẻ</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <p>Hãy nghĩ về sự chân thành và cách mình chăm sóc những mối quan hệ. Thẻ chỉ gợi mở suy ngẫm, không dự đoán tương lai.</p>
+    <label for="loveWish">Lời nguyện riêng (tùy chọn, không gửi lên máy chủ)</label>
+    <textarea id="loveWish" maxlength="120" rows="2" placeholder="Một điều bạn muốn nhắn với chính mình…"></textarea>
+    <div class="row"><button id="lovePray">Cầu duyên</button><button id="loveDraw" class="primary">Rút thẻ cầu duyên</button></div>
+    <article id="loveCard" class="fortune-card" hidden><span class="eyebrow" id="loveNumber"></span><h3 id="loveTitle"></h3><p id="loveText"></p><button id="loveSave">Lưu thẻ vào nhật ký</button></article>
   </aside>
 
   <aside id="peoplePanel" class="panel" hidden aria-labelledby="peopleTitle">
@@ -259,15 +268,20 @@
     <div class="dialogue-foot"><small id="dialoguePage"></small><button class="primary" id="dialogueNext">Tiếp tục →</button></div>
   </dialog>
 
-  <section id="shopPanel" class="panel" hidden aria-labelledby="shopTitle">
-    <button class="close" data-close aria-label="Đóng">×</button>
-    <span class="eyebrow">MỘT CHÚT LÒNG THÀNH</span>
-    <h2 id="shopTitle">Quầy hương & mâm lễ</h2>
-    <p class="hint">Dùng điểm trong game. Bạn có 100 điểm ban đầu và có thể ghé quầy nhận thêm 30 điểm mỗi ngày.</p>
-    <p id="shopBalance" aria-live="polite"></p>
-    <button id="shopClaim" type="button" class="ghost">Nhận điểm hôm nay</button>
-    <div id="shopList"></div>
-    <p id="shopMessage" class="hint" aria-live="polite">Mua tại cổng, mang vào bàn dâng lễ trong Chánh Điện. Lễ hiển thị 10 phút.</p>
+  <section id="shopPanel" class="panel market-panel" hidden aria-labelledby="shopTitle">
+    <div class="panel-head"><div><span id="shopKicker" class="eyebrow">GÓC CHÙA</span><h2 id="shopTitle">Quầy hương & mâm lễ</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div class="shop-hero"><canvas id="shopScene" width="300" height="105" aria-hidden="true"></canvas><p id="shopIntro"></p></div>
+    <div class="shop-wallet"><p id="shopBalance" aria-live="polite"></p><button id="shopClaim" type="button" class="ghost">Nhận điểm hôm nay</button></div>
+    <div id="shopList" class="shop-list"></div>
+    <p id="shopMessage" class="hint" aria-live="polite"></p>
+  </section>
+
+  <section id="incensePanel" class="panel ritual-panel" hidden aria-labelledby="incenseTitle">
+    <div class="panel-head"><div><span class="eyebrow">CHÁNH ĐIỆN</span><h2 id="incenseTitle">Dâng một nén hương</h2></div><button class="close" data-close aria-label="Đóng">×</button></div>
+    <div class="incense-visual" aria-hidden="true"><span class="incense-smoke"></span><span class="incense-sticks"></span><span class="incense-bowl"></span></div>
+    <p>Đứng trước lư hương, chậm lại một nhịp và gửi một lời lành. Hương sẽ hiện trong Chánh Điện để mọi người cùng thấy.</p>
+    <button id="incenseConfirm" class="primary" type="button">Thắp hương</button>
+    <p id="incenseStatus" class="hint" role="status"></p>
   </section>
 
   <section id="catPanel" class="panel" hidden aria-labelledby="catTitle">

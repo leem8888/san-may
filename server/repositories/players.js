@@ -8,7 +8,8 @@ const toProgress = row => row && {
 };
 const toProfile = row => row && {
   name: row.name,
-  appearance: { hairStyle: row.hair_style, hairColor: row.hair_color, outfitStyle: row.outfit_style, outfitColor: row.outfit_color, accessory: row.accessory },
+  gender: row.gender, shaved: Boolean(row.is_shaved), footwear: row.footwear,
+  appearance: { hairStyle: row.hair_style, hairColor: row.hair_color, outfitStyle: row.outfit_style, outfitColor: row.outfit_color, accessory: row.accessory, gender: row.gender, shaved: Boolean(row.is_shaved), footwear: row.footwear },
 };
 
 export function createPlayerRepo(db) {
@@ -18,6 +19,9 @@ export function createPlayerRepo(db) {
     byId: db.prepare('SELECT id, created_at, last_seen FROM players WHERE id = ?'),
     touch: db.prepare('UPDATE players SET last_seen = ? WHERE id = ?'),
     profile: db.prepare('SELECT * FROM player_profiles WHERE player_id = ?'),
+    setGender: db.prepare('UPDATE player_profiles SET gender = ? WHERE player_id = ? AND gender IS NULL'),
+    shave: db.prepare("UPDATE player_profiles SET is_shaved = 1, hair_style = 'shaved' WHERE player_id = ? AND gender IS NOT NULL AND is_shaved = 0"),
+    setFootwear: db.prepare('UPDATE player_profiles SET footwear = ? WHERE player_id = ? AND footwear != ?'),
     saveProfile: db.prepare(`INSERT INTO player_profiles (player_id, name, hair_style, hair_color, outfit_style, outfit_color, accessory, updated_at)
       VALUES (@id, @name, @hairStyle, @hairColor, @outfitStyle, @outfitColor, @accessory, @now)
       ON CONFLICT(player_id) DO UPDATE SET name = excluded.name, hair_style = excluded.hair_style, hair_color = excluded.hair_color,
@@ -48,6 +52,9 @@ export function createPlayerRepo(db) {
     exists: id => Boolean(s.byId.get(id)),
     touch: (id, now = Date.now()) => s.touch.run(now, id),
     profile: id => toProfile(s.profile.get(id)),
+    setGender: (id, gender) => s.setGender.run(gender, id).changes > 0,
+    shave: id => s.shave.run(id).changes > 0,
+    setFootwear: (id, value) => s.setFootwear.run(value, id, value).changes > 0,
     saveProfile: (id, name, appearance, now = Date.now()) => s.saveProfile.run({ id, name, ...appearance, now }),
     progress: id => toProgress(s.progress.get(id)),
     setRounds: (id, bows, beads, now = Date.now()) => s.setRounds.run(bows, beads, now, id),

@@ -29,9 +29,51 @@ function roof(c, cx, y, w, h, color = '#2b4541', trim = '#cfad6e') {
 export const PROPS = {
   vegetablePatch, bookStack, fern, libraryWindow,
   fishFeeder: drawFishFeeder,
+  fishTub(c, o, env) {
+    const { x, y } = o; shadow(c, x, y + 3, 56, 13, env);
+    // The fish bowl and feed sack make the vendor readable from across the gate.
+    box(c, x - 42, y - 28, 84, 25, '#785439', 9);
+    ellipse(c, x, y - 27, 42, 12, '#b78a58');
+    ellipse(c, x, y - 29, 36, 8, '#517f80');
+    for (const [dx, dy, phase] of [[-17, -31, 0], [13, -27, 2], [1, -34, 4]]) {
+      const fx = x + dx + (env.reduced ? 0 : Math.sin(env.time * 1.5 + phase) * 3);
+      ellipse(c, fx, y + dy, 7, 2.5, '#e4ad68');
+      polygon(c, [[fx - 6, y + dy], [fx - 11, y + dy - 3], [fx - 11, y + dy + 3]], '#d58f58');
+      ellipse(c, fx + 3, y + dy - 1, 1, 1, '#304c44');
+    }
+    box(c, x + 46, y - 23, 24, 21, '#c9ae79', 4);
+    box(c, x + 46, y - 26, 24, 6, '#a98052', 3);
+    c.textAlign = 'center'; c.font = 'bold 8px system-ui'; c.fillStyle = '#62472d'; c.fillText('CÁM', x + 58, y - 9);
+  },
+  fishReleasePier(c, o, env) {
+    const { x, y } = o; shadow(c, x, y + 2, 39, 9, env);
+    for (const dx of [-32, 28]) box(c, x + dx, y - 24, 5, 29, '#79563a', 2);
+    box(c, x - 39, y - 24, 79, 11, '#b08b57', 3);
+    for (const dx of [-23, -7, 9, 25]) line(c, x + dx, y - 22, x + dx, y - 14, '#79563a', 1);
+    box(c, x - 29, y - 63, 58, 30, '#cfbd91', 5);
+    c.textAlign = 'center'; c.fillStyle = '#3a5548'; c.font = 'bold 10px system-ui';
+    c.fillText('THẢ CÁ', x, y - 44);
+    ellipse(c, x - 3, y - 28, 8, 3, '#d59b63');
+    polygon(c, [[x - 10, y - 28], [x - 16, y - 32], [x - 16, y - 24]], '#c37e4e');
+  },
   ...STORY_PROPS,
   offeringStall: drawOfferingStall,
   offeringStand: drawOfferingStand,
+  shoeRack(c, o, env) {
+    const { x, y } = o; shadow(c, x, y, 40, 8, env);
+    for (const dx of [-34, 30]) box(c, x + dx, y - 43, 5, 45, '#72553b', 1);
+    for (const dy of [-35, -15]) {
+      box(c, x - 39, y + dy, 78, 6, '#99724a', 2);
+      for (const dx of [-22, 4, 21]) ellipse(c, x + dx, y + dy - 3, 9, 3, '#4d3b2d');
+    }
+  },
+  loveTable(c, o, env) {
+    const { x, y } = o; shadow(c, x, y, 42, 8, env);
+    for (const dx of [-26, 20]) box(c, x + dx, y - 26, 6, 27, '#705238', 1);
+    box(c, x - 37, y - 35, 74, 10, '#a77d54', 3);
+    box(c, x - 11, y - 64, 22, 28, '#8a593c', 4);
+    for (const dx of [-6, 0, 6]) line(c, x + dx, y - 66, x + dx + 2, y - 81, '#d0ad72', 2);
+  },
   cat: drawCat,
   tree: drawTree,
   pine(c, o, env) { drawTree(c, o, env, true); },

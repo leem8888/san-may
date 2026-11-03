@@ -6,6 +6,14 @@ import { Player, DURATIONS } from '../public/js/entities/Player.js';
 import { CollisionSystem } from '../public/js/systems/CollisionSystem.js';
 import { InteractionSystem } from '../public/js/systems/InteractionSystem.js';
 import { GameLoop } from '../public/js/core/GameLoop.js';
+import { characterName, nameWithoutPrefix } from '../public/js/shared/rules.js';
+test('character names use one Thích prefix and fit the profile limit', () => {
+  assert.equal(characterName('An'), 'Thích An');
+  assert.equal(characterName('Thích An'), 'Thích An');
+  assert.equal(characterName(''), 'Thích Khách');
+  assert.equal(characterName('123456789012345678'), 'Thích 1234567890123');
+  assert.equal(nameWithoutPrefix('Thích Bình'), 'Bình');
+});
 const world=JSON.parse(fs.readFileSync(new URL('../public/data/maps/courtyard.json',import.meta.url),'utf8'));
 const collision=new CollisionSystem(world);
 test('spawn is walkable and each obstacle rejects its centre',()=>{

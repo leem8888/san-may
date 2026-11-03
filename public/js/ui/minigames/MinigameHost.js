@@ -16,8 +16,15 @@ export class MinigameHost {
     });
   }
   get open() { return Boolean(this.active); }
-  start(GameClass, object) {
-    if (this.active) return;
+  start(GameClass, object, approved = false) {
+    if (this.active || this.starting) return;
+    if (object.action === 'sweep' && !approved) {
+      this.starting = true;
+      this.net.request('sweep:state', { objectId: object.id, active: true })
+        .then(() => { this.starting = false; this.start(GameClass, object, true); })
+        .catch(error => { this.starting = false; toast(error.message); });
+      return;
+    }
     this.object = object; this.game.suspend(true);
     $('#minigameTitle').textContent = GameClass.title; $('#minigameEyebrow').textContent = GameClass.eyebrow; $('#minigameStatus').textContent = GameClass.hint || '';
     $('#minigameTools').replaceChildren(); $('#minigame').hidden = false;
@@ -25,9 +32,10 @@ export class MinigameHost {
     const tools = (...nodes) => $('#minigameTools').replaceChildren(...nodes);
     $('#minigameStatus').setAttribute('aria-live', 'polite');
     const status = text => { $('#minigameStatus').textContent = text; };
-    this.active = new GameClass({ canvas: this.canvas, tools, status, el, api: this.api, audio: this.audio, done: async data => {
+    this.active = new GameClass({ canvas: this.canvas, tools, status, el, api: this.api, audio: this.audio, appearance: this.game.player.appearance, done: async data => {
       if (object.action === 'sand') { this.close(); toast('Đã cập nhật vườn cát theo bản vẽ của bạn.'); }
       await this.complete(data);
+      if (object.action === 'sweep') this.close();
     },
       initialSand: this.game.scene.sandStrokes,
       applySand: async strokes => {
@@ -45,6 +53,7 @@ export class MinigameHost {
   }
   close() {
     if (!this.active) return;
+    if (this.object?.action === 'sweep') this.net.request('sweep:state', { objectId: this.object.id, active: false }).catch(() => {});
     cancelAnimationFrame(this.raf); this.active.destroy?.(); this.active = null;
     $('#minigame').hidden = true; this.game.suspend(false);
   }

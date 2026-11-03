@@ -15,6 +15,8 @@ export function createShopRepo(db) {
     offer: db.prepare('INSERT INTO temple_offerings(id, room, player_id, name, sku, created_at) VALUES (@id, @room, @playerId, @name, @sku, @at)'),
     offers: db.prepare('SELECT id, name, sku, created_at AS at FROM temple_offerings WHERE room = ? AND created_at > ? ORDER BY created_at DESC LIMIT 6'),
     prune: db.prepare('DELETE FROM temple_offerings WHERE created_at <= ?'),
+    released: db.prepare('SELECT created_at AS at FROM fish_releases WHERE player_id = ? AND request_id = ?'),
+    recordRelease: db.prepare('INSERT INTO fish_releases(player_id, request_id, scene_id, created_at) VALUES (?, ?, ?, ?)'),
   };
   const init = (id, day) => q.init.run(id, SHOP_START_POINTS, day);
   const state = (id, day) => {
@@ -34,13 +36,20 @@ export function createShopRepo(db) {
     return state(id, day);
   });
   const offer = db.transaction((p, sku, now) => {
-    if (!Object.hasOwn(SHOP_ITEMS, sku) || SHOP_ITEMS[sku].feed) throw Error('Không có món lễ này.');
+    if (!Object.hasOwn(SHOP_ITEMS, sku) || SHOP_ITEMS[sku].feed || SHOP_ITEMS[sku].kind === 'fish') throw Error('Không có món lễ này.');
     if (!q.consume.run(p.id, sku).changes) throw Error('Bạn chưa có món này. Ghé quầy trước cổng để mua nhé.');
     const offering = { id: crypto.randomUUID(), room: p.room, playerId: p.id, name: p.name, sku, at: now };
     q.prune.run(now - OFFERING_SECONDS * 1000); q.offer.run(offering); return offering;
   });
   return {
     state, purchase, offer,
+    releaseFish: db.transaction((id, requestId, day, now) => {
+      const old = q.released.get(id, requestId);
+      if (old) return { repeated: true, at: old.at, shop: state(id, day) };
+      if (!q.consume.run(id, 'releaseFish').changes) throw Error('Bạn chưa có cá phóng sinh.');
+      q.recordRelease.run(id, requestId, 'lotusLake', now);
+      return { repeated: false, at: now, shop: state(id, day) };
+    }),
     useFishFood: db.transaction((id, day) => {
       if (!q.consume.run(id, 'fishFood').changes) throw Error('Bạn chưa có thức ăn cá. Ghé quầy ngoài cổng chùa để mua nhé.');
       return state(id, day);

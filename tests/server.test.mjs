@@ -26,7 +26,7 @@ test('REST: static files, guest identity, profile validation and HTTP errors', a
 
   const profile = await s.http('PUT', '/api/profile', { name: 'Bình', appearance: { accessory: 'hat', outfitColor: '#8ba59b', hairStyle: 'nope' } }, token);
   assert.equal(profile.data.player.name, 'Bình');
-  assert.deepEqual(profile.data.player.appearance, { hairStyle: 'short', hairColor: '#2b2823', outfitStyle: 'robe', outfitColor: '#8ba59b', accessory: 'none' }, 'locked and unknown items fall back to defaults');
+  assert.deepEqual(profile.data.player.appearance, { hairStyle: 'short', hairColor: '#2b2823', outfitStyle: 'robe', outfitColor: '#8ba59b', accessory: 'none', gender: null, shaved: false, footwear: 'wearing' }, 'locked and unknown items fall back to defaults');
   assert.equal((await s.http('PUT', '/api/profile', { name: 'đm' }, token)).status, 400);
   assert.equal((await s.http('PUT', '/api/profile', '{bad json', token)).status, 400);
   assert.equal((await s.http('PUT', '/api/profile', { name: 'x'.repeat(40000) }, token)).status, 413);
@@ -235,7 +235,7 @@ test('Migrations are idempotent and quest periods roll over at local midnight', 
   try {
     openDatabase(file).close();
     const db = openDatabase(file);
-    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').pluck().all(), [1, 2, 3, 4, 5, 6, 7]);
+    assert.deepEqual(db.prepare('SELECT version FROM schema_migrations').pluck().all(), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
     assert.equal(db.prepare('SELECT COUNT(*) FROM quests').pluck().get(), 9);
     db.close();
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }

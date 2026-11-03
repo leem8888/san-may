@@ -367,6 +367,44 @@
   ],
   "objects": [
     {
+      "id": "shoeRack",
+      "type": "shoeRack",
+      "x": 760,
+      "y": 475,
+      "label": "Cất hoặc lấy dép",
+      "action": "footwear",
+      "radius": 95,
+      "solid": false
+    },
+    {
+      "id": "shavingMonk",
+      "type": "npc",
+      "x": 1310,
+      "y": 1090,
+      "name": "Thầy hướng dẫn",
+      "label": "Hỏi về việc cạo đầu",
+      "action": "shave",
+      "radius": 100,
+      "solid": false,
+      "appearance": {
+        "hairStyle": "shaved",
+        "hairColor": "#2b2823",
+        "outfitStyle": "robe",
+        "outfitColor": "#b79a65",
+        "accessory": "none"
+      }
+    },
+    {
+      "id": "loveTable",
+      "type": "loveTable",
+      "x": 320,
+      "y": 480,
+      "label": "Cầu duyên và rút thẻ",
+      "action": "loveFortune",
+      "radius": 100,
+      "solid": false
+    },
+    {
       "id": "bench1",
       "type": "bench",
       "x": 570,

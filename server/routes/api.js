@@ -39,8 +39,18 @@ export function createApiRouter(ctx) {
     if (!isObject(req.body)) return res.status(400).json({ error: 'Dữ liệu không hợp lệ.' });
     const name = cleanName(req.body.name);
     if (isOffensive(name)) return res.status(400).json({ error: 'Tên có từ ngữ không phù hợp.' });
+    const current = repos.players.profile(req.playerId);
+    const gender = req.body.gender;
+    if (gender != null && !['male', 'female'].includes(gender)) return res.status(400).json({ error: 'Giới tính không hợp lệ.' });
+    if (gender && current.gender && gender !== current.gender) return res.status(409).json({ error: 'Không thể đổi giới tính sau khi tạo nhân vật.' });
+    if (gender && !current.gender) repos.players.setGender(req.playerId, gender);
     const appearance = normalizeAppearance(req.body.appearance, repos.players.items(req.playerId));
+    if (current.shaved) appearance.hairStyle = 'shaved';
+    else if (appearance.hairStyle === 'shaved') appearance.hairStyle = 'short';
     repos.players.saveProfile(req.playerId, name, appearance);
+    appearance.gender = current.gender || gender || null;
+    appearance.shaved = current.shaved;
+    appearance.footwear = current.footwear;
     const live = rooms.findPlayer(req.playerId);
     if (live) { live.name = name; live.appearance = appearance; ctx.io.to(roomChannel(live.room)).emit('player:update', { id: live.id, name, appearance }); }
     res.json({ player: me(req.playerId) });
