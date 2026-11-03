@@ -403,6 +403,8 @@ async function boot() {
     game.onSceneChange = () => {
       closeScenePopups({ panels, dialogue, minigames, game });
       selectedCat = null;
+      // A flower is offered in the hall it was picked in; a partner list belongs to the area it was opened in.
+      game.player.holding = null; coop?.closePicker();
       if (editing) { editing = false; creator.stop(); $('#intro').hidden = true; game.pauseInput(false); }
     };
     game.blocked = blocked; game.onApproach = interact;

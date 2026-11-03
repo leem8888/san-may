@@ -125,7 +125,7 @@ export const ACTIVITIES = {
       s.step = 'sitting'; Object.assign(s.data, { minutes, place: s.sceneId, startedAt: ctx.now, endsAt: ctx.now + minutes * 60_000 });
       for (const id of ctx.participants) ctx.hooks.startMeditation?.(ctx.live(id), minutes, ctx.now);
     },
-    guide: s => `Cùng ngồi yên ${s.data.minutes} phút. Hơi thở của hai người hiện thành vòng sáng nhẹ. Có thể rời bất cứ lúc nào.`,
+    guide: s => `Cùng ngồi yên ${s.data.minutes} phút, thở theo vòng sáng. Đồng hồ của hai người là một. Có thể rời bất cứ lúc nào.`,
     actions: () => [],
     act(s, p, action, payload, { fail }) { fail('Chỉ cần ngồi yên thôi.'); },
     tick(s, ctx, now) {

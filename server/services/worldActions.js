@@ -82,10 +82,14 @@ export function createWorldActions(ctx) {
         if (v.collected) throw Error('Lá đã được gom vào xe rồi.');
         v.collected = true; message = 'Bạn gom lá vào xe cút kít, đẩy ra góc vườn ủ phân.';
       } else if (op === 'wipe') {
-        if (v.wiped) throw Error('Bảng lời chúc đã sạch bóng.');
-        v.wiped = true; message = 'Bạn lau sạch bụi trên bảng lời chúc.';
+        if (v.wiped) throw Error('Bể nước đá đã sạch bóng.');
+        v.wiped = true; message = 'Bạn lau sạch rêu bụi trên bể nước đá.';
       } else if (op === 'decorate') {
-        if (before < 2) throw Error('Sân còn lá. Quét dọn, gom lá và lau bảng xong rồi mới trang trí.');
+        if (before < 2) {
+          // Name exactly what is still left, so nobody hunts for a finished step.
+          const left = [v.swept.length < YARD.piles.length && `quét lá (${v.swept.length}/${YARD.piles.length})`, !v.collected && 'gom lá vào xe cút kít', !v.wiped && 'lau bể nước đá cạnh chuông'].filter(Boolean);
+          throw Error(`Chưa trang trí được — còn: ${left.join(', ')}.`);
+        }
         if (v.decorated.includes(object.id)) throw Error('Chỗ này đã được trang trí.');
         v.decorated = [...v.decorated, object.id]; message = object.id === 'decorLeft' ? 'Bạn đặt chậu cúc vàng và treo đèn lồng.' : 'Bạn đặt chậu sen đá và treo đèn lồng.';
       } else if (op === 'light') {

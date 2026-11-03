@@ -274,8 +274,22 @@ Thứ tự triển khai (theo phụ thuộc, mỗi bước chạy được + tes
 - **Lỗi phát hiện khi kiểm trên trình duyệt (đã sửa):**
   - lấy hoa làm server lỗi khi người chơi đang có truyện chạy (`handle(undefined)`); test đã bổ sung trường hợp này;
   - trình đọc cuộn cả khung bảng làm khuất tiêu đề.
-- **Chưa thử trên trình duyệt** (mới có test tự động): chọn vị trí nến, sổ cầu nguyện, cùng đọc, thiền chung ở Chánh Điện, âm thanh thiên nhiên, tiếng bước gỗ, giao diện điện thoại.
-- **Việc tiếp theo** (theo yêu cầu của chủ dự án, mai làm tiếp): kiểm thủ công các phần trên, trên cả desktop lẫn mobile.
+- **Kiểm thủ công sau khi merge `b7b31f9`** (gộp Parse 2 với nhánh cải tiến cảnh / cho cá ăn / nhạc ngoài trời / popup theo khu của chủ dự án). `npm test` **90/90** (thêm các test của nhánh kia). Edge, 2 context thật:
+  - **chọn vị trí nến:** thắp chỗ 3 → chỗ đó bị khóa và hiện nến đang cháy;
+  - **sổ cầu nguyện:** lời riêng tư chỉ tác giả thấy; lời công khai người kia thấy; tác giả xóa xong thì người kia không còn thấy; không lẫn vào bảng lời chúc;
+  - **cùng đọc:** mời từ danh sách bài → đồng ý → sẵn sàng; người kia lật trang thì màn hình mình cũng sang trang; đọc tới đoạn cuối → gấp sách → hai bên đều có kỷ niệm;
+  - **thiền chung trên bồ đoàn Chánh Điện:** chung đồng hồ, HUD ẩn; một người kết thúc sớm thì người kia vẫn ngồi và nhận thông báo, người dừng vẫn được lưu thời gian;
+  - **âm thanh thiên nhiên:** bật khi thiền, tắt khi xong; thanh âm lượng hoạt động;
+  - **tiếng bước gỗ:** chỉ xác nhận được ở mức mã (`step('wood')` trong khu trong nhà), không nghe được trong môi trường kiểm thử;
+  - **điện thoại (412×915):** bảng chuỗi hạt và thẻ phiên lạy dùng được; tải lại trang thì phiên lạy vẫn đếm tiếp;
+  - **lướt lại cảnh sau merge:** sân chùa, Vườn Thiền và Chánh Điện vẫn hiện đủ vật thể của Parse 2; console 0 lỗi.
+- **Đã sửa trong đợt này:**
+  1. thẻ phiên lạy trên điện thoại chiếm gần nửa màn hình và che nhân vật → thu thành hai dòng, nút không xuống dòng;
+  2. thanh âm lượng trong bảng thiền không lưu và lệch với bảng Cài đặt → nay lưu chung `sanmay-volumes` và hai thanh tương ứng bên Cài đặt cập nhật theo;
+  3. câu hướng dẫn thiền chung nói "hơi thở của hai người hiện thành vòng sáng" không đúng với hình ảnh thật → sửa lại;
+  4. chuyển khu trong lúc chờ server mở hội thoại thì cuộc trò chuyện bị bỏ dở mà vẫn mở phía server → nay tự `dialogue:end`, không đụng tới cuộc trò chuyện mới hơn;
+  5. chuyển khu khi đang cầm hoa, hoặc đang mở danh sách người để mời → nay bỏ cành hoa và đóng danh sách (`coop.closePicker`).
+- **Còn lại:** chưa có playtest với người chơi thật cho hành trình 20 phút (thời lượng thật sẽ có trong `/api/owner/journey`); chưa nghe thử âm thanh trên thiết bị thật.
 
 ## Đọc trước khi sửa
 

@@ -24,7 +24,7 @@ test('courtyard: sweep, collect, wipe, decorate, light — shared by the room, p
   const ctx = s.game.ctx, a = await inCourtyard(t, s, 'Mai'), b = await inCourtyard(t, s, 'Bình');
   const live = p => ctx.rooms.findPlayer(p.id), at = (p, id) => { const o = ctx.world.object('courtyard', id); Object.assign(live(p), { x: o.x, y: o.y + 30 }); };
   const work = async (p, id) => { at(p, id); const res = await ask(p.socket, 'world:interact', { objectId: id }); return res; };
-  assert.match((await work(a, 'decorLeft')).error, /Sân còn lá/, 'no decorating a dirty yard');
+  assert.match((await work(a, 'decorLeft')).error, /Chưa trang trí được — còn: quét lá/, 'no decorating a dirty yard');
   assert.match((await work(a, 'leafCart')).error, /quét hết/);
   assert.match((await work(a, 'lanternSwitch')).error, /trang trí/);
   const seen = nextEvent(b.socket, 'world:delta', d => d.objectId === 'yard');

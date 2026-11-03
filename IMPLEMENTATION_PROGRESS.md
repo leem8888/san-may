@@ -7,7 +7,7 @@ Cập nhật: 2026-11-02. Đây là bản tổng quan: dự án gồm gì, đang
 | File | Nội dung | Trạng thái |
 | --- | --- | --- |
 | `IMPLEMENTATION_Parse1.md` | Master Prompt gốc, Phase 1–7: nền tảng, 8 khu, gameplay tu tập, backend, multiplayer, progression, polish | Xong (xem mục "Parse 1") |
-| `IMPLEMENTATION_Parse2.md` | SÂN MÂY 2.0, 5 prompt: NPC có câu chuyện; chơi hợp tác; thế giới phản ứng & lưu lâu dài; hành trình 20 phút; Chánh Điện nâng cao | **Đã triển khai đủ 5 prompt, đang kiểm thử thủ công** (xem mục "Parse 2") |
+| `IMPLEMENTATION_Parse2.md` | SÂN MÂY 2.0, 5 prompt: NPC có câu chuyện; chơi hợp tác; thế giới phản ứng & lưu lâu dài; hành trình 20 phút; Chánh Điện nâng cao | **Xong 5 prompt** (xem mục "Parse 2"); còn chờ playtest với người chơi thật |
 
 ## Kiến trúc
 
@@ -42,11 +42,11 @@ Một tiến trình Node.js phục vụ trang web, REST và Socket.IO trên cùn
 | 2 | Chơi hợp tác: phiên mời/chấp nhận/sẵn sàng; bàn trà hai người, thiền chung, cùng thỉnh chuông, khôi phục vườn chung, câu đố hợp tác | **Xong** — phiên hợp tác do server quản lý (mời, từ chối, sẵn sàng, hủy, mất kết nối/vào lại, rời khu, chống spam); 5 hoạt động + chào nhau, ngồi cạnh, chụp ảnh chung; kỷ niệm chung trong Nhật ký |
 | 3 | Thế giới phản ứng tức thì; chuỗi lâu dài: vườn hồi sinh (5 giai đoạn), ánh sáng Chánh Điện | **Xong phần A** — chuông làm chim bay, đèn lồng đung đưa, NPC quay nhìn; phản chiếu hoa đăng; dọn & trang trí sân chùa trong phiên (thấy chung cả phòng); vườn hồi sinh 5 giai đoạn có hiệu ứng, lời NPC và tương tác riêng; trạng thái còn sau khi khởi động lại server. Chuỗi B (đèn Chánh Điện) là hành trình ở Prompt 4 — xong |
 | 4 | Hành trình "Ánh sáng trong Chánh điện" (5 giai đoạn, JourneyDirector, telemetry riêng tư) | **Xong** — 5 giai đoạn chơi được một mình (An hỗ trợ) hoặc cùng bạn; câu đố trang sách và hốc tường; dâng hoa / thắp nến / suy ngẫm; đèn cổ sáng và được lưu; đoạn kết kèm quà kỷ niệm; tạm dừng, thẻ giai đoạn, gợi ý khi đứng yên lâu; telemetry không tên và thống kê cho chủ dự án. Thời lượng 15–25 phút là con số thiết kế, chưa đo bằng playtest thật |
-| 5 | Chánh Điện nâng cao: phiên lạy 9/27/54/108, chuỗi hạt trực quan, đọc kinh, dâng hoa, thắp nến, sổ cầu nguyện, nghi thức chung, chiếc đèn cổ | **Xong phần mã, đang kiểm thử** — phiên lạy 9/27/54/108 với động tác quỳ lạy nhiều giai đoạn, tạm dừng/tiếp tục, chế độ tập trung; vòng 108 hạt trực quan; trình đọc có dấu trang và thuật ngữ (nghe đọc chưa triển khai vì chưa có bản thu được phép); dâng hoa mang tới bàn thờ; thắp nến theo vị trí; sổ cầu nguyện riêng tư/công khai; cùng đọc, thiền chung trong Chánh Điện; đèn cổ đủ 5 trạng thái. Một số phần mới có test tự động, chưa thử tay |
+| 5 | Chánh Điện nâng cao: phiên lạy 9/27/54/108, chuỗi hạt trực quan, đọc kinh, dâng hoa, thắp nến, sổ cầu nguyện, nghi thức chung, chiếc đèn cổ | **Xong** — phiên lạy 9/27/54/108 với động tác quỳ lạy nhiều giai đoạn, tạm dừng/tiếp tục, chế độ tập trung; vòng 108 hạt trực quan; trình đọc có dấu trang và thuật ngữ (nghe đọc chưa triển khai vì chưa có bản thu được phép); dâng hoa mang tới bàn thờ; thắp nến theo vị trí; sổ cầu nguyện riêng tư/công khai; cùng đọc, thiền chung trong Chánh Điện; đèn cổ đủ 5 trạng thái. Đã kiểm thủ công trên Edge (desktop + khung điện thoại) với hai người chơi |
 
 ## Kiểm thử
 
-`npm run check` (140 file JS + JSON) và `npm test`: **79/79 pass**. Đã kiểm trên trình duyệt Edge thật (nhiều phiên song song) và giả lập Pixel 7.
+`npm run check` (157 file JS + JSON) và `npm test`: **90/90 pass**. Đã kiểm trên trình duyệt Edge thật (nhiều phiên song song) và giả lập Pixel 7.
 
 ## Chưa kiểm chứng / giới hạn
 

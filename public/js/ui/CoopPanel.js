@@ -32,6 +32,7 @@ export class CoopPanel {
     if (this.session) return toast('Bạn đang trong một phiên cùng chơi.');
     this.picking = { person, kind, options, title }; this.render();
   }
+  closePicker() { if (this.picking) { this.picking = null; this.render(); } }
   people() { return [...this.net.remotes.values()].filter(p => !this.blocked.has(p.id)); }
   async send(kind, person) {
     try {

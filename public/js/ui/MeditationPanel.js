@@ -18,7 +18,12 @@ export class MeditationPanel {
     $('#meditationNature').onchange = event => { this.nature = event.target.value; store.set('sanmay-meditation-nature', this.nature); if (this.session) this.audio.setNature(this.nature); };
     $('#meditationBell').onchange = event => { this.endBell = event.target.checked; store.set('sanmay-meditation-bell', this.endBell); };
     // One slider for what you hear while sitting: the ambient sounds and the soft music.
-    $('#meditationVolume').oninput = event => { const v = Number(event.target.value); this.audio.setVolume('ambient', v); this.audio.setVolume('music', v); };
+    $('#meditationVolume').oninput = event => {
+      const v = Number(event.target.value); this.audio.setVolume('ambient', v); this.audio.setVolume('music', v);
+      // Same saved volumes as the Settings sliders, which follow along.
+      store.set('sanmay-volumes', JSON.stringify(this.audio.volumes));
+      for (const label of ['Môi trường', 'Nhạc']) { const input = document.querySelector(`#volumes input[aria-label="Âm lượng ${label}"]`); if (input) input.value = Math.round(v * 100); }
+    };
     $('#startMeditation').onclick = () => this.start();
     $('#endMeditation').onclick = () => this.finish();
     $('#meditationSound').onclick = () => { this.music = !this.music; this.audio.setMeditationMusic(this.music); this.soundLabel(); };

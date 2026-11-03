@@ -68,7 +68,9 @@ export class DialoguePanel {
     this.openingServer = true;
     try {
       const res = await this.net.request('dialogue:start', { npcId: npc.id });
-      if (request !== this.request || scene !== this.game.scene) return;
+      if (request !== this.request) return; // a newer conversation took over
+      // Walked into another area while the server was answering: close that conversation instead of showing it.
+      if (scene !== this.game.scene) { this.openingServer = false; this.net.request('dialogue:end').catch(() => {}); return; }
       this.openingServer = false;
       this.server = { npc, view: null, line: 0 }; this.game.talkingTo = npc.id;
       this.begin(res.view.name, res.view.title, res.view.object ? null : npc);
